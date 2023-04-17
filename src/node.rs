@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug)]
 pub struct Node {
     pub sample_name: String,
@@ -27,4 +29,19 @@ impl Node {
         
     }
 
+}
+
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let par = self.parent.unwrap_or(0);
+        let ch: (String, String) = match self.children {
+            (None, None) => (String::from("None"), String::from("None")),
+            (None, Some(x)) => (String::from("None"), x.to_string()),
+            (Some(y), None) => (y.to_string(), String::from("None")),
+            (Some(x), Some(y)) => (x.to_string(), y.to_string()),
+        };
+        
+        write!(f, "Node: {}, parent: {}, children: {},{}", 
+        self.sample_name, par, ch.0, ch.1)
+    }
 }
