@@ -7,7 +7,7 @@ pub fn str2tree(st: String, name: String) -> Tree {
 
     for e in st.chars() {
         if e == ')' {
-            par_index = match tree.read_node(pin) {
+            par_index = match tree.get_node(pin) {
                 None => None,
                 Some(n) => n.parent,
             };
