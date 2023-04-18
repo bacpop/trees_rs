@@ -73,7 +73,7 @@ impl<'a> Tree {
     }
 
 }
-
+#[derive(Debug)]
 pub struct RootIter<'a> {
     cnode: Option<&'a Node>,
     nnode: Option<&'a Node>,
@@ -115,6 +115,7 @@ impl<'a> Iterator for RootIter<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct LeftIter<'a> {
     cnode: Option<&'a Node>,
     nnode: Option<&'a Node>,

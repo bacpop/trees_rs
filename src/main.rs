@@ -1,9 +1,10 @@
 mod node;
 mod tree;
 mod import;
+mod tests;
 
 use crate::tree::Tree;
-use crate::import::*;
+use crate::import::str2tree;
 
 fn main() {
     // Construct tree from string
@@ -23,6 +24,7 @@ fn main() {
 
     // Can do things like count how many nodes to root
     println!("{}", tree.iter(tree.get_node(3)).fold(0,|acc, _node| acc + 1));
+    println!("{}", tree.leftiter(tree.get_root()).fold(0,|acc, _node| acc + 1));
     // Or if nodes store their own likelihoods can sum up to root
 
     // Left child traversal from root
