@@ -12,6 +12,10 @@ impl<'a> Tree {
         nodes: Vec::new()}
     }
 
+    pub fn get_root(&self) -> Option<&Node> {
+        self.get_node(0)
+    }
+
     pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
         RootIter{cnode: node, nnode: node, tree: self, end: false}
     }
@@ -77,27 +81,29 @@ pub struct RootIter<'a> {
     end: bool,
 }
 
+// Iterates from a Node up to the root
 impl<'a> Iterator for RootIter<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
         let out: Option<Self::Item>;
 
+        // Check current node parent
         match self.cnode.unwrap().parent {
+            // Parent doesn't exist
             None => {
-                // Parent doesn't exist
-                if self.end {
-                    // End Iterator
-                    out = None;
-                } else {
-                    // Return root, then trigger end
+                if !self.end {
+                    // Return root, then trigger Iterator end
                     out = self.tree.get_node(0);
                     self.end = true;
+                } else {
+                    // End Iterator
+                    out = None;
                 }
             },
+            // Parent exists with index i, return
+            // current node then get next node
             Some(i) => {
-                // Parent exists, return current node
-                // then get next node
                 out = self.cnode;
                 self.nnode = self.tree.get_node(i);
             },
@@ -115,38 +121,44 @@ pub struct LeftIter<'a> {
     ret_vec: Vec<Option<&'a Node>>,
     tree: &'a Tree,
 }
-
+// Iterates downwards from a given node, visiting
+// all left children first before returning to closest
+// right child
 impl<'a> Iterator for LeftIter<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
         let out: Option<Self::Item> = self.cnode; 
 
+        // Can skip all this if current Node is None
         if self.cnode.is_some() {
 
         match self.cnode.unwrap().children {
             // Current Node has left child only
             (Some(a), None) => {
-                // out = self.cnode;
+                // Get next Node from left child
                 self.nnode = self.tree.get_node(a);
             },
             // Current Node has left and right child
             (Some(a), Some(b)) => {
-                // out = self.cnode;
+                // Get next Node from left child
                 self.nnode = self.tree.get_node(a);
+                // Add right child to vector to return to
                 self.ret_vec.push(self.tree.get_node(b));
             },
             // Current Node has no children
             (None, None) => {
+                // Look at latest entry in return vector
                 self.nnode = match self.ret_vec.pop() {
-                    // No nodes to return to
+                    // If None => No nodes to return to, set next Node to
+                    // None which will end iterator next go
                     None => None,
-                    // Return to most recent node with
-                    // right child
+                    // If Some(node), next node is this node
                     Some(node) => node,
                 };  
             },
-            
+            // This shouldn't happen since all children are allocated to the left
+            // first so Nodes with 1 child have left children only.
             _ => {panic!("Iterator has found a node with only a right child")},
         };
 

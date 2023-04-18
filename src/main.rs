@@ -22,10 +22,10 @@ fn main() {
     tree.iter(tree.get_node(3)).for_each(|node| println!("{}", node));
 
     // Can do things like count how many nodes to root
-    println!("{}", tree.iter(tree.get_node(3)).fold(0,|acc, node| acc + 1));
+    println!("{}", tree.iter(tree.get_node(3)).fold(0,|acc, _node| acc + 1));
     // Or if nodes store their own likelihoods can sum up to root
 
     // Left child traversal from root
-    tree.leftiter(tree.get_node(0)).for_each(|node| println!("{}", node));
-
+    tree.leftiter(tree.get_root()).for_each(|node| println!("{}", node));
+    
 }
