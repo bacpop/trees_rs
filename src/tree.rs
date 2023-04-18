@@ -6,18 +6,18 @@ pub struct Tree {
     pub nodes: Vec<Node>,
 }
 
-impl Tree {
+impl<'a> Tree {
     pub fn new(tree_name: String) -> Tree {
         Tree {tree_name,
         nodes: Vec::new()}
     }
 
-    pub fn iter(&self, index: usize) -> TreeIter {
-        TreeIter{c_index: index, n_index: index, end: false,  tree: self}
+    pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
+        RootIter{cnode: node, nnode: node, tree: self, end: false}
     }
 
-    pub fn leftiter(&self, index: usize) -> LeftIter {
-        LeftIter{c_index: index, n_index: index, ret_vec: vec![], tree: self, start: true}
+    pub fn leftiter(&'a self, node: Option<&'a Node>) -> LeftIter {
+        LeftIter{cnode: node, nnode: node, tree:self, ret_vec: vec![]}
     }
 
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
@@ -42,6 +42,13 @@ impl Tree {
         }
     }
 
+    // pub fn getn_parent(&self, node: Option<&Node>) -> Option<&Node> {
+    //     match node.unwrap().parent {
+    //         None => None,
+    //         Some(i) => self.get_node(i),
+    //     }
+    // }
+
     pub fn add(&mut self, sample_name:String, parent: Option<usize>){
 
         // Add new node to vector of nodes in tree
@@ -63,119 +70,88 @@ impl Tree {
 
 }
 
-#[derive(Debug)]
-pub struct TreeIter<'a> {
-    c_index: usize,
-    n_index: usize,
-    end: bool,
+pub struct RootIter<'a> {
+    cnode: Option<&'a Node>,
+    nnode: Option<&'a Node>,
     tree: &'a Tree,
+    end: bool,
 }
 
-impl<'a> Iterator for TreeIter<'a> {
-    type Item = usize;
+impl<'a> Iterator for RootIter<'a> {
+    type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-        
-        // Basic structure:
-        // current index = index
-        // next index = index of parent of current index
-        // output = current index
-        // current index = next index
-
-        let cur_node = self.tree.get_node(self.c_index);
         let out: Option<Self::Item>;
-        
-        match cur_node {
-            // Current node doesn't exist
-            None => {out = None},
-            // Current node does exist
-            Some(node) => {
-                match node.parent {
-                    // Parent is none - potentially end iterator
-                    None => {
-                        // The end boolean flags that we have reached the root 
-                        // but permits one last element (the root) in the iterator
-                        if self.end{
-                            // end = true, end iterator
-                            out = None;
-                        }else {
-                            // end = false, next node is root
-                            // then set end = true
-                            out = Some(0);
-                            self.end = true;
-                        } 
-                    },
-                    // Parent is Some(i), next index is i
-                    // and output is current index
-                    Some(i) => {
-                        out = Some(self.c_index);
-                        self.n_index = i;
-                    }
+
+        match self.cnode.unwrap().parent {
+            None => {
+                // Parent doesn't exist
+                if self.end {
+                    // End Iterator
+                    out = None;
+                } else {
+                    // Return root, then trigger end
+                    out = self.tree.get_node(0);
+                    self.end = true;
                 }
-            }
-        }
-        // next index is now current index
-        self.c_index = self.n_index;
+            },
+            Some(i) => {
+                // Parent exists, return current node
+                // then get next node
+                out = self.cnode;
+                self.nnode = self.tree.get_node(i);
+            },
+        };
+        // Update current node to next node
+        self.cnode = self.nnode;
 
         out
     }
 }
 
 pub struct LeftIter<'a> {
-    start: bool,
-    c_index: usize,
-    n_index: usize,
-    ret_vec: Vec<usize>,
+    cnode: Option<&'a Node>,
+    nnode: Option<&'a Node>,
+    ret_vec: Vec<Option<&'a Node>>,
     tree: &'a Tree,
 }
 
 impl<'a> Iterator for LeftIter<'a> {
-    type Item = usize;
+    type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
+        let out: Option<Self::Item> = self.cnode; 
 
-        let out: Option<Self::Item>;
+        if self.cnode.is_some() {
 
-        let cur_children = self.tree.get_node(self.c_index).unwrap();
-
-        if self.start {
-            out = Some(self.c_index);
-            self.start = false;
-        } else {
-
-        // check current node left child
-        match cur_children.left_child() {
-            None => {
-                // No left child, next index is right child of
-                // last node with a right child
-                let new_parent = self.ret_vec.pop();
-
-                match new_parent {
-                    None => {out = None;}, // Nothing to return to, end iterator
-                    Some(p) => {
-                        // Next index is right child of node index p
-                        out = self.tree.get_node(p).unwrap().right_child();
-                        self.n_index = out.unwrap();
-                    }
-                }
-
+        match self.cnode.unwrap().children {
+            // Current Node has left child only
+            (Some(a), None) => {
+                // out = self.cnode;
+                self.nnode = self.tree.get_node(a);
             },
-            Some(l) => {
-                // There is a left child, next index is left child
-                out = Some(l);
-                self.n_index = l;
-                // If current node has a right child, current index 
-                // needs to be remembered
-                if cur_children.right_child().is_some() {
-                    self.ret_vec.push(self.c_index);
-                }
+            // Current Node has left and right child
+            (Some(a), Some(b)) => {
+                // out = self.cnode;
+                self.nnode = self.tree.get_node(a);
+                self.ret_vec.push(self.tree.get_node(b));
             },
+            // Current Node has no children
+            (None, None) => {
+                self.nnode = match self.ret_vec.pop() {
+                    // No nodes to return to
+                    None => None,
+                    // Return to most recent node with
+                    // right child
+                    Some(node) => node,
+                };  
+            },
+            
+            _ => {panic!("Iterator has found a node with only a right child")},
         };
-        }
 
-    // Current index is now next index
-    self.c_index = self.n_index;
-    
-    out
+        self.cnode = self.nnode;
+        }
+        out
     }
 }

@@ -55,7 +55,7 @@ impl fmt::Display for Node {
             (Some(x), Some(y)) => (x.to_string(), y.to_string()),
         };
         
-        write!(f, "Node: {}, parent: {}, children: {},{}", 
+        write!(f, "Sample Name: {}, parent index: {}, child indices: {},{}", 
         self.sample_name, par, ch.0, ch.1)
     }
 }

@@ -12,22 +12,20 @@ fn main() {
     let tree = str2tree(ts, String::from("Tree1"));
 
     // Print nodes in tree
-    let mut k = 0;
-    for i in &tree.nodes {
-        println!{"index: {}, {}", k, i};
-        k += 1;
-    }
-
-    // Iterate from element 5 in node list to root
-    // and print sample names
-    // let ti = tree.iter(5);
-    // for i in ti {
-    //     println!("iter index: {i}, Node index: {}", tree.get_node(i).unwrap().sample_name);
+    // let mut k = 0;
+    // for i in &tree.nodes {
+    //     println!{"index: {}, {}", k, i};
+    //     k += 1;
     // }
 
+    // Iterate from a node to the root and print each node along the way
+    tree.iter(tree.get_node(3)).for_each(|node| println!("{}", node));
+
+    // Can do things like count how many nodes to root
+    println!("{}", tree.iter(tree.get_node(3)).fold(0,|acc, node| acc + 1));
+    // Or if nodes store their own likelihoods can sum up to root
+
     // Left child traversal from root
-    let tl = tree.leftiter(0);
-    for j in tl {
-        println!("iter index: {j}, Node index: {}", tree.get_node(j).unwrap().sample_name);
-    }
+    tree.leftiter(tree.get_node(0)).for_each(|node| println!("{}", node));
+
 }
