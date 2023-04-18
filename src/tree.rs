@@ -146,13 +146,14 @@ impl<'a> Iterator for LeftIter<'a> {
         // check current node left child
         match cur_children.left_child() {
             None => {
-                // No left child, move to right child of last node
-                // with a right child
+                // No left child, next index is right child of
+                // last node with a right child
                 let new_parent = self.ret_vec.pop();
 
                 match new_parent {
                     None => {out = None;}, // Nothing to return to, end iterator
                     Some(p) => {
+                        // Next index is right child of node index p
                         out = self.tree.get_node(p).unwrap().right_child();
                         self.n_index = out.unwrap();
                     }

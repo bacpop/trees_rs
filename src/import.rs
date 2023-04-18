@@ -11,10 +11,11 @@ pub fn str2tree(st: String, name: String) -> Tree {
                 None => None,
                 Some(n) => n.parent,
             };
-            pin = match par_index {
-                None => 0,
-                Some(x) => x,
-            };
+            pin = par_index.unwrap_or(0);
+            // pin = match par_index {
+            //     None => 0,
+            //     Some(x) => x,
+            // };
         } else if e != '(' {
 
         // } else {
