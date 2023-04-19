@@ -25,6 +25,6 @@ mod tests {
         assert_eq!(tree.iter(tree.get_node(3)).fold(0,|acc, _node| acc + 1), 4);
         assert_eq!(tree.iter(tree.get_root()).fold(0,|acc, _node| acc + 1), 1);
 
-        assert_eq!(tree.leftiter(tree.get_root()).fold(0,|acc, _node| acc + 1), 6);
+        assert_eq!(tree.preorder(tree.get_root()).fold(0,|acc, _node| acc + 1), 6);
     }
 }

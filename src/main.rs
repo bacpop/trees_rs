@@ -24,10 +24,13 @@ fn main() {
 
     // Can do things like count how many nodes to root
     println!("{}", tree.iter(tree.get_node(3)).fold(0,|acc, _node| acc + 1));
-    println!("{}", tree.leftiter(tree.get_root()).fold(0,|acc, _node| acc + 1));
+    println!("{}", tree.preorder(tree.get_root()).fold(0,|acc, _node| acc + 1));
     // Or if nodes store their own likelihoods can sum up to root
 
-    // Left child traversal from root
-    tree.leftiter(tree.get_root()).for_each(|node| println!("{}", node));
+    // Preorder traversal from root
+    tree.preorder(tree.get_root()).for_each(|node| println!("{}", node));
+
+    // Doesn't have to be from root, can preorder traverse from any node
+    // tree.preorder(tree.get_node(1)).for_each(|node| println!("{}", node));
     
 }

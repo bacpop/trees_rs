@@ -17,11 +17,13 @@ impl<'a> Tree {
     }
 
     pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
-        RootIter{current: node, next: node, tree: self, end: false}
+        RootIter{current_node: node, next_node: node, 
+            tree: self, end_flag: false}
     }
 
-    pub fn leftiter(&'a self, node: Option<&'a Node>) -> LeftIter {
-        LeftIter{current: node, next: node, tree:self, returns: vec![]}
+    pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
+        Preorder{current_node: node, next_node: node, 
+            tree:self, return_nodes: vec![]}
     }
 
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
@@ -75,71 +77,69 @@ impl<'a> Tree {
 }
 #[derive(Debug)]
 pub struct RootIter<'a> {
-    current: Option<&'a Node>,
-    next: Option<&'a Node>,
+    current_node: Option<&'a Node>,
+    next_node: Option<&'a Node>,
     tree: &'a Tree,
-    end: bool,
+    end_flag: bool,
 }
 
-// Iterates from a Node up to the root
+// Traverses from a given Node up to the root of the tree
 impl<'a> Iterator for RootIter<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
         let output: Option<Self::Item>;
 
-        if self.end {return None};
+        if self.end_flag {return None};
 
-        match self.current.unwrap().parent {
+        match self.current_node.unwrap().parent {
             None => {
                 output = self.tree.get_root();
-                self.end = true;
+                self.end_flag = true;
             },
             Some(i) => {
-                output = self.current;
-                self.next = self.tree.get_node(i);
+                output = self.current_node;
+                self.next_node = self.tree.get_node(i);
             },
         };
 
-        self.current = self.next;
+        self.current_node = self.next_node;
 
         output
     }
 }
 
 #[derive(Debug)]
-pub struct LeftIter<'a> {
-    current: Option<&'a Node>,
-    next: Option<&'a Node>,
-    returns: Vec<Option<&'a Node>>,
+pub struct Preorder<'a> {
+    current_node: Option<&'a Node>,
+    next_node: Option<&'a Node>,
+    return_nodes: Vec<Option<&'a Node>>,
     tree: &'a Tree,
 }
 
-// Iterates downwards from a given node, visiting
-// all left children first before returning to closest
-// right child
-impl<'a> Iterator for LeftIter<'a> {
+// Traverses tree in preorder starting from specified node
+impl<'a> Iterator for Preorder<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let output: Option<Self::Item> = self.current; 
+        let output: Option<Self::Item> = self.current_node; 
 
-        if self.current.is_none() {
+        if self.current_node.is_none() {
             return output;
         }
 
-        match self.current.unwrap().children {
+        match self.current_node.unwrap().children {
         (Some(a), None) => {
-            self.next = self.tree.get_node(a);
+            self.next_node = self.tree.get_node(a);
         },
 
         (Some(a), Some(b)) => {
-           self.next = self.tree.get_node(a);
-           self.returns.push(self.tree.get_node(b));
+           self.next_node = self.tree.get_node(a);
+           self.return_nodes.push(self.tree.get_node(b));
         },
             
         (None, None) => {
-            self.next = match self.returns.pop() {
+            self.next_node = match self.return_nodes.pop() {
                 None => None,
                 Some(node) => node,
             };  
@@ -148,7 +148,7 @@ impl<'a> Iterator for LeftIter<'a> {
         _ => {panic!("Iterator has found a node with only a right child")},
         };
 
-        self.current = self.next;
+        self.current_node = self.next_node;
         
         output
     }
