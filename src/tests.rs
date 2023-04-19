@@ -17,6 +17,21 @@ mod tests {
     }
 
     #[test]
+    fn relocatetree() {
+        let ts = String::from("1(2(5(6))(4))(3)");
+        let mut tree = str2tree(ts, String::from("Tree1"));
+
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(2));
+        assert_eq!(tree.get_node(2).unwrap().children, (Some(3), None));
+
+        tree.relocate(3, 5);
+
+        assert_eq!(tree.get_node(2).unwrap().children, (None, None));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().children, (Some(3), None));
+    }
+
+    #[test]
     fn iteratetree() {
         let ts = String::from("1(2(5(6))(4))(3)");
         let tree = str2tree(ts, String::from("Tree1"));

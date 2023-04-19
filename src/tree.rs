@@ -13,7 +13,7 @@ impl<'a> Tree {
     }
 
     pub fn get_root(&self) -> Option<&Node> {
-        self.get_node(0)
+        self.nodes.iter().find(|node| node.parent.is_none())
     }
 
     pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
@@ -57,20 +57,36 @@ impl<'a> Tree {
 
     pub fn add(&mut self, sample_name:String, parent: Option<usize>){
 
-        // Add new node to vector of nodes in tree
-        self.nodes.push(Node::new(sample_name, parent, (None, None)));
+        if self.get_root().is_some() && parent.is_none(){
+            panic!("Trying to assign a second root with parent = None");
+        }
 
-        // Update parent node to have children
+        let index: usize = self.nodes.len();
+        self.nodes.push(Node::new(sample_name, parent, (None, None), index));
+
         if parent.is_some(){
-            // Work out node vector index of this new node
-            let index = self.nodes.len() - 1;
-        
-            // Add new node index to children of parent
-            self.mut_parent(index).unwrap().new_child(index);
-        } else if parent.is_none() {
-            // needs an error for when >1 node and you are trying to add another
-            // with no parent
+            self.mut_parent(index).unwrap().new_child(index)
         };
+
+    }
+
+    pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
+
+        if self.get_node(node_index).is_none() {
+            panic!("Node to move does not exist");
+        }
+
+        if self.get_node(new_parent_index).is_none() {
+            panic!("New parent does not exist");
+        }
+
+        if self.get_parent(node_index).is_none() {
+            panic!("Cannot move root node")
+        }
+
+        self.mut_parent(node_index).unwrap().remove_child(node_index);
+        self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
+        self.mut_node(new_parent_index).unwrap().new_child(node_index);
 
     }
 
@@ -83,7 +99,7 @@ pub struct RootIter<'a> {
     end_flag: bool,
 }
 
-// Traverses from a given Node up to the root of the tree
+// Traverses from a specified node up to the root of the tree
 impl<'a> Iterator for RootIter<'a> {
     type Item = &'a Node;
 
@@ -124,28 +140,23 @@ impl<'a> Iterator for Preorder<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let output: Option<Self::Item> = self.current_node; 
 
-        if self.current_node.is_none() {
-            return output;
-        }
+        if self.current_node.is_none() {return output;}
 
         match self.current_node.unwrap().children {
-        (Some(a), None) => {
-            self.next_node = self.tree.get_node(a);
-        },
-
-        (Some(a), Some(b)) => {
-           self.next_node = self.tree.get_node(a);
-           self.return_nodes.push(self.tree.get_node(b));
-        },
-            
-        (None, None) => {
-            self.next_node = match self.return_nodes.pop() {
-                None => None,
-                Some(node) => node,
-            };  
-        },
-
-        _ => {panic!("Iterator has found a node with only a right child")},
+            (Some(a), None) => {
+                self.next_node = self.tree.get_node(a);
+            },
+            (Some(a), Some(b)) => {
+                self.next_node = self.tree.get_node(a);
+                self.return_nodes.push(self.tree.get_node(b));
+            },
+            (None, None) => {
+                self.next_node = match self.return_nodes.pop() {
+                    None => None,
+                    Some(node) => node,
+                };  
+            },
+            _ => {panic!("Iterator has found a node with only a right child")},
         };
 
         self.current_node = self.next_node;

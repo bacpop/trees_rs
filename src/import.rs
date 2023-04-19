@@ -1,28 +1,21 @@
 use crate::Tree;
 
-pub fn str2tree(st: String, name: String) -> Tree {
-    let mut tree: Tree = Tree::new(name);
-    let mut par_index: Option<usize> = None;
-    let mut pin: usize = 0;
+pub fn str2tree(input_string: String, tree_name: String) -> Tree {
+    let mut tree: Tree = Tree::new(tree_name);
+    let mut parent: Option<usize> = None;
+    let mut parent_index: usize = 0;
 
-    for e in st.chars() {
-        if e == ')' {
-            par_index = match tree.get_node(pin) {
+    for chr in input_string.chars() {
+        if chr == ')' {
+            parent = match tree.get_node(parent_index) {
                 None => None,
                 Some(n) => n.parent,
             };
-            pin = par_index.unwrap_or(0);
-            // pin = match par_index {
-            //     None => 0,
-            //     Some(x) => x,
-            // };
-        } else if e != '(' {
-
-        // } else {
-            // Add node
-            tree.add(String::from(e), par_index);
-            pin = tree.nodes.len() - 1;
-            par_index = Some(pin);
+            parent_index = parent.unwrap_or(0);
+        } else if chr != '(' {
+            tree.add(String::from(chr), parent);
+            parent_index = tree.nodes.len() - 1;
+            parent = Some(parent_index);
         }
     }
 

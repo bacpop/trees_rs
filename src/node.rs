@@ -6,29 +6,42 @@ pub struct Node {
     pub parent: Option<usize>,
     pub children: (Option<usize>, Option<usize>),
     pub tip: bool,
+    pub index: usize,
 }
 
 
 impl Node {
-    pub fn new(sample_name:String, parent: Option<usize>, children: (Option<usize>, Option<usize>)) -> Node {
-        Node {sample_name, children, parent,
+    pub fn new(sample_name:String, parent: Option<usize>, 
+        children: (Option<usize>, Option<usize>), index: usize) -> Node {
+
+        Node {sample_name, children, parent, index,
             tip: matches!(children, (None, None)),
             }
     }
 
     pub fn new_child(&mut self, new_child: usize) {
-        // Work out where to put new child node index in children tuple
+
         self.children = match self.children {
             (None, None) => (Some(new_child), None),
             (Some(x), None) => (Some(x), Some(new_child)),
             (None, Some(y)) => (Some(new_child), Some(y)),
             (Some(_), Some(_)) => panic!("Trying to add new child to node with 2 children already"),
         };
-        // Node with added child is no longer a tip
+
         self.tip = false;
         
     }
 
+    pub fn remove_child(&mut self, child: usize) {
+        self.children = match self.children {
+            (Some(a), Some(b)) if a == child => (Some(b), None),
+            (Some(a), Some(b)) if b == child => (Some(a), None),
+            (Some(a), None) if a == child => (None, None),
+            (None, Some(_b)) => {
+                panic!("Trying to remove child from parent with only a right child!")},
+            _ => panic!("Trying to remove child that does not exist in parent"),
+        };
+    }
     // pub fn left_child(&self) -> Option<usize> {
     //     match self.children {
     //         (Some(x), _) => Some(x),
@@ -55,7 +68,7 @@ impl fmt::Display for Node {
             (Some(x), Some(y)) => (x.to_string(), y.to_string()),
         };
         
-        write!(f, "Sample Name: {}, parent index: {}, child indices: {},{}", 
-        self.sample_name, par, ch.0, ch.1)
+        write!(f, "Sample Name: {}, sample index: {}, parent index: {}, child indices: {},{}", 
+        self.sample_name, self.index, par, ch.0, ch.1)
     }
 }
