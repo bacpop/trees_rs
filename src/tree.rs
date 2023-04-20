@@ -48,6 +48,35 @@ impl<'a> Tree {
         }
     }
 
+    // Select nodes in vector that are tips
+    pub fn get_tips(&self) -> Vec<&Node> {
+        self.nodes
+        .iter()
+        .filter(|n| n.tip == true)
+        .collect()
+    }
+
+    // Depth of node in tree
+    pub fn node_depth(&self, node: Option<&Node>) -> usize {
+        self
+        .iter(node)
+        .fold(0, |acc, _node| acc + 1)
+    }
+
+    // Find maximum depth across all tips
+    pub fn max_treedepth(&self) -> usize {
+        let depths_vec: Vec<usize> = self
+            .get_tips()
+            .iter()
+            .map(|t| self.node_depth(Some(t)))
+            .collect();
+            
+        match depths_vec.iter().max() {
+            None => 0,
+            Some(i) => *i,
+        }
+    }
+
     // pub fn getn_parent(&self, node: Option<&Node>) -> Option<&Node> {
     //     match node.unwrap().parent {
     //         None => None,
@@ -88,6 +117,18 @@ impl<'a> Tree {
         self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
         self.mut_node(new_parent_index).unwrap().new_child(node_index);
 
+    }
+
+    pub fn most_left_child(&'a self, node: Option<&'a Node>) -> Option<&Node> {
+        let mut cur_node = node;
+        let mut cur_left_child = cur_node.unwrap().children.0;
+
+        while cur_left_child.is_some() {
+            cur_node = self.get_node(cur_left_child.unwrap());
+            cur_left_child = cur_node.unwrap().children.0;
+        }
+        // println!("current node: {:?}", cur_node);
+        cur_node
     }
 
 }
@@ -164,3 +205,15 @@ impl<'a> Iterator for Preorder<'a> {
         output
     }
 }
+
+// pub struct PostOrder<'a> {
+//     tree: &'a Tree,
+// }
+
+// impl<'a> Iterator for PostOrder<'a> {
+//     type Item = &'a Node;
+
+//     fn next(&mut self) -> Option<Self::Item> {
+        
+//     }
+// }

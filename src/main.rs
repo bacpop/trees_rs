@@ -4,6 +4,7 @@ mod import;
 mod tests;
 
 use crate::tree::Tree;
+use crate::node::Node;
 use crate::import::str2tree;
 
 fn main() {
@@ -18,6 +19,30 @@ fn main() {
         println!{"index: {}, {}", k, i};
         k += 1;
     }
+
+    // println!("{:?}", tree.most_left_child(tree.get_root()));
+
+    let tips: Vec<&Node> = tree.nodes
+        .iter()
+        .filter(|n| n.tip == true)
+        .collect();
+
+    let lengths: Vec<usize> = tips
+    .iter()
+    .map(|t| tree.iter(Some(t)).fold(0, |acc, _node| acc + 1))
+    .collect();
+
+    
+
+    // tips.iter().map(|i| {
+    //     let it: Vec<usize> = tree
+    //     .iter(tree.get_node(*i))
+    //     .fold(vec![0],|acc, _node| acc.len());
+    // });
+
+    //.map(|n| tree.iter(Some(n))).fold(0,|acc, _node| acc + 1);
+    println!("{:?}", tips);
+    println!("{:?}", lengths.iter().max());
 
     // Rudimentary way to relocate nodes by assigning new parents
     // tree.relocate(2, 5);

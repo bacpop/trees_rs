@@ -42,19 +42,6 @@ impl Node {
             _ => panic!("Trying to remove child that does not exist in parent"),
         };
     }
-    // pub fn left_child(&self) -> Option<usize> {
-    //     match self.children {
-    //         (Some(x), _) => Some(x),
-    //         (None, _) => None
-    //     }
-    // }
-
-    // pub fn right_child(&self) -> Option<usize> {
-    //     match self.children {
-    //         (_, Some(x)) => Some(x),
-    //         (_, None) => None
-    //     }
-    // }
 
 }
 
