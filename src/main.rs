@@ -1,36 +1,34 @@
 mod node;
 mod tree;
 mod import;
+mod gen_list;
 mod tests;
 
 use crate::tree::Tree;
 use crate::node::Node;
+use crate::gen_list::Entry;
 use crate::import::str2tree;
 
 fn main() {
     // Construct tree from string
     // let ts = String::from("4(2(3)(1))(6(5))");
-    let ts = String::from("1(2(5(6))(4))(3)");
-    let mut tree = str2tree(ts, String::from("Tree1"));
+    let el: Entry = Entry::new('A', 1, Some(10));
 
-    // Print nodes in tree
-    let mut k = 0;
-    for i in &tree.nodes {
-        println!{"index: {}, {}", k, i};
-        k += 1;
-    }
+    println!("{:?}", el);
+    println!("{:?}, {:?}", el.start(), el.end());
+    // let ts = String::from("1(2(5(6))(4))(3)");
+    // let mut tree = str2tree(ts, String::from("Tree1"));
+
+    // // Print nodes in tree
+    // let mut k = 0;
+    // for i in &tree.nodes {
+    //     println!{"index: {}, {}", k, i};
+    //     k += 1;
+    // }
 
     // println!("{:?}", tree.most_left_child(tree.get_root()));
 
-    let tips: Vec<&Node> = tree.nodes
-        .iter()
-        .filter(|n| n.tip == true)
-        .collect();
 
-    let lengths: Vec<usize> = tips
-    .iter()
-    .map(|t| tree.iter(Some(t)).fold(0, |acc, _node| acc + 1))
-    .collect();
 
     
 
@@ -41,8 +39,8 @@ fn main() {
     // });
 
     //.map(|n| tree.iter(Some(n))).fold(0,|acc, _node| acc + 1);
-    println!("{:?}", tips);
-    println!("{:?}", lengths.iter().max());
+    // println!("{:?}", tips);
+    // println!("{:?}", lengths.iter().max());
 
     // Rudimentary way to relocate nodes by assigning new parents
     // tree.relocate(2, 5);

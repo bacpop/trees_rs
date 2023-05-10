@@ -48,7 +48,7 @@ impl<'a> Tree {
         }
     }
 
-    // Select nodes in vector that are tips
+    // Returns vector of nodes in tree that are tips
     pub fn get_tips(&self) -> Vec<&Node> {
         self.nodes
         .iter()
@@ -56,7 +56,7 @@ impl<'a> Tree {
         .collect()
     }
 
-    // Depth of node in tree
+    // Depth of given node in tree
     pub fn node_depth(&self, node: Option<&Node>) -> usize {
         self
         .iter(node)
@@ -76,13 +76,6 @@ impl<'a> Tree {
             Some(i) => *i,
         }
     }
-
-    // pub fn getn_parent(&self, node: Option<&Node>) -> Option<&Node> {
-    //     match node.unwrap().parent {
-    //         None => None,
-    //         Some(i) => self.get_node(i),
-    //     }
-    // }
 
     pub fn add(&mut self, sample_name:String, parent: Option<usize>){
 

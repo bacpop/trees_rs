@@ -2,6 +2,8 @@
 mod tests {
     use crate::tree::Tree;
     use crate::import::str2tree;
+    use crate::gen_list::Entry;
+    use crate::gen_list::MutationType;
 
     #[test]
     fn treemake() {
@@ -41,5 +43,14 @@ mod tests {
         assert_eq!(tree.iter(tree.get_root()).fold(0,|acc, _node| acc + 1), 1);
 
         assert_eq!(tree.preorder(tree.get_root()).fold(0,|acc, _node| acc + 1), 6);
+    }
+
+    #[test]
+    fn gen_list_entry() {
+        let el: Entry = Entry::new('A', 1, Some(10));
+
+        assert_eq!(el.start(), 1);
+        assert_eq!(el.end(), Some(10));
+
     }
 }
