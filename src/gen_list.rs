@@ -59,6 +59,7 @@ pub fn complement(e: MutationType) -> MutationType {
     }
 }
 
+#[derive(Debug)]
 pub struct Sample {
     pub list: Vec<Entry>,
 }
@@ -92,7 +93,4 @@ impl Entry {
         self.element.2
     }
 
-    // pub fn MutationType(&self) -> MutationType {
-    //     self.element.0
-    // }
 }

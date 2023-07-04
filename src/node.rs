@@ -1,8 +1,7 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
-    pub sample_name: String,
     pub parent: Option<usize>,
     pub children: (Option<usize>, Option<usize>),
     pub tip: bool,
@@ -11,10 +10,10 @@ pub struct Node {
 
 
 impl Node {
-    pub fn new(sample_name:String, parent: Option<usize>, 
+    pub fn new(parent: Option<usize>, 
         children: (Option<usize>, Option<usize>), index: usize) -> Node {
 
-        Node {sample_name, children, parent, index,
+        Node {children, parent, index,
             tip: matches!(children, (None, None)),
             }
     }
@@ -55,7 +54,16 @@ impl fmt::Display for Node {
             (Some(x), Some(y)) => (x.to_string(), y.to_string()),
         };
         
-        write!(f, "Sample Name: {}, sample index: {}, parent index: {}, child indices: {},{}", 
-        self.sample_name, self.index, par, ch.0, ch.1)
+        write!(f, "Sample index: {}, parent index: {}, child indices: {},{}", 
+        self.index, par, ch.0, ch.1)
+    }
+}
+
+impl Default for Node {
+    fn default() -> Self{
+        Node{parent: None,
+            children: (None, None),
+            tip: false,
+            index: 0}
     }
 }

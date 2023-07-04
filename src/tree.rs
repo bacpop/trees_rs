@@ -2,14 +2,15 @@ use crate::node::Node;
 
 #[derive(Debug)]
 pub struct Tree {
-    pub tree_name: String,
+    pub tree_vec: Vec<usize>,
     pub nodes: Vec<Node>,
 }
 
 impl<'a> Tree {
-    pub fn new(tree_name: String) -> Tree {
-        Tree {tree_name,
-        nodes: Vec::new()}
+    pub fn new(tree_vec: Vec<usize>) -> Tree {
+        let k = tree_vec.len();
+        Tree {tree_vec,
+        nodes: vec![Node::default(); 2 * k + 1]}
     }
 
     pub fn get_root(&self) -> Option<&Node> {
@@ -77,14 +78,16 @@ impl<'a> Tree {
         }
     }
 
-    pub fn add(&mut self, sample_name:String, parent: Option<usize>){
+    pub fn add(&mut self, index: usize, parent: Option<usize>){
 
-        if self.get_root().is_some() && parent.is_none(){
-            panic!("Trying to assign a second root with parent = None");
-        }
+        // if self.get_root().is_some() && parent.is_none(){
+        //     panic!("Trying to assign a second root with parent = None");
+        // }
 
-        let index: usize = self.nodes.len();
-        self.nodes.push(Node::new(sample_name, parent, (None, None), index));
+        // let index: usize = self.nodes.len();
+
+        // self.nodes.push(Node::new(parent, (None, None), index));
+        self.nodes[index] = Node::new(parent, (None, None), index);
 
         if parent.is_some(){
             self.mut_parent(index).unwrap().new_child(index)

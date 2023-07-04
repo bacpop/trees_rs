@@ -3,21 +3,33 @@ mod tree;
 mod import;
 mod gen_list;
 mod tests;
+mod phylo2vec;
 
+use std::ops::RangeInclusive;
+
+use crate::phylo2vec::phylo2vec;
 use crate::tree::Tree;
 use crate::node::Node;
 use crate::gen_list::Entry;
-use crate::import::str2tree;
+use crate::gen_list::Sample;
+// use crate::import::str2tree;
+use ndarray::*;
+use std::time::{Instant};
+
 
 fn main() {
-    // Construct tree from string
-    // let ts = String::from("4(2(3)(1))(6(5))");
-    let el: Entry = Entry::new('A', 1, Some(10));
+    let start = Instant::now();
+    // let mut tr = Tree::new(vec![0, 0, 1]);
+    // let tr = phylo2vec(vec![0, 0, 2]);
+    let tr = phylo2vec(vec![0; 10000]);
 
-    println!("{:?}", el);
-    println!("{:?}, {:?}", el.start(), el.end());
-    // let ts = String::from("1(2(5(6))(4))(3)");
-    // let mut tree = str2tree(ts, String::from("Tree1"));
+    let end = Instant::now();
+    eprintln!("Done in {}s", end.duration_since(start).as_secs());
+    eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+    // println!("{:?}", tr);
+
+    // NEED TO FIX CODE THAT ASSIGNS TIPS WHEN BUILDING TREE FROM VECTOR
+    // NEED TO FIX CODE THAT BUILDS TREE FROM NEWICK STRING
 
     // // Print nodes in tree
     // let mut k = 0;
