@@ -19,14 +19,27 @@ use std::time::{Instant};
 
 fn main() {
     let start = Instant::now();
-    // let mut tr = Tree::new(vec![0, 0, 1]);
-    // let tr = phylo2vec(vec![0, 0, 2]);
-    let tr = phylo2vec(vec![0; 10000]);
+    // let tr = phylo2vec(vec![0, 1, 2, 1]);
+    let tr = phylo2vec(vec![0; 50000]);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+
     // println!("{:?}", tr);
+
+    // println!("{:?}", tr.node_depth(tr.get_node(3)));
+
+
+    // for el in tr.preorder(tr.get_root()) {
+    //     println!("{}", el);
+    // }
+
+    // for el in tr.preorder(tr.get_root()) {
+    //     println!("{:?}", el);
+    // }
+
+    
 
     // NEED TO FIX CODE THAT ASSIGNS TIPS WHEN BUILDING TREE FROM VECTOR
     // NEED TO FIX CODE THAT BUILDS TREE FROM NEWICK STRING

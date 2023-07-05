@@ -24,18 +24,21 @@ pub fn phylo2vec(v: Vec<usize>) -> Tree {
 
     for i in 0..k {
         
-        let n = rowmax[0..k].iter()
-                                   .enumerate()
-                                   .rposition(| (i, el) | {
-                                        (tree.tree_vec[i] <= *el) & not_processed[i]})
-                                   .unwrap();
+        // let n = rowmax[0..(k - i)].iter()
+        //                            .enumerate()
+        //                            .rposition(| (index, el) | {
+        //                                 (tree.tree_vec[index] <= *el) & not_processed[index]})
+        //                            .unwrap();
 
         // println!("n: {}", n);
 
-        let m = labels.slice(s![n, ..])
-                             .iter()
-                             .position(|x | *x == tree.tree_vec[n])
-                             .unwrap();
+        // let m = labels.slice(s![n, ..])
+        //                      .iter()
+        //                      .position(|x | *x == tree.tree_vec[n])
+        //                      .unwrap();
+
+        let n = k - i - 1;
+        let m = tree.tree_vec[n];
 
         // println!("{:?}", labels.slice(s![n, ..]));
         // println!("tree_vec[n] = {}", tree.tree_vec[n]);
