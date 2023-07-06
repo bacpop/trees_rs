@@ -80,18 +80,17 @@ impl<'a> Tree {
 
     pub fn add(&mut self, index: usize, parent: Option<usize>){
 
-        // if self.get_root().is_some() && parent.is_none(){
-        //     panic!("Trying to assign a second root with parent = None");
-        // }
+        let mut dpth: usize = 0;
 
-        // let index: usize = self.nodes.len();
-
-        // self.nodes.push(Node::new(parent, (None, None), index));
-        self.nodes[index] = Node::new(parent, (None, None), index);
-
-        if parent.is_some(){
-            self.mut_parent(index).unwrap().new_child(index)
+        match parent {
+            Some(par) => {
+                self.mut_node(par).unwrap().new_child(index);
+                dpth = self.get_node(par).unwrap().depth + 1;
+            },
+            None => {},
         };
+        
+        self.nodes[index] = Node::new(parent, (None, None), index, dpth);
 
     }
 

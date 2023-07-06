@@ -19,14 +19,14 @@ use std::time::{Instant};
 
 fn main() {
     let start = Instant::now();
-    // let tr = phylo2vec(vec![0, 1, 2, 1]);
-    let tr = phylo2vec(vec![0; 50000]);
+    let tr = phylo2vec(vec![0, 1, 2]);
+    // let tr = phylo2vec(vec![0; 500000]);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
 
-    // println!("{:?}", tr);
+    println!("{:?}", tr);
 
     // println!("{:?}", tr.node_depth(tr.get_node(3)));
 

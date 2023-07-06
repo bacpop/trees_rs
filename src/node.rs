@@ -6,14 +6,15 @@ pub struct Node {
     pub children: (Option<usize>, Option<usize>),
     pub tip: bool,
     pub index: usize,
+    pub depth: usize,
 }
 
 
 impl Node {
     pub fn new(parent: Option<usize>, 
-        children: (Option<usize>, Option<usize>), index: usize) -> Node {
+        children: (Option<usize>, Option<usize>), index: usize, depth: usize) -> Node {
 
-        Node {children, parent, index,
+        Node {children, parent, index, depth,
             tip: matches!(children, (None, None)),
             }
     }
@@ -64,6 +65,8 @@ impl Default for Node {
         Node{parent: None,
             children: (None, None),
             tip: false,
-            index: 0}
+            index: 0,
+            depth: 0,
+        }
     }
 }
