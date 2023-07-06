@@ -1,16 +1,20 @@
+use std::process::Output;
+
 use crate::node::Node;
 
 #[derive(Debug)]
 pub struct Tree {
     pub tree_vec: Vec<usize>,
     pub nodes: Vec<Node>,
+    pub max_depth: usize,
 }
 
 impl<'a> Tree {
     pub fn new(tree_vec: Vec<usize>) -> Tree {
         let k = tree_vec.len();
         Tree {tree_vec,
-        nodes: vec![Node::default(); 2 * k + 1]}
+        nodes: vec![Node::default(); 2 * k + 1],
+        max_depth: 0}
     }
 
     pub fn get_root(&self) -> Option<&Node> {
@@ -27,16 +31,22 @@ impl<'a> Tree {
             tree:self, return_nodes: vec![]}
     }
 
+    pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
+        PostOrder{current_node: node, 
+            tree: self, 
+            start_flag: true,}
+    }
+
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
         self.nodes.get_mut(index)
     }
 
-    pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
-        match self.nodes.get(index).unwrap().parent {
-            Some(i) => self.mut_node(i),
-            None => None,
-        }
-    }
+    // pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
+    //     match self.nodes.get(index).unwrap().parent {
+    //         Some(i) => self.mut_node(i),
+    //         None => None,
+    //     }
+    // }
 
     pub fn get_node(&self, index: usize) -> Option<&Node> {
         self.nodes.get(index)
@@ -57,25 +67,23 @@ impl<'a> Tree {
         .collect()
     }
 
-    // Depth of given node in tree
-    pub fn node_depth(&self, node: Option<&Node>) -> usize {
-        self
-        .iter(node)
-        .fold(0, |acc, _node| acc + 1)
+    pub fn get_nodes_depth(&self, depth: usize) -> Vec<&Node> {
+        self.nodes
+        .iter()
+        .filter(|n| n.depth == depth)
+        .collect()
     }
 
-    // Find maximum depth across all tips
+    // Depth of given node in tree
+    // pub fn node_depth(&self, node: Option<&Node>) -> usize {
+    //     self
+    //     .iter(node)
+    //     .fold(0, |acc, _node| acc + 1)
+    // }
+
+    // Find maximum node depth
     pub fn max_treedepth(&self) -> usize {
-        let depths_vec: Vec<usize> = self
-            .get_tips()
-            .iter()
-            .map(|t| self.node_depth(Some(t)))
-            .collect();
-            
-        match depths_vec.iter().max() {
-            None => 0,
-            Some(i) => *i,
-        }
+        self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
 
     pub fn add(&mut self, index: usize, parent: Option<usize>){
@@ -91,28 +99,37 @@ impl<'a> Tree {
         };
         
         self.nodes[index] = Node::new(parent, (None, None), index, dpth);
-
     }
 
-    pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
+    pub fn get_handedness(&self, index: usize) -> Handedness {
+        let (l, _) = self.get_parent(index).unwrap().children;
 
-        if self.get_node(node_index).is_none() {
-            panic!("Node to move does not exist");
+        if l == Some(index) {
+            Handedness::Left
+        } else {
+            Handedness::Right
         }
-
-        if self.get_node(new_parent_index).is_none() {
-            panic!("New parent does not exist");
-        }
-
-        if self.get_parent(node_index).is_none() {
-            panic!("Cannot move root node")
-        }
-
-        self.mut_parent(node_index).unwrap().remove_child(node_index);
-        self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
-        self.mut_node(new_parent_index).unwrap().new_child(node_index);
-
     }
+
+    // pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
+
+    //     if self.get_node(node_index).is_none() {
+    //         panic!("Node to move does not exist");
+    //     }
+
+    //     if self.get_node(new_parent_index).is_none() {
+    //         panic!("New parent does not exist");
+    //     }
+
+    //     if self.get_parent(node_index).is_none() {
+    //         panic!("Cannot move root node")
+    //     }
+
+    //     self.mut_parent(node_index).unwrap().remove_child(node_index);
+    //     self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
+    //     self.mut_node(new_parent_index).unwrap().new_child(node_index);
+
+    // }
 
     pub fn most_left_child(&'a self, node: Option<&'a Node>) -> Option<&Node> {
         let mut cur_node = node;
@@ -126,7 +143,19 @@ impl<'a> Tree {
         cur_node
     }
 
+    pub fn swap_to_right_child(&self, index: usize) -> Option<&Node> {
+        self.get_node(self.get_parent(index).unwrap().children.1.unwrap())
+    }
+
 }
+
+#[derive(Debug)]
+pub enum Handedness {
+    Left,
+    Right,
+}
+
+
 #[derive(Debug)]
 pub struct RootIter<'a> {
     current_node: Option<&'a Node>,
@@ -201,14 +230,42 @@ impl<'a> Iterator for Preorder<'a> {
     }
 }
 
-// pub struct PostOrder<'a> {
-//     tree: &'a Tree,
-// }
 
-// impl<'a> Iterator for PostOrder<'a> {
-//     type Item = &'a Node;
 
-//     fn next(&mut self) -> Option<Self::Item> {
-        
-//     }
-// }
+// Start: go as far left as possible
+// If in Left node, swap and go left
+// If in Right node, go up to parent
+pub struct PostOrder<'a> {
+    tree: &'a Tree,
+    start_flag: bool,
+    current_node: Option<&'a Node>,
+}
+
+impl<'a> Iterator for PostOrder<'a> {
+    type Item = &'a Node;
+
+    fn next(&mut self) -> Option<Self::Item> {
+
+        if self.start_flag {
+            self.current_node = self.tree.most_left_child(self.current_node);
+            self.start_flag = false;
+        } else {
+
+            if self.current_node.unwrap().parent.is_none() {
+                return None;
+            }
+
+            let ind = self.current_node.unwrap().index;
+            match self.tree.get_handedness(ind) {
+                Handedness::Left => {
+                    self.current_node = self.tree.most_left_child(self.tree.swap_to_right_child(ind));
+                },
+                Handedness::Right => {
+                    self.current_node = self.tree.get_parent(ind);
+                },
+            }
+        }
+
+        self.current_node 
+    }
+}

@@ -26,14 +26,14 @@ fn main() {
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
 
+    // println!("{:?}", tr.get_node(2));
+    // println!("{:?}", tr.swap_to_right_child(2));
     println!("{:?}", tr);
 
-    // println!("{:?}", tr.node_depth(tr.get_node(3)));
 
-
-    // for el in tr.preorder(tr.get_root()) {
-    //     println!("{}", el);
-    // }
+    for el in tr.postorder(tr.get_root()) {
+        println!("{}", el);
+    }
 
     // for el in tr.preorder(tr.get_root()) {
     //     println!("{:?}", el);

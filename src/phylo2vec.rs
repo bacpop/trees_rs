@@ -99,5 +99,7 @@ pub fn phylo2vec(v: Vec<usize>) -> Tree {
         tree.add(M[[i, 1]], Some(M[[i, 2]]));
     }
 
+    tree.max_depth = tree.max_treedepth();
+
     return tree
 }
