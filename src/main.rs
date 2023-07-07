@@ -7,7 +7,8 @@ mod phylo2vec;
 
 use std::ops::RangeInclusive;
 
-use crate::phylo2vec::phylo2vec;
+use crate::phylo2vec::phylo2vec_lin;
+use crate::phylo2vec::phylo2vec_quad;
 use crate::tree::Tree;
 use crate::node::Node;
 use crate::gen_list::Entry;
@@ -19,24 +20,16 @@ use std::time::{Instant};
 
 fn main() {
     let start = Instant::now();
-    let tr = phylo2vec(vec![0, 0, 3]);
-    // let tr2 = phylo2vec(vec![0, 0, 0]);
+    let tr = phylo2vec_quad(vec![0, 0, 2, 3]);
+    let tr2 = phylo2vec_quad(vec![0, 0, 2, 3]);
     // let tr = phylo2vec(vec![0; 500000]);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
 
-    println!("{:?}", tr.get_node(0));
-    println!("{:?}", tr.get_node(1));
-    println!("{:?}", tr.get_node(2));
-    println!("{:?}", tr.get_node(3));
-    println!("{:?}", tr.get_node(4));
-    println!("{:?}", tr.get_node(5));
-    println!("{:?}", tr.get_node(6));
-    // println!("{:?}", tr.swap_to_right_child(2));
-    // println!("{:?}", tr);
-    // println!("{:?}", tr2);
+    println!("{:?}", tr);
+    println!("{:?}", tr2);
 
 
     // for el in tr.postorder(tr.get_root()) {
