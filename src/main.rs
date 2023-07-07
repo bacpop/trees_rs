@@ -19,29 +19,35 @@ use std::time::{Instant};
 
 fn main() {
     let start = Instant::now();
-    let tr = phylo2vec(vec![0, 1, 2]);
+    let tr = phylo2vec(vec![0, 0, 3]);
+    // let tr2 = phylo2vec(vec![0, 0, 0]);
     // let tr = phylo2vec(vec![0; 500000]);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
 
-    // println!("{:?}", tr.get_node(2));
+    println!("{:?}", tr.get_node(0));
+    println!("{:?}", tr.get_node(1));
+    println!("{:?}", tr.get_node(2));
+    println!("{:?}", tr.get_node(3));
+    println!("{:?}", tr.get_node(4));
+    println!("{:?}", tr.get_node(5));
+    println!("{:?}", tr.get_node(6));
     // println!("{:?}", tr.swap_to_right_child(2));
-    println!("{:?}", tr);
+    // println!("{:?}", tr);
+    // println!("{:?}", tr2);
 
 
-    for el in tr.postorder(tr.get_root()) {
-        println!("{}", el);
-    }
+    // for el in tr.postorder(tr.get_root()) {
+    //     println!("{}", el);
+    // }
+
 
     // for el in tr.preorder(tr.get_root()) {
     //     println!("{:?}", el);
     // }
 
-    
-
-    // NEED TO FIX CODE THAT ASSIGNS TIPS WHEN BUILDING TREE FROM VECTOR
     // NEED TO FIX CODE THAT BUILDS TREE FROM NEWICK STRING
 
     // // Print nodes in tree

@@ -1,22 +1,86 @@
-// #[cfg(test)]
-// mod tests {
-//     use crate::tree::Tree;
-//     use crate::import::str2tree;
-//     use crate::gen_list::Entry;
-//     use crate::gen_list::MutationType;
+#[cfg(test)]
+mod tests {
+    use crate::phylo2vec::phylo2vec;
+    // use crate::tree::Tree;
+    // use crate::import::str2tree;
+    // use crate::gen_list::Entry;
+    // use crate::gen_list::MutationType;
 
-//     #[test]
-//     fn treemake() {
-//         let ts = String::from("4(2(3)(1))(6(5))");
-//         let tree = str2tree(ts, String::from("Tree1"));
+    #[test]
+    fn treemake() {
+        let mut tree = phylo2vec(vec![0, 0, 0]);
         
-//         assert_eq!(tree.get_node(0).unwrap().parent, None);
-//         assert_eq!(tree.get_node(4).unwrap().parent, Some(0));
-//         assert_eq!(tree.get_parent(1).unwrap().children, (Some(1), Some(4)));
-//         assert_eq!(tree.get_root().unwrap().parent, None);
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 0, 1]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 1, 0]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 1, 1]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 1, 2]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 1, 3]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
+
+        tree = phylo2vec(vec![0, 0, 3]);
+
+        assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(1).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(2).unwrap().parent, Some(4));
+        assert_eq!(tree.get_node(3).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(4).unwrap().parent, Some(5));
+        assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
+        assert_eq!(tree.get_node(6).unwrap().parent, None);
 
         
-//     }
+        
+    }
 
 //     #[test]
 //     fn relocatetree() {
@@ -53,4 +117,4 @@
 //         assert_eq!(el.end(), Some(10));
 
 //     }
-// }
+}

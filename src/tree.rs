@@ -1,5 +1,4 @@
 use std::process::Output;
-
 use crate::node::Node;
 
 #[derive(Debug)]
@@ -32,7 +31,8 @@ impl<'a> Tree {
     }
 
     pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
-        PostOrder{current_node: node, 
+        PostOrder{current_node: node,
+            end_index: node.unwrap().index, 
             tree: self, 
             start_flag: true,}
     }
@@ -60,19 +60,19 @@ impl<'a> Tree {
     }
 
     // Returns vector of nodes in tree that are tips
-    pub fn get_tips(&self) -> Vec<&Node> {
-        self.nodes
-        .iter()
-        .filter(|n| n.tip == true)
-        .collect()
-    }
+    // pub fn get_tips(&self) -> Vec<&Node> {
+    //     self.nodes
+    //     .iter()
+    //     .filter(|n| n.tip == true)
+    //     .collect()
+    // }
 
-    pub fn get_nodes_depth(&self, depth: usize) -> Vec<&Node> {
-        self.nodes
-        .iter()
-        .filter(|n| n.depth == depth)
-        .collect()
-    }
+    // pub fn get_nodes_at_depth(&self, depth: usize) -> Vec<&Node> {
+    //     self.nodes
+    //     .iter()
+    //     .filter(|n| n.depth == depth)
+    //     .collect()
+    // }
 
     // Depth of given node in tree
     // pub fn node_depth(&self, node: Option<&Node>) -> usize {
@@ -239,6 +239,7 @@ pub struct PostOrder<'a> {
     tree: &'a Tree,
     start_flag: bool,
     current_node: Option<&'a Node>,
+    end_index: usize,
 }
 
 impl<'a> Iterator for PostOrder<'a> {
@@ -250,8 +251,8 @@ impl<'a> Iterator for PostOrder<'a> {
             self.current_node = self.tree.most_left_child(self.current_node);
             self.start_flag = false;
         } else {
-
-            if self.current_node.unwrap().parent.is_none() {
+            // If we return to start node, end iterator
+            if self.current_node.unwrap().index == self.end_index {
                 return None;
             }
 
