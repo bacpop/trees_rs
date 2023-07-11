@@ -5,20 +5,10 @@ mod gen_list;
 mod tests;
 mod phylo2vec;
 
-use std::ops::RangeInclusive;
 
-use crate::gen_list::MutationType;
-use crate::gen_list::Mutation;
-use crate::gen_list::char_to_mutationtype;
-use crate::gen_list::char_to_mutation;
-use crate::gen_list::combine_lists;
-use crate::phylo2vec::phylo2vec_lin;
-use crate::phylo2vec::phylo2vec_quad;
+use crate::gen_list::*;
+use crate::phylo2vec::*;
 use crate::tree::Tree;
-use crate::node::Node;
-// use crate::import::str2tree;
-use ndarray::*;
-use rand::seq::SliceRandom;
 use std::time::{Instant};
 use needletail::*;
 use rand::{thread_rng, Rng};
@@ -30,9 +20,6 @@ fn main() {
     let filename = "listeria0.aln";
     let mut reader = parse_fastx_file(&filename).expect("error");
 
-    let ref_seq = reader.next();
-    let ref_kmers = ref_seq.expect("hi");
-
     let record = reader.next().unwrap().unwrap();
     let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
 
@@ -43,30 +30,11 @@ fn main() {
     let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
 
     // let mut out: Vec<(usize, MutationType, MutationType)> = Vec::new();
-    let mut out: Vec<Mutation> = Vec::new();
-    let mut out2: Vec<Mutation> = Vec::new();
-    
-    for (i, (s1, s2)) in seq_vec.iter().zip(seq2.iter()).enumerate() {
-        if s1 != s2 {
-            // println!("{}", i);
-            // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
-            // println!("{}", s2);
-            out.push(char_to_mutation(i, s2));
-        }
-    }
+    let mut out: Vec<Mutation> = create_list(&seq_vec, &seq2);
+    let mut out2: Vec<Mutation> = create_list(&seq_vec, &seq3);
 
-    for (i, (s1, s2)) in seq_vec.iter().zip(seq3.iter()).enumerate() {
-        if s1 != s2 {
-            // println!("{}", i);
-            // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
-            // println!("{}", s2);
-            out2.push(char_to_mutation(i, s2));
-        }
-    }
-
-    // let mut i_other = 0;
     let combined_out = combine_lists(&mut out, &mut out2);
-    // println!("out2: {:?}", out2);
+
 
     println!("combined seq: {:?}", combined_out);
 
