@@ -7,6 +7,10 @@ mod phylo2vec;
 
 use std::ops::RangeInclusive;
 
+use crate::gen_list::MutationType;
+use crate::gen_list::mutation_char_to_enum;
+use crate::gen_list::mutation_to_likelihood;
+use crate::gen_list::combine_lists;
 use crate::phylo2vec::phylo2vec_lin;
 use crate::phylo2vec::phylo2vec_quad;
 use crate::tree::Tree;
@@ -15,21 +19,71 @@ use crate::gen_list::Entry;
 use crate::gen_list::Sample;
 // use crate::import::str2tree;
 use ndarray::*;
+use rand::seq::SliceRandom;
 use std::time::{Instant};
+use needletail::*;
+use rand::{thread_rng, Rng};
 
 
 fn main() {
     let start = Instant::now();
-    let tr = phylo2vec_quad(vec![0, 0, 2, 3]);
-    let tr2 = phylo2vec_quad(vec![0, 0, 2, 3]);
-    // let tr = phylo2vec(vec![0; 500000]);
+
+    let filename = "listeria0.aln";
+    let mut reader = parse_fastx_file(&filename).expect("error");
+
+    let ref_seq = reader.next();
+    let ref_kmers = ref_seq.expect("hi");
+
+    let record = reader.next().unwrap().unwrap();
+    let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
+
+    let record2 = reader.next().unwrap().unwrap();
+    let seq2: Vec<char> = record2.seq().iter().map(|l| *l as char).collect();
+
+    let record3 = reader.next().unwrap().unwrap();
+    let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
+
+    // let mut out: Vec<(usize, MutationType, MutationType)> = Vec::new();
+    let mut out: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+    let mut out2: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+    
+    for (i, (s1, s2)) in seq_vec.iter().zip(seq2.iter()).enumerate() {
+        if s1 != s2 {
+            // println!("{}", i);
+            // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
+            // println!("{}", s2);
+            out.push(mutation_to_likelihood(i, s2));
+        }
+    }
+
+    for (i, (s1, s2)) in seq_vec.iter().zip(seq3.iter()).enumerate() {
+        if s1 != s2 {
+            // println!("{}", i);
+            // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
+            // println!("{}", s2);
+            out2.push(mutation_to_likelihood(i, s2));
+        }
+    }
+
+    println!("seq1: {:?}", out[0..9].to_vec());
+    println!("seq2: {:?}", out2[0..9].to_vec());
+
+    // let mut i_other = 0;
+    let combined_out = combine_lists(&mut out, &mut out2);
+    // println!("out2: {:?}", out2);
+
+    println!("combined seq: {:?}", combined_out);
+
+    // let tr = phylo2vec_quad(vec![0, 0, 2, 3]);
+    // let tr2 = phylo2vec_lin(vec![0, 0, 2, 3], false);
+    // let tr2 = phylo2vec_lin(vec![0; 500000], true);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
 
-    println!("{:?}", tr);
-    println!("{:?}", tr2);
+    // println!("{:?}", tr);
+    // println!("{:?}", tr2);
 
 
     // for el in tr.postorder(tr.get_root()) {

@@ -41,6 +41,23 @@ pub fn mutation_char_to_enum(e: char) -> MutationType {
     }
 }
 
+pub fn mutation_to_likelihood(i: usize, e: &char) -> (usize, f64, f64, f64, f64) {
+    match e {
+        // (A, C, G, T)
+        'A' => (i, 1.0, 0.0, 0.0, 0.0),
+        'C' => (i, 0.0, 1.0, 0.0, 0.0),
+        'G' => (i, 0.0, 0.0, 1.0, 0.0),
+        'T' => (i, 0.0, 0.0, 0.0, 1.0),
+        'Y' => (i, 0.0, 0.5, 0.0, 0.5),
+        'W' => (i, 0.5, 0.0, 0.0, 0.5),
+        'R' => (i, 0.5, 0.0, 0.5, 0.0),
+        'K' => (i, 0.0, 0.0, 0.5, 0.5),
+        'S' => (i, 0.0, 0.5, 0.5, 0.0),
+        '-' => (i, 0.25, 0.25, 0.25, 0.25),
+        _ => panic!("Unrecognised character"),
+     }
+}
+
 pub fn complement(e: MutationType) -> MutationType {
     match e {
         MutationType::A => MutationType::T,
@@ -66,31 +83,71 @@ pub struct Sample {
 
 #[derive(Debug)]
 pub struct Entry {
-    pub element: (MutationType, i64, Option<i64>),
+    pub element: (usize, f64, f64, f64, f64),
 }
 
-impl Sample {
-    pub fn add(&mut self, x: Entry) {
-        self.list.push(x);
-    }
-}
+pub fn combine_lists(
+    seq1: &mut Vec<(usize, f64, f64, f64, f64)>, 
+    seq2: &mut Vec<(usize, f64, f64, f64, f64)>) -> Vec<(usize, f64, f64, f64, f64)> {
+
+    let mut out: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+
+    seq1.reverse();
+    seq2.reverse();
     
+    let mut j = seq2.pop();
+    let mut i = seq1.pop();
 
-impl Entry {
-    pub fn new(mutation: char, i: i64, j: Option<i64>) -> Entry {
-        let converted_mut: MutationType = mutation_char_to_enum(mutation);
-
-        Entry {
-            element: (converted_mut, i , j),
+    while i.is_some() | j.is_some() {
+        
+        if j.is_none() {
+            out.push(i.unwrap());
+            i = seq1.pop();
+        } else if i.is_none() {
+            out.push(j.unwrap());
+            j = seq2.pop();
+        } else {
+            let i0 = i.unwrap().0;
+            let j0 = j.unwrap().0;
+            if i0 == j0 {
+                out.push((i0,  5.0, 5.0, 5.0, 5.0));
+                i = seq1.pop();
+                j = seq2.pop();
+            } else if i0 < j0 {
+                out.push(i.unwrap());
+                i = seq1.pop();
+            } else {
+                out.push(j.unwrap());
+                j = seq2.pop();
+            }
         }
     }
 
-    pub fn start(&self) -> i64 {
-        self.element.1
-    }
-
-    pub fn end(&self) -> Option<i64> {
-        self.element.2
-    }
-
+    out
 }
+
+// impl Sample {
+//     pub fn add(&mut self, x: Entry) {
+//         self.list.push(x);
+//     }
+// }
+    
+
+// impl Entry {
+//     pub fn new(mutation: char, i: i64, j: Option<i64>) -> Entry {
+//         let converted_mut: MutationType = mutation_char_to_enum(mutation);
+
+//         Entry {
+//             element: (converted_mut, i , j),
+//         }
+//     }
+
+//     pub fn start(&self) -> i64 {
+//         self.element.1
+//     }
+
+//     pub fn end(&self) -> Option<i64> {
+//         self.element.2
+//     }
+
+// }

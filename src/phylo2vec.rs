@@ -1,5 +1,6 @@
 use crate::Tree;
 use ndarray::*;
+use rand::{thread_rng, Rng, seq::SliceRandom};
 
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
 
@@ -61,7 +62,7 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     return tree
 }
 
-pub fn phylo2vec_lin(v: Vec<usize>) -> Tree {
+pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
     let mut tree = Tree::new(v);    
     let k = tree.tree_vec.len();
     let mut M = Array2::<usize>::zeros((k, 3));
@@ -80,6 +81,16 @@ pub fn phylo2vec_lin(v: Vec<usize>) -> Tree {
         M[[i, 2]] = labels_rowk[m];
     }
 
+    if permute {
+        // Permutation of leaf labels
+        let mut new_labs: Vec<usize> = (0..=k).collect();
+        new_labs.shuffle(&mut thread_rng());
+        for i in M.iter_mut().filter(|el| **el <= k + 1) {
+            *i = *new_labs.get(*i).unwrap_or(i);
+        }
+    }
+
+    // Build tree
     tree.add(M[[k - 1, 2]], None);
 
     for i in (0..k).rev() {

@@ -86,7 +86,7 @@ mod tests {
     #[test]
     fn treemake_lin() {
         let mut tree_q = phylo2vec_quad(vec![0, 0, 0]);
-        let mut tree_l = phylo2vec_lin(vec![0, 0, 0]);
+        let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
         assert_eq!(tree_l.get_node(0).unwrap().parent, tree_q.get_node(0).unwrap().parent);
         assert_eq!(tree_l.get_node(1).unwrap().parent, tree_q.get_node(1).unwrap().parent);
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(tree_l.get_node(6).unwrap().parent, tree_q.get_node(6).unwrap().parent);
 
         tree_q = phylo2vec_quad(vec![0, 1, 0]);
-        tree_l = phylo2vec_lin(vec![0, 1, 0]);
+        tree_l = phylo2vec_lin(vec![0, 1, 0], false);
 
         assert_eq!(tree_l.get_node(0).unwrap().parent, tree_q.get_node(0).unwrap().parent);
         assert_eq!(tree_l.get_node(1).unwrap().parent, tree_q.get_node(1).unwrap().parent);
@@ -108,7 +108,7 @@ mod tests {
         assert_eq!(tree_l.get_node(6).unwrap().parent, tree_q.get_node(6).unwrap().parent);
 
         tree_q = phylo2vec_quad(vec![0, 1, 2]);
-        tree_l = phylo2vec_lin(vec![0, 1, 2]);
+        tree_l = phylo2vec_lin(vec![0, 1, 2], false);
 
         assert_eq!(tree_l.get_node(0).unwrap().parent, tree_q.get_node(0).unwrap().parent);
         assert_eq!(tree_l.get_node(1).unwrap().parent, tree_q.get_node(1).unwrap().parent);
@@ -119,7 +119,7 @@ mod tests {
         assert_eq!(tree_l.get_node(6).unwrap().parent, tree_q.get_node(6).unwrap().parent);
 
         tree_q = phylo2vec_quad(vec![0, 1, 1]);
-        tree_l = phylo2vec_lin(vec![0, 1, 1]);
+        tree_l = phylo2vec_lin(vec![0, 1, 1], false);
 
         assert_eq!(tree_l.get_node(0).unwrap().parent, tree_q.get_node(0).unwrap().parent);
         assert_eq!(tree_l.get_node(1).unwrap().parent, tree_q.get_node(1).unwrap().parent);

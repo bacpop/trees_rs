@@ -41,12 +41,12 @@ impl<'a> Tree {
         self.nodes.get_mut(index)
     }
 
-    // pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
-    //     match self.nodes.get(index).unwrap().parent {
-    //         Some(i) => self.mut_node(i),
-    //         None => None,
-    //     }
-    // }
+    pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
+        match self.nodes.get(index).unwrap().parent {
+            Some(i) => self.mut_node(i),
+            None => None,
+        }
+    }
 
     pub fn get_node(&self, index: usize) -> Option<&Node> {
         self.nodes.get(index)
@@ -60,12 +60,12 @@ impl<'a> Tree {
     }
 
     // Returns vector of nodes in tree that are tips
-    // pub fn get_tips(&self) -> Vec<&Node> {
-    //     self.nodes
-    //     .iter()
-    //     .filter(|n| n.tip == true)
-    //     .collect()
-    // }
+    pub fn get_tips(&self) -> Vec<&Node> {
+        self.nodes
+        .iter()
+        .filter(|n| n.tip == true)
+        .collect()
+    }
 
     // pub fn get_nodes_at_depth(&self, depth: usize) -> Vec<&Node> {
     //     self.nodes
