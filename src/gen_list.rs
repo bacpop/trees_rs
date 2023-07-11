@@ -19,7 +19,7 @@ pub enum MutationType {
     Rem, // Removed
 }
 
-pub fn mutation_char_to_enum(e: char) -> MutationType {
+pub fn char_to_mutationtype(e: char) -> MutationType {
     match e {
         'A' => MutationType::A,
         'C' => MutationType::C,
@@ -41,19 +41,19 @@ pub fn mutation_char_to_enum(e: char) -> MutationType {
     }
 }
 
-pub fn mutation_to_likelihood(i: usize, e: &char) -> (usize, f64, f64, f64, f64) {
+pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
     match e {
         // (A, C, G, T)
-        'A' => (i, 1.0, 0.0, 0.0, 0.0),
-        'C' => (i, 0.0, 1.0, 0.0, 0.0),
-        'G' => (i, 0.0, 0.0, 1.0, 0.0),
-        'T' => (i, 0.0, 0.0, 0.0, 1.0),
-        'Y' => (i, 0.0, 0.5, 0.0, 0.5),
-        'W' => (i, 0.5, 0.0, 0.0, 0.5),
-        'R' => (i, 0.5, 0.0, 0.5, 0.0),
-        'K' => (i, 0.0, 0.0, 0.5, 0.5),
-        'S' => (i, 0.0, 0.5, 0.5, 0.0),
-        '-' => (i, 0.25, 0.25, 0.25, 0.25),
+        'A' => Mutation(i, 1.0, 0.0, 0.0, 0.0),
+        'C' => Mutation(i, 0.0, 1.0, 0.0, 0.0),
+        'G' => Mutation(i, 0.0, 0.0, 1.0, 0.0),
+        'T' => Mutation(i, 0.0, 0.0, 0.0, 1.0),
+        'Y' => Mutation(i, 0.0, 0.5, 0.0, 0.5),
+        'W' => Mutation(i, 0.5, 0.0, 0.0, 0.5),
+        'R' => Mutation(i, 0.5, 0.0, 0.5, 0.0),
+        'K' => Mutation(i, 0.0, 0.0, 0.5, 0.5),
+        'S' => Mutation(i, 0.0, 0.5, 0.5, 0.0),
+        '-' => Mutation(i, 0.25, 0.25, 0.25, 0.25),
         _ => panic!("Unrecognised character"),
      }
 }
@@ -76,21 +76,15 @@ pub fn complement(e: MutationType) -> MutationType {
     }
 }
 
-#[derive(Debug)]
-pub struct Sample {
-    pub list: Vec<Entry>,
-}
+#[derive(Debug, Copy, Clone)]
+pub struct Mutation(usize, f64, f64, f64, f64);
 
-#[derive(Debug)]
-pub struct Entry {
-    pub element: (usize, f64, f64, f64, f64),
-}
 
 pub fn combine_lists(
-    seq1: &mut Vec<(usize, f64, f64, f64, f64)>, 
-    seq2: &mut Vec<(usize, f64, f64, f64, f64)>) -> Vec<(usize, f64, f64, f64, f64)> {
+    seq1: &mut Vec<Mutation>, 
+    seq2: &mut Vec<Mutation>) -> Vec<Mutation> {
 
-    let mut out: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+    let mut out: Vec<Mutation> = Vec::new();
 
     seq1.reverse();
     seq2.reverse();
@@ -110,7 +104,7 @@ pub fn combine_lists(
             let i0 = i.unwrap().0;
             let j0 = j.unwrap().0;
             if i0 == j0 {
-                out.push((i0,  5.0, 5.0, 5.0, 5.0));
+                out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
                 i = seq1.pop();
                 j = seq2.pop();
             } else if i0 < j0 {
@@ -125,29 +119,3 @@ pub fn combine_lists(
 
     out
 }
-
-// impl Sample {
-//     pub fn add(&mut self, x: Entry) {
-//         self.list.push(x);
-//     }
-// }
-    
-
-// impl Entry {
-//     pub fn new(mutation: char, i: i64, j: Option<i64>) -> Entry {
-//         let converted_mut: MutationType = mutation_char_to_enum(mutation);
-
-//         Entry {
-//             element: (converted_mut, i , j),
-//         }
-//     }
-
-//     pub fn start(&self) -> i64 {
-//         self.element.1
-//     }
-
-//     pub fn end(&self) -> Option<i64> {
-//         self.element.2
-//     }
-
-// }

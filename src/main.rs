@@ -8,15 +8,14 @@ mod phylo2vec;
 use std::ops::RangeInclusive;
 
 use crate::gen_list::MutationType;
-use crate::gen_list::mutation_char_to_enum;
-use crate::gen_list::mutation_to_likelihood;
+use crate::gen_list::Mutation;
+use crate::gen_list::char_to_mutationtype;
+use crate::gen_list::char_to_mutation;
 use crate::gen_list::combine_lists;
 use crate::phylo2vec::phylo2vec_lin;
 use crate::phylo2vec::phylo2vec_quad;
 use crate::tree::Tree;
 use crate::node::Node;
-use crate::gen_list::Entry;
-use crate::gen_list::Sample;
 // use crate::import::str2tree;
 use ndarray::*;
 use rand::seq::SliceRandom;
@@ -44,15 +43,15 @@ fn main() {
     let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
 
     // let mut out: Vec<(usize, MutationType, MutationType)> = Vec::new();
-    let mut out: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
-    let mut out2: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+    let mut out: Vec<Mutation> = Vec::new();
+    let mut out2: Vec<Mutation> = Vec::new();
     
     for (i, (s1, s2)) in seq_vec.iter().zip(seq2.iter()).enumerate() {
         if s1 != s2 {
             // println!("{}", i);
             // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
             // println!("{}", s2);
-            out.push(mutation_to_likelihood(i, s2));
+            out.push(char_to_mutation(i, s2));
         }
     }
 
@@ -61,12 +60,9 @@ fn main() {
             // println!("{}", i);
             // out.push((i, mutation_char_to_enum(*s1), mutation_char_to_enum(*s2)));
             // println!("{}", s2);
-            out2.push(mutation_to_likelihood(i, s2));
+            out2.push(char_to_mutation(i, s2));
         }
     }
-
-    println!("seq1: {:?}", out[0..9].to_vec());
-    println!("seq2: {:?}", out2[0..9].to_vec());
 
     // let mut i_other = 0;
     let combined_out = combine_lists(&mut out, &mut out2);
