@@ -1,4 +1,5 @@
 use crate::node::Node;
+use core::iter::Filter;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -34,6 +35,10 @@ impl<'a> Tree {
             end_index: node.unwrap().index, 
             tree: self, 
             start_flag: true,}
+    }
+
+    pub fn postorder_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node>{
+       self.postorder(node).filter(|node| node.tip == false)
     }
 
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
@@ -234,6 +239,7 @@ impl<'a> Iterator for Preorder<'a> {
 // Start: go as far left as possible
 // If in Left node, swap and go left
 // If in Right node, go up to parent
+#[derive(Debug)]
 pub struct PostOrder<'a> {
     tree: &'a Tree,
     start_flag: bool,
