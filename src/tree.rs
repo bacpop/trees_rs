@@ -1,5 +1,4 @@
 use crate::node::Node;
-use core::iter::Filter;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -38,7 +37,7 @@ impl<'a> Tree {
     }
 
     pub fn postorder_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node>{
-       self.postorder(node).filter(|node| node.tip == false)
+       self.postorder(node).filter(|node| !node.tip)
     }
 
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
@@ -67,7 +66,7 @@ impl<'a> Tree {
     pub fn get_tips(&self) -> Vec<&Node> {
         self.nodes
         .iter()
-        .filter(|n| n.tip == true)
+        .filter(|n| n.tip)
         .collect()
     }
 
@@ -94,13 +93,10 @@ impl<'a> Tree {
 
         let mut dpth: usize = 0;
 
-        match parent {
-            Some(par) => {
-                self.mut_node(par).unwrap().new_child(index);
-                dpth = self.get_node(par).unwrap().depth + 1;
-            },
-            None => {},
-        };
+        if let Some(par) = parent {
+            self.mut_node(par).unwrap().new_child(index);
+            dpth = self.get_node(par).unwrap().depth + 1;
+        }
         
         self.nodes[index] = Node::new(parent, (None, None), index, dpth);
     }

@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(usize, f64, f64, f64, f64);
 
@@ -13,6 +15,7 @@ pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
         'R' => Mutation(i, 0.5, 0.0, 0.5, 0.0),
         'K' => Mutation(i, 0.0, 0.0, 0.5, 0.5),
         'S' => Mutation(i, 0.0, 0.5, 0.5, 0.0),
+        // This is currently incorrect. Not sure how to handle gaps.
         '-' => Mutation(i, 0.25, 0.25, 0.25, 0.25),
         _ => panic!("Unrecognised character"),
      }
@@ -20,7 +23,7 @@ pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
 
 // Takes a reference sequence and another sequence in SequenceRecord<'_> format
 // Returns a vector of Mutations for how the latter sequence differs from the reference
-pub fn create_list(refseq: &Vec<char>, seq: &Vec<char>) -> Vec<Mutation> {
+pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
 
     let mut out: Vec<Mutation> = Vec::new();
 
@@ -55,17 +58,37 @@ pub fn combine_lists(
         } else {
             let i0 = i.unwrap().0;
             let j0 = j.unwrap().0;
-            if i0 == j0 {
-                out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
-                i = seq1.pop();
-                j = seq2.pop();
-            } else if i0 < j0 {
-                out.push(i.unwrap());
-                i = seq1.pop();
-            } else {
-                out.push(j.unwrap());
-                j = seq2.pop();
+
+            match i0.cmp(&j0) {
+                Ordering::Equal => {
+                    // This should call another function to handle the calculation
+                    out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
+                    i = seq1.pop();
+                    j = seq2.pop();
+                },
+                Ordering::Less => {
+                    out.push(i.unwrap());
+                    i = seq1.pop();
+                },
+                Ordering::Greater => {
+                    out.push(j.unwrap());
+                    j = seq2.pop();
+                },
             }
+
+
+            // if i0 == j0 {
+            //     // This should call another function to handle the calculation
+            //     out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
+            //     i = seq1.pop();
+            //     j = seq2.pop();
+            // } else if i0 < j0 {
+            //     out.push(i.unwrap());
+            //     i = seq1.pop();
+            // } else {
+            //     out.push(j.unwrap());
+            //     j = seq2.pop();
+            // }
         }
     }
 

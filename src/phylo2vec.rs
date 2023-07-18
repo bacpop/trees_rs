@@ -59,7 +59,7 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
 
     tree.max_depth = tree.max_treedepth();
 
-    return tree
+    tree
 }
 
 pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
@@ -100,5 +100,5 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
 
     tree.max_depth = tree.max_treedepth();
 
-    return tree
+    tree
 }

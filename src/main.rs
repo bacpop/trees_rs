@@ -11,40 +11,39 @@ use crate::phylo2vec::*;
 use crate::tree::Tree;
 use std::time::{Instant};
 use needletail::*;
-use rand::{thread_rng, Rng};
 
 
 fn main() {
     let start = Instant::now();
 
-    let filename = "listeria0.aln";
-    let mut reader = parse_fastx_file(&filename).expect("error");
+    // let filename = "listeria0.aln";
+    // let mut reader = parse_fastx_file(filename).expect("error");
 
-    let record = reader.next().unwrap().unwrap();
-    let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
+    // let record = reader.next().unwrap().unwrap();
+    // let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
 
-    let record2 = reader.next().unwrap().unwrap();
-    let seq2: Vec<char> = record2.seq().iter().map(|l| *l as char).collect();
+    // let record2 = reader.next().unwrap().unwrap();
+    // let seq2: Vec<char> = record2.seq().iter().map(|l| *l as char).collect();
 
-    let record3 = reader.next().unwrap().unwrap();
-    let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
+    // let record3 = reader.next().unwrap().unwrap();
+    // let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
 
-    // let mut out: Vec<(usize, MutationType, MutationType)> = Vec::new();
-    let mut out: Vec<Mutation> = create_list(&seq_vec, &seq2);
-    let mut out2: Vec<Mutation> = create_list(&seq_vec, &seq3);
+    // let mut out: Vec<Mutation> = create_list(&seq_vec, &seq2);
+    // let mut out2: Vec<Mutation> = create_list(&seq_vec, &seq3);
 
-    let combined_out = combine_lists(&mut out, &mut out2);
+    // let combined_out = combine_lists(&mut out, &mut out2);
+    // println!("combined seq: {:?}", combined_out[0..25].to_vec());
 
-
-    println!("combined seq: {:?}", combined_out);
-
-    // let tr = phylo2vec_quad(vec![0, 0, 2, 3]);
+    // let tr = phylo2vec_quad(vec![0, 1, 0]);
     // let tr2 = phylo2vec_lin(vec![0, 0, 2, 3], false);
+
+    // println!("{:?}", tr);
     // let tr2 = phylo2vec_lin(vec![0; 500000], true);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+    eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
 
     // println!("{:?}", tr);
     // println!("{:?}", tr2);
