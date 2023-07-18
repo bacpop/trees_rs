@@ -1,17 +1,15 @@
-mod node;
-mod tree;
-mod import;
 mod gen_list;
-mod tests;
+mod import;
+mod node;
 mod phylo2vec;
-
+mod tests;
+mod tree;
 
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
-use std::time::{Instant};
 use needletail::*;
-
+use std::time::Instant;
 
 fn main() {
     let start = Instant::now();
@@ -48,11 +46,9 @@ fn main() {
     // println!("{:?}", tr);
     // println!("{:?}", tr2);
 
-
     // for el in tr.postorder(tr.get_root()) {
     //     println!("{}", el);
     // }
-
 
     // for el in tr.preorder(tr.get_root()) {
     //     println!("{:?}", el);
@@ -68,10 +64,6 @@ fn main() {
     // }
 
     // println!("{:?}", tree.most_left_child(tree.get_root()));
-
-
-
-    
 
     // tips.iter().map(|i| {
     //     let it: Vec<usize> = tree
@@ -99,5 +91,4 @@ fn main() {
 
     // Doesn't have to be from root, can preorder traverse from any node
     // tree.preorder(tree.get_node(1)).for_each(|node| println!("{}", node));
-    
 }

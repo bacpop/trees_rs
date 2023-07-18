@@ -18,37 +18,34 @@ pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
         // This is currently incorrect. Not sure how to handle gaps.
         '-' => Mutation(i, 0.25, 0.25, 0.25, 0.25),
         _ => panic!("Unrecognised character"),
-     }
+    }
 }
 
 // Takes a reference sequence and another sequence in SequenceRecord<'_> format
 // Returns a vector of Mutations for how the latter sequence differs from the reference
 pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
-
     let mut out: Vec<Mutation> = Vec::new();
 
     for (i, (s1, s2)) in refseq.iter().zip(seq.iter()).enumerate() {
-        if s1 != s2 {out.push(char_to_mutation(i, s2));}
+        if s1 != s2 {
+            out.push(char_to_mutation(i, s2));
+        }
     }
 
     out
 }
 
 // Combines two vectors of Mutations into a single vector
-pub fn combine_lists(
-    seq1: &mut Vec<Mutation>, 
-    seq2: &mut Vec<Mutation>) -> Vec<Mutation> {
-
+pub fn combine_lists(seq1: &mut Vec<Mutation>, seq2: &mut Vec<Mutation>) -> Vec<Mutation> {
     let mut out: Vec<Mutation> = Vec::new();
 
     seq1.reverse();
     seq2.reverse();
-    
+
     let mut j = seq2.pop();
     let mut i = seq1.pop();
 
     while i.is_some() | j.is_some() {
-        
         if j.is_none() {
             out.push(i.unwrap());
             i = seq1.pop();
@@ -62,20 +59,19 @@ pub fn combine_lists(
             match i0.cmp(&j0) {
                 Ordering::Equal => {
                     // This should call another function to handle the calculation
-                    out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
+                    out.push(Mutation(i0, 5.0, 5.0, 5.0, 5.0));
                     i = seq1.pop();
                     j = seq2.pop();
-                },
+                }
                 Ordering::Less => {
                     out.push(i.unwrap());
                     i = seq1.pop();
-                },
+                }
                 Ordering::Greater => {
                     out.push(j.unwrap());
                     j = seq2.pop();
-                },
+                }
             }
-
 
             // if i0 == j0 {
             //     // This should call another function to handle the calculation
@@ -94,7 +90,6 @@ pub fn combine_lists(
 
     out
 }
-
 
 // pub fn complement(e: MutationType) -> MutationType {
 //     match e {

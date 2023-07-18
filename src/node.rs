@@ -9,18 +9,23 @@ pub struct Node {
     pub depth: usize,
 }
 
-
 impl Node {
-    pub fn new(parent: Option<usize>, 
-        children: (Option<usize>, Option<usize>), index: usize, depth: usize) -> Node {
-
-        Node {children, parent, index, depth,
+    pub fn new(
+        parent: Option<usize>,
+        children: (Option<usize>, Option<usize>),
+        index: usize,
+        depth: usize,
+    ) -> Node {
+        Node {
+            children,
+            parent,
+            index,
+            depth,
             tip: matches!(children, (None, None)),
-            }
+        }
     }
 
     pub fn new_child(&mut self, new_child: usize) {
-
         self.children = match self.children {
             (None, None) => (Some(new_child), None),
             (Some(x), None) => (Some(x), Some(new_child)),
@@ -29,7 +34,6 @@ impl Node {
         };
 
         self.tip = false;
-        
     }
 
     pub fn remove_child(&mut self, child: usize) {
@@ -38,11 +42,11 @@ impl Node {
             (Some(a), Some(b)) if b == child => (Some(a), None),
             (Some(a), None) if a == child => (None, None),
             (None, Some(_b)) => {
-                panic!("Trying to remove child from parent with only a right child!")},
+                panic!("Trying to remove child from parent with only a right child!")
+            }
             _ => panic!("Trying to remove child that does not exist in parent"),
         };
     }
-
 }
 
 impl fmt::Display for Node {
@@ -54,15 +58,19 @@ impl fmt::Display for Node {
             (Some(y), None) => (y.to_string(), String::from("None")),
             (Some(x), Some(y)) => (x.to_string(), y.to_string()),
         };
-        
-        write!(f, "Sample index: {}, parent index: {}, child indices: {},{}", 
-        self.index, par, ch.0, ch.1)
+
+        write!(
+            f,
+            "Sample index: {}, parent index: {}, child indices: {},{}",
+            self.index, par, ch.0, ch.1
+        )
     }
 }
 
 impl Default for Node {
-    fn default() -> Self{
-        Node{parent: None,
+    fn default() -> Self {
+        Node {
+            parent: None,
             children: (None, None),
             tip: false,
             index: 0,

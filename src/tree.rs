@@ -10,9 +10,11 @@ pub struct Tree {
 impl<'a> Tree {
     pub fn new(tree_vec: Vec<usize>) -> Tree {
         let k = tree_vec.len();
-        Tree {tree_vec,
-        nodes: vec![Node::default(); 2 * k + 1],
-        max_depth: 0}
+        Tree {
+            tree_vec,
+            nodes: vec![Node::default(); 2 * k + 1],
+            max_depth: 0,
+        }
     }
 
     pub fn get_root(&self) -> Option<&Node> {
@@ -20,24 +22,34 @@ impl<'a> Tree {
     }
 
     pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
-        RootIter{current_node: node, next_node: node, 
-            tree: self, end_flag: false}
+        RootIter {
+            current_node: node,
+            next_node: node,
+            tree: self,
+            end_flag: false,
+        }
     }
 
     pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
-        Preorder{current_node: node, next_node: node, 
-            tree:self, return_nodes: vec![]}
+        Preorder {
+            current_node: node,
+            next_node: node,
+            tree: self,
+            return_nodes: vec![],
+        }
     }
 
     pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
-        PostOrder{current_node: node,
-            end_index: node.unwrap().index, 
-            tree: self, 
-            start_flag: true,}
+        PostOrder {
+            current_node: node,
+            end_index: node.unwrap().index,
+            tree: self,
+            start_flag: true,
+        }
     }
 
-    pub fn postorder_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node>{
-       self.postorder(node).filter(|node| !node.tip)
+    pub fn postorder_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
+        self.postorder(node).filter(|node| !node.tip)
     }
 
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
@@ -64,10 +76,7 @@ impl<'a> Tree {
 
     // Returns vector of nodes in tree that are tips
     pub fn get_tips(&self) -> Vec<&Node> {
-        self.nodes
-        .iter()
-        .filter(|n| n.tip)
-        .collect()
+        self.nodes.iter().filter(|n| n.tip).collect()
     }
 
     // pub fn get_nodes_at_depth(&self, depth: usize) -> Vec<&Node> {
@@ -89,15 +98,14 @@ impl<'a> Tree {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
 
-    pub fn add(&mut self, index: usize, parent: Option<usize>){
-
+    pub fn add(&mut self, index: usize, parent: Option<usize>) {
         let mut dpth: usize = 0;
 
         if let Some(par) = parent {
             self.mut_node(par).unwrap().new_child(index);
             dpth = self.get_node(par).unwrap().depth + 1;
         }
-        
+
         self.nodes[index] = Node::new(parent, (None, None), index, dpth);
     }
 
@@ -146,7 +154,6 @@ impl<'a> Tree {
     pub fn swap_to_right_child(&self, index: usize) -> Option<&Node> {
         self.get_node(self.get_parent(index).unwrap().children.1.unwrap())
     }
-
 }
 
 #[derive(Debug)]
@@ -154,7 +161,6 @@ pub enum Handedness {
     Left,
     Right,
 }
-
 
 #[derive(Debug)]
 pub struct RootIter<'a> {
@@ -171,17 +177,19 @@ impl<'a> Iterator for RootIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let output: Option<Self::Item>;
 
-        if self.end_flag {return None};
+        if self.end_flag {
+            return None;
+        };
 
         match self.current_node.unwrap().parent {
             None => {
                 output = self.tree.get_root();
                 self.end_flag = true;
-            },
+            }
             Some(i) => {
                 output = self.current_node;
                 self.next_node = self.tree.get_node(i);
-            },
+            }
         };
 
         self.current_node = self.next_node;
@@ -203,34 +211,36 @@ impl<'a> Iterator for Preorder<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let output: Option<Self::Item> = self.current_node; 
+        let output: Option<Self::Item> = self.current_node;
 
-        if self.current_node.is_none() {return output;}
+        if self.current_node.is_none() {
+            return output;
+        }
 
         match self.current_node.unwrap().children {
             (Some(a), None) => {
                 self.next_node = self.tree.get_node(a);
-            },
+            }
             (Some(a), Some(b)) => {
                 self.next_node = self.tree.get_node(a);
                 self.return_nodes.push(self.tree.get_node(b));
-            },
+            }
             (None, None) => {
                 self.next_node = match self.return_nodes.pop() {
                     None => None,
                     Some(node) => node,
-                };  
-            },
-            _ => {panic!("Iterator has found a node with only a right child")},
+                };
+            }
+            _ => {
+                panic!("Iterator has found a node with only a right child")
+            }
         };
 
         self.current_node = self.next_node;
-        
+
         output
     }
 }
-
-
 
 // Start: go as far left as possible
 // If in Left node, swap and go left
@@ -247,7 +257,6 @@ impl<'a> Iterator for PostOrder<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-
         if self.start_flag {
             self.current_node = self.tree.most_left_child(self.current_node);
             self.start_flag = false;
@@ -260,14 +269,16 @@ impl<'a> Iterator for PostOrder<'a> {
             let ind = self.current_node.unwrap().index;
             match self.tree.get_handedness(ind) {
                 Handedness::Left => {
-                    self.current_node = self.tree.most_left_child(self.tree.swap_to_right_child(ind));
-                },
+                    self.current_node = self
+                        .tree
+                        .most_left_child(self.tree.swap_to_right_child(ind));
+                }
                 Handedness::Right => {
                     self.current_node = self.tree.get_parent(ind);
-                },
+                }
             }
         }
 
-        self.current_node 
+        self.current_node
     }
 }

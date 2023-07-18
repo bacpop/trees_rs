@@ -1,10 +1,9 @@
 use crate::Tree;
 use ndarray::*;
-use rand::{thread_rng, Rng, seq::SliceRandom};
+use rand::{seq::SliceRandom, thread_rng, Rng};
 
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
-
-    let mut tree = Tree::new(v);    
+    let mut tree = Tree::new(v);
     let k = tree.tree_vec.len();
     let mut not_processed = vec![true].repeat(k);
     let mut M = Array2::<usize>::zeros((k, 3));
@@ -22,24 +21,22 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut rowmax: Vec<usize> = (0..=k).collect();
 
     for i in 0..k {
-        
-        let n = rowmax[0..k].iter()
-                                   .enumerate()
-                                   .rposition(| (index, el) | {
-                                        (tree.tree_vec[index] <= *el) & not_processed[index]})
-                                   .unwrap();
+        let n = rowmax[0..k]
+            .iter()
+            .enumerate()
+            .rposition(|(index, el)| (tree.tree_vec[index] <= *el) & not_processed[index])
+            .unwrap();
 
-        
-
-        let m = labels.slice(s![n, ..])
-                             .iter()
-                             .position(|x | *x == tree.tree_vec[n])
-                             .unwrap();
+        let m = labels
+            .slice(s![n, ..])
+            .iter()
+            .position(|x| *x == tree.tree_vec[n])
+            .unwrap();
 
         M[[i, 0]] = labels[[k, m]];
         M[[i, 1]] = labels[[k, n + 1]];
 
-        for j in n..=k { 
+        for j in n..=k {
             rowmax[j] += 1;
             labels[[j, m]] = rowmax[j];
         }
@@ -63,7 +60,7 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
 }
 
 pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
-    let mut tree = Tree::new(v);    
+    let mut tree = Tree::new(v);
     let k = tree.tree_vec.len();
     let mut M = Array2::<usize>::zeros((k, 3));
     let mut labels_rowk: Vec<usize> = (0..=k).collect();
