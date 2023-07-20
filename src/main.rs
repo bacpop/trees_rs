@@ -17,22 +17,14 @@ fn main() {
     let filename = "listeria0.aln";
     let mut ll = create_genetic_data(filename);
 
-    println!("{:?}", ll.likelihood_lists.len());
+    // println!("{:?}", ll.likelihood_lists.get_mut());
+    
+    let combo = combine_lists(ll.likelihood_lists.get(0), ll.likelihood_lists.get(1));
+    // println!("seq1: {:?}",ll.likelihood_lists);
+    println!("combined seq: {:?}", combo);
 
-    // let record2 = reader.next().unwrap().unwrap();
-    // let seq2: Vec<char> = record2.seq().iter().map(|l| *l as char).collect();
 
-    // let record3 = reader.next().unwrap().unwrap();
-    // let seq3: Vec<char> = record3.seq().iter().map(|l| *l as char).collect();
-
-    // let mut out: Vec<Mutation> = create_list(&seq_vec, &seq2);
-    // let mut out2: Vec<Mutation> = create_list(&seq_vec, &seq3);
-
-    // let mut lists: Vec<&mut Vec<Mutation>> = vec![&mut out, &mut out2];
-
-    // let combined_out = combine_lists(&mut out, &mut out2);
-    // println!("combined seq: {:?}", combined_out[0..25].to_vec());
-
+    // println!("{:?}", ll.likelihood_lists.get(0).unwrap().get(0));
     // let tr = phylo2vec_quad(vec![0, 1, 0]);
     // let tr2 = phylo2vec_lin(vec![0, 0, 2, 3], false);
 

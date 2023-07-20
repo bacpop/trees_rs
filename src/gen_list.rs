@@ -41,44 +41,65 @@ pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
 }
 
 // Combines two vectors of Mutations into a single vector
-pub fn combine_lists(seq1: &mut Vec<Mutation>, seq2: &mut Vec<Mutation>) -> Vec<Mutation> {
+pub fn combine_lists(seq1: Option<&Vec<Mutation>>, seq2: Option<&Vec<Mutation>>) -> Vec<Mutation> {
     let mut out: Vec<Mutation> = Vec::new();
+    let seq1 = seq1.unwrap();
+    let seq2 = seq2.unwrap();
 
-    seq1.reverse();
-    seq2.reverse();
+    // Index in each vector of mutations
+    let mut s1_i = seq1.len() - 1;
+    let mut s2_i = seq2.len() - 1;
 
-    let mut j = seq2.pop();
-    let mut i = seq1.pop();
+    // Mutation at each index
+    let mut s1_node = seq1.get(s1_i);
+    let mut s2_node = seq2.get(s2_i);
 
-    while i.is_some() | j.is_some() {
-        if j.is_none() {
-            out.push(i.unwrap());
-            i = seq1.pop();
-        } else if i.is_none() {
-            out.push(j.unwrap());
-            j = seq2.pop();
-        } else {
-            let i0 = i.unwrap().0;
-            let j0 = j.unwrap().0;
+    // Location of mutation in sequence
+    let mut s1_loc = s1_node.unwrap().0;
+    let mut s2_loc = s2_node.unwrap().0;
 
-            match i0.cmp(&j0) {
-                Ordering::Equal => {
-                    // This should call another function to handle the calculation
-                    out.push(Mutation(i0, 5.0, 5.0, 5.0, 5.0));
-                    i = seq1.pop();
-                    j = seq2.pop();
-                }
-                Ordering::Less => {
-                    out.push(i.unwrap());
-                    i = seq1.pop();
-                }
-                Ordering::Greater => {
-                    out.push(j.unwrap());
-                    j = seq2.pop();
-                }
+    while (s1_i < 0) | (s2_i > 0) {
+        match s1_loc.cmp(&s2_loc) {
+            Ordering::Equal => {
+                out.push(Mutation(s1_loc, 5.0, 5.0, 5.0, 5.0));
+                
+                s1_i -= 1;
+                s1_node = seq1.get(s1_i);
+                s1_loc = s1_node.unwrap().0;
+
+                s2_i -= 1;
+                s2_node = seq2.get(s2_i);
+                s2_loc = s2_node.unwrap().0;
+            },
+            Ordering::Greater => {
+                out.push(*s1_node.unwrap());
+                s1_i -= 1;
+                s1_node = seq1.get(s1_i);
+                s1_loc = s1_node.unwrap().0;
+            },
+            Ordering::Less => {
+                out.push(*s2_node.unwrap());
+                s2_i -= 1;
+                s2_node = seq2.get(s2_i);
+                s2_loc = s2_node.unwrap().0;
             }
         }
     }
+
+    // Push last entries
+    match s1_loc.cmp(&s2_loc) {
+        Ordering::Equal => {
+            out.push(Mutation(s1_loc, 5.0, 5.0, 5.0, 5.0));},
+        Ordering::Greater => {
+            out.push(*s1_node.unwrap());
+            out.push(*s2_node.unwrap());},
+        Ordering::Less => {
+            out.push(*s2_node.unwrap());
+            out.push(*s1_node.unwrap());
+        },
+    }
+
+    out.reverse();
 
     out
 }
