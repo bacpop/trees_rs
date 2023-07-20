@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use needletail::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(usize, f64, f64, f64, f64);
@@ -15,9 +16,13 @@ pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
         'R' => Mutation(i, 0.5, 0.0, 0.5, 0.0),
         'K' => Mutation(i, 0.0, 0.0, 0.5, 0.5),
         'S' => Mutation(i, 0.0, 0.5, 0.5, 0.0),
+        'M' => Mutation(i, 0.5, 0.5, 0.0, 0.0),
+        'B' => Mutation(i, 0.0, 1.0/3.0, 1.0/3.0, 1.0/3.0),
+        'D' => Mutation(i, 1.0/3.0, 0.0, 1.0/3.0, 1.0/3.0),
+        'V' => Mutation(i, 1.0/3.0, 1.0/3.0, 1.0/3.0, 0.0),
         // This is currently incorrect. Not sure how to handle gaps.
         '-' => Mutation(i, 0.25, 0.25, 0.25, 0.25),
-        _ => panic!("Unrecognised character"),
+        _ => panic!("Unrecognised character: {}", e),
     }
 }
 
@@ -72,23 +77,32 @@ pub fn combine_lists(seq1: &mut Vec<Mutation>, seq2: &mut Vec<Mutation>) -> Vec<
                     j = seq2.pop();
                 }
             }
-
-            // if i0 == j0 {
-            //     // This should call another function to handle the calculation
-            //     out.push(Mutation(i0,  5.0, 5.0, 5.0, 5.0));
-            //     i = seq1.pop();
-            //     j = seq2.pop();
-            // } else if i0 < j0 {
-            //     out.push(i.unwrap());
-            //     i = seq1.pop();
-            // } else {
-            //     out.push(j.unwrap());
-            //     j = seq2.pop();
-            // }
         }
     }
 
     out
+}
+
+#[derive(Debug)]
+pub struct GeneticData {
+    pub likelihood_lists: Vec<Vec<Mutation>>,
+}
+
+pub fn create_genetic_data(filename: &str) -> GeneticData {
+    let mut reader = parse_fastx_file(filename).expect("File error");
+
+    // For now take first sequence as reference sequence
+    let record = reader.next().unwrap().unwrap();
+    let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
+
+    let mut ll: GeneticData = GeneticData {likelihood_lists: Vec::new()};
+
+    while let Some(rec) = reader.next() {
+        let newrec: Vec<char> = rec.unwrap().seq().iter().map(|l| *l as char).collect();
+        ll.likelihood_lists.push(create_list(&seq_vec, &newrec));
+    }
+
+    ll
 }
 
 // pub fn complement(e: MutationType) -> MutationType {

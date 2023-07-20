@@ -1,4 +1,5 @@
 use std::fmt;
+use crate::gen_list::Mutation;
 
 #[derive(Debug, Clone)]
 pub struct Node {
@@ -7,6 +8,7 @@ pub struct Node {
     pub tip: bool,
     pub index: usize,
     pub depth: usize,
+    pub ll_list: Option<Vec<Mutation>>,
 }
 
 impl Node {
@@ -15,6 +17,7 @@ impl Node {
         children: (Option<usize>, Option<usize>),
         index: usize,
         depth: usize,
+        ll_list: Option<Vec<Mutation>>,
     ) -> Node {
         Node {
             children,
@@ -22,6 +25,7 @@ impl Node {
             index,
             depth,
             tip: matches!(children, (None, None)),
+            ll_list,
         }
     }
 
@@ -75,6 +79,7 @@ impl Default for Node {
             tip: false,
             index: 0,
             depth: 0,
+            ll_list: None,
         }
     }
 }

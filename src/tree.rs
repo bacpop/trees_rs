@@ -106,7 +106,7 @@ impl<'a> Tree {
             dpth = self.get_node(par).unwrap().depth + 1;
         }
 
-        self.nodes[index] = Node::new(parent, (None, None), index, dpth);
+        self.nodes[index] = Node::new(parent, (None, None), index, dpth, None);
     }
 
     pub fn get_handedness(&self, index: usize) -> Handedness {

@@ -14,11 +14,10 @@ use std::time::Instant;
 fn main() {
     let start = Instant::now();
 
-    // let filename = "listeria0.aln";
-    // let mut reader = parse_fastx_file(filename).expect("error");
+    let filename = "listeria0.aln";
+    let mut ll = create_genetic_data(filename);
 
-    // let record = reader.next().unwrap().unwrap();
-    // let seq_vec:Vec<char> = record.seq().iter().map(|l| *l as char).collect();
+    println!("{:?}", ll.likelihood_lists.len());
 
     // let record2 = reader.next().unwrap().unwrap();
     // let seq2: Vec<char> = record2.seq().iter().map(|l| *l as char).collect();
@@ -28,6 +27,8 @@ fn main() {
 
     // let mut out: Vec<Mutation> = create_list(&seq_vec, &seq2);
     // let mut out2: Vec<Mutation> = create_list(&seq_vec, &seq3);
+
+    // let mut lists: Vec<&mut Vec<Mutation>> = vec![&mut out, &mut out2];
 
     // let combined_out = combine_lists(&mut out, &mut out2);
     // println!("combined seq: {:?}", combined_out[0..25].to_vec());
