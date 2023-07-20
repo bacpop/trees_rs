@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use needletail::*;
 
 #[derive(Debug, Copy, Clone)]
-pub struct Mutation(usize, f64, f64, f64, f64);
+pub struct Mutation(pub usize, pub f64, pub f64, pub f64, pub f64);
 
 pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
     match e {
@@ -58,9 +58,10 @@ pub fn combine_lists(seq1: Option<&Vec<Mutation>>, seq2: Option<&Vec<Mutation>>)
     let mut s1_loc = s1_node.unwrap().0;
     let mut s2_loc = s2_node.unwrap().0;
 
-    while (s1_i < 0) | (s2_i > 0) {
+    while (s1_i > 0) | (s2_i > 0) {
         match s1_loc.cmp(&s2_loc) {
             Ordering::Equal => {
+                // There should be a step here to calculate combined likelihoods
                 out.push(Mutation(s1_loc, 5.0, 5.0, 5.0, 5.0));
                 
                 s1_i -= 1;

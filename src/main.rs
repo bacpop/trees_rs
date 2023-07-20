@@ -8,6 +8,9 @@ mod tree;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
+use ndarray::ArrayBase;
+use ndarray::ViewRepr;
+use ndarray::array;
 use needletail::*;
 use std::time::Instant;
 
@@ -15,14 +18,29 @@ fn main() {
     let start = Instant::now();
 
     let filename = "listeria0.aln";
-    let mut ll = create_genetic_data(filename);
+    let ll = create_genetic_data(filename);
 
     // println!("{:?}", ll.likelihood_lists.get_mut());
     
     let combo = combine_lists(ll.likelihood_lists.get(0), ll.likelihood_lists.get(1));
     // println!("seq1: {:?}",ll.likelihood_lists);
-    println!("combined seq: {:?}", combo);
+    // println!("combined seq: {:?}", combo);
 
+    // let q = ndarray::Array2::<f64>::eye(4);
+    let q = array![[-2., 1., 1., 1.], [1., -2., 1., 1.], [1., 1., -2., 1.], [1., 1., 1., -2.]];
+    println!("{:?}", q);
+    let mut p = ndarray::Array::<f64, _>::zeros((4, 4));
+
+
+    let a = Mutation(1, 0.25, 0.25, 0.25, 0.25);
+    let b: ArrayBase<ViewRepr<&f64>, ndarray::Dim<[usize; 1]>> = q.row(0);
+    println!("{:?}", b);
+
+    pub fn likelihood_sum(a: Mutation, b: ArrayBase<ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>) -> Mutation {
+        Mutation(a.0, a.1 * b[[0]], a.2 * b [[1]], a.3 * b[[2]], a.4 * b[[3]])
+    }
+
+    println!("{:?}", likelihood_sum(a, b));
 
     // println!("{:?}", ll.likelihood_lists.get(0).unwrap().get(0));
     // let tr = phylo2vec_quad(vec![0, 1, 0]);
