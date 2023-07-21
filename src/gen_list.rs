@@ -55,83 +55,61 @@ pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
 
 // Combines two vectors of Mutations into a single vector
 pub fn combine_lists(seq1: Option<&Vec<Mutation>>, 
-                     seq2: Option<&Vec<Mutation>>, 
-                     branchlengths: (f64, f64), 
-                     rate_matrix: &na::Matrix4<f64>) -> Vec<Mutation> {
+    seq2: Option<&Vec<Mutation>>, 
+    branchlengths: (f64, f64), 
+    rate_matrix: &na::Matrix4<f64>) -> Vec<Mutation> {
 
     let mut out: Vec<Mutation> = Vec::new();
-    let seq1 = seq1.unwrap();
-    let seq2 = seq2.unwrap();
-
-    // Index in each vector of mutations
-    let mut s1_i = seq1.len() - 1;
-    let mut s2_i = seq2.len() - 1;
-
-    // Mutation at each index
-    let mut s1_node = seq1.get(s1_i);
-    let mut s2_node = seq2.get(s2_i);
-
-    // Location of mutation in sequence
-    let mut s1_loc = s1_node.unwrap().0;
-    let mut s2_loc = s2_node.unwrap().0;
-
-    // Branch lengths
-    let b1 = branchlengths.0;
-    let b2 = branchlengths.1;
 
     // Probability matrices
-    let p1 = na::Matrix::exp(&(rate_matrix * b1));
-    let p2 = na::Matrix::exp(&(rate_matrix * b2));
+    let p1 = na::Matrix::exp(&(rate_matrix * branchlengths.0));
+    let p2 = na::Matrix::exp(&(rate_matrix * branchlengths.1));
 
-    while (s1_i > 0) | (s2_i > 0) {
-        match s1_loc.cmp(&s2_loc) {
-            Ordering::Equal => {
-                // There should be a step here to calculate combined likelihoods
-                
-                out.push(s1_node.unwrap()
-                                .likelihood(b1, &p1)
-                                .prod(s2_node.unwrap().likelihood(b2, &p2)));
-                
-                s1_i -= 1;
-                s1_node = seq1.get(s1_i);
-                s1_loc = s1_node.unwrap().0;
+    let mut s1 = seq1.unwrap().iter();
+    let mut s2 = seq2.unwrap().iter();
 
-                s2_i -= 1;
-                s2_node = seq2.get(s2_i);
-                s2_loc = s2_node.unwrap().0;
-            },
-            Ordering::Greater => {
-                out.push(s1_node.unwrap().likelihood(b1, &p1));
-                s1_i -= 1;
-                s1_node = seq1.get(s1_i);
-                s1_loc = s1_node.unwrap().0;
-            },
-            Ordering::Less => {
-                out.push(s2_node.unwrap().likelihood(b2, &p2));
-                s2_i -= 1;
-                s2_node = seq2.get(s2_i);
-                s2_loc = s2_node.unwrap().0;
+    let mut mut1 = s1.next();
+    let mut mut2 = s2.next();
+
+    while mut1.is_some() | mut2.is_some() {
+        if mut1.is_none() {
+            // First iterator empty, push second
+            out.push(mut2.unwrap().likelihood(branchlengths.1, &p2));
+            mut2 = s2.next();
+        } else if mut2.is_none() {
+            // Second iterator empty, push first
+            out.push(mut1.unwrap().likelihood(branchlengths.0, &p1));
+            mut1 = s1.next();
+        } else {
+            // Neither iterator empty, compare indices of mutations and push highest
+            // or combine likelihood if mutations at same location
+            match mut1.unwrap().0.cmp(&mut2.unwrap().0) {
+                Ordering::Equal => {
+                    out.push(mut1.unwrap()
+                                .likelihood(branchlengths.0, &p1)
+                                .prod(mut2.unwrap().likelihood(branchlengths.1, &p2)));
+                            mut1 = s1.next();
+                            mut2 = s2.next();
+                },
+                Ordering::Greater => {
+                    out.push(mut1.unwrap().likelihood(branchlengths.0, &p1));
+                    mut1 = s1.next();
+                },
+                Ordering::Less => {
+                    out.push(mut2.unwrap().likelihood(branchlengths.1, &p2));
+                    mut2 = s2.next();
+                },
             }
         }
-    }
 
-    // Push last entries
-    match s1_loc.cmp(&s2_loc) {
-        Ordering::Equal => {
-            out.push(Mutation(s1_loc, 5.0, 5.0, 5.0, 5.0));},
-        Ordering::Greater => {
-            out.push(*s1_node.unwrap());
-            out.push(*s2_node.unwrap());},
-        Ordering::Less => {
-            out.push(*s2_node.unwrap());
-            out.push(*s1_node.unwrap());
-        },
+        
     }
 
     out.reverse();
 
     out
 }
+
 
 #[derive(Debug)]
 pub struct GeneticData {

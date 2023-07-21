@@ -8,7 +8,7 @@ pub struct Node {
     pub tip: bool,
     pub index: usize,
     pub depth: usize,
-    pub ll_list: Option<Vec<Mutation>>,
+    pub ll_list: Vec<Mutation>,
     pub branch_length: f64,
 }
 
@@ -18,7 +18,7 @@ impl Node {
         children: (Option<usize>, Option<usize>),
         index: usize,
         depth: usize,
-        ll_list: Option<Vec<Mutation>>,
+        ll_list: Vec<Mutation>,
         branch_length: f64,
     ) -> Node {
         Node {
@@ -82,7 +82,7 @@ impl Default for Node {
             tip: false,
             index: 0,
             depth: 0,
-            ll_list: None,
+            ll_list: Vec::new(),
             branch_length: 1.0,
         }
     }

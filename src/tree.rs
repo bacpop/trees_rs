@@ -110,7 +110,7 @@ impl<'a> Tree {
             dpth = self.get_node(par).unwrap().depth + 1;
         }
 
-        self.nodes[index] = Node::new(parent, (None, None), index, dpth, None, 1.0);
+        self.nodes[index] = Node::new(parent, (None, None), index, dpth, Vec::new(), 1.0);
     }
 
     pub fn get_handedness(&self, index: usize) -> Handedness {
@@ -158,6 +158,22 @@ impl<'a> Tree {
     pub fn swap_to_right_child(&self, index: usize) -> Option<&Node> {
         self.get_node(self.get_parent(index).unwrap().children.1.unwrap())
     }
+
+    // pub fn most_left_child_mut(&'a self, node: Option<&'a mut Node>) -> Option<&'a mut Node> {
+    //     let mut cur_node = node;
+    //     let mut cur_left_child = cur_node.unwrap().children.0;
+
+    //     while cur_left_child.is_some() {
+    //         cur_node = self.mut_node(cur_left_child.unwrap());
+    //         cur_left_child = cur_node.unwrap().children.0;
+    //     }
+    //     // println!("current node: {:?}", cur_node);
+    //     cur_node
+    // }
+
+    // pub fn swap_to_right_child_mut(&self, index: usize) -> Option<&'a mut Node> {
+    //     self.mut_node(self.get_parent(index).unwrap().children.1.unwrap())
+    // }
 }
 
 #[derive(Debug)]
@@ -257,6 +273,7 @@ pub struct PostOrder<'a> {
     end_index: usize,
 }
 
+
 impl<'a> Iterator for PostOrder<'a> {
     type Item = &'a Node;
 
@@ -286,3 +303,46 @@ impl<'a> Iterator for PostOrder<'a> {
         self.current_node
     }
 }
+
+// #[derive(Debug)]
+// pub struct PostOrderMut<'a> {
+//     tree: &'a Tree,
+//     start_flag: bool,
+//     current_node: Option<&'a mut Node>,
+//     end_index: usize,
+// }
+
+// impl<'a> Iterator for PostOrderMut<'a> {
+//     type Item = &'a mut Node;
+
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.start_flag {
+            
+//             while let Some(index) = self.current_node.as_mut().unwrap().children.0 {
+//                 self.current_node = self.tree.as_mut().mut_node(index);
+//             }
+//             self.start_flag = false;
+//         } else {
+//             // If we return to start node, end iterator
+//             if self.current_node.as_mut().unwrap().index == self.end_index {
+//                 return None;
+//             }
+
+//             let ind = self.current_node.as_mut().unwrap().index;
+//             match self.tree.get_handedness(ind) {
+//                 Handedness::Left => {
+//                     self.current_node = self.tree.mut_node(self.tree.get_parent(self.current_node.unwrap().index).unwrap().children.1.unwrap());
+//                     while let Some(index) = self.current_node.unwrap().children.0 {
+//                         self.current_node = self.tree.mut_node(index);
+//                     }
+//                 }
+//                 Handedness::Right => {
+//                     self.current_node = self.tree.mut_parent(ind);
+                    
+//                 }
+//             }
+//         }
+
+//         self.current_node
+//     }
+// }
