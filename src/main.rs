@@ -13,37 +13,42 @@ use ndarray::ViewRepr;
 use ndarray::array;
 use needletail::*;
 use std::time::Instant;
+extern crate nalgebra as na;
+// extern crate blas;
+// extern crate openblas_src;
+// use approx::assert_ulps_eq;
 
 fn main() {
-    let start = Instant::now();
+    
 
     let filename = "listeria0.aln";
     let ll = create_genetic_data(filename);
-
+    let tr = phylo2vec_quad(vec![0, 1, 0]);
+    let mut q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
+        1.0, -2.0, 1.0, 1.0,
+        1.0, 1.0, -2.0, 1.0,
+        1.0, 1.0, 1.0 , -2.0);
     // println!("{:?}", ll.likelihood_lists.get_mut());
     
-    let combo = combine_lists(ll.likelihood_lists.get(0), ll.likelihood_lists.get(1));
+    let start = Instant::now();
+    let combo = combine_lists(ll.likelihood_lists.get(0), 
+                                             ll.likelihood_lists.get(1),
+                                            (tr.get_branchlength(0), tr.get_branchlength(1)),
+                                            &q);
     // println!("seq1: {:?}",ll.likelihood_lists);
-    // println!("combined seq: {:?}", combo);
+    println!("combined seq: {:?}", combo);
 
-    // let q = ndarray::Array2::<f64>::eye(4);
-    let q = array![[-2., 1., 1., 1.], [1., -2., 1., 1.], [1., 1., -2., 1.], [1., 1., 1., -2.]];
-    println!("{:?}", q);
-    let mut p = ndarray::Array::<f64, _>::zeros((4, 4));
+    // let a = Mutation(1, 0.55, 0.15, 0.15, 0.1);
+    // let b = Mutation(1, 0.35, 0.25, 0.25, 0.1);
 
-
-    let a = Mutation(1, 0.25, 0.25, 0.25, 0.25);
-    let b: ArrayBase<ViewRepr<&f64>, ndarray::Dim<[usize; 1]>> = q.row(0);
-    println!("{:?}", b);
-
-    pub fn likelihood_sum(a: Mutation, b: ArrayBase<ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>) -> Mutation {
-        Mutation(a.0, a.1 * b[[0]], a.2 * b [[1]], a.3 * b[[2]], a.4 * b[[3]])
-    }
-
-    println!("{:?}", likelihood_sum(a, b));
+    // println!("{:?}", q);
+    
+    // let temp = a.likelihood(0.125, &q)
+    //                       .prod(b.likelihood(0.5, &q));
+    // println!("{:?}", temp);
 
     // println!("{:?}", ll.likelihood_lists.get(0).unwrap().get(0));
-    // let tr = phylo2vec_quad(vec![0, 1, 0]);
+    
     // let tr2 = phylo2vec_lin(vec![0, 0, 2, 3], false);
 
     // println!("{:?}", tr);
@@ -57,7 +62,7 @@ fn main() {
     // println!("{:?}", tr);
     // println!("{:?}", tr2);
 
-    // for el in tr.postorder(tr.get_root()) {
+    // for el in tr.postorder_notips(tr.get_root()) {
     //     println!("{}", el);
     // }
 

@@ -9,6 +9,7 @@ pub struct Node {
     pub index: usize,
     pub depth: usize,
     pub ll_list: Option<Vec<Mutation>>,
+    pub branch_length: f64,
 }
 
 impl Node {
@@ -18,6 +19,7 @@ impl Node {
         index: usize,
         depth: usize,
         ll_list: Option<Vec<Mutation>>,
+        branch_length: f64,
     ) -> Node {
         Node {
             children,
@@ -26,6 +28,7 @@ impl Node {
             depth,
             tip: matches!(children, (None, None)),
             ll_list,
+            branch_length,
         }
     }
 
@@ -80,6 +83,7 @@ impl Default for Node {
             index: 0,
             depth: 0,
             ll_list: None,
+            branch_length: 1.0,
         }
     }
 }

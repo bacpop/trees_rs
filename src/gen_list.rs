@@ -4,6 +4,19 @@ use needletail::*;
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub usize, pub f64, pub f64, pub f64, pub f64);
 
+impl Mutation {
+    pub fn prod(self, r: Mutation) -> Mutation {
+        Mutation(self.0, self.1 * r.1, self.2 *r.2, self.3 * r.3, self.4 * r.4)
+    }
+
+    pub fn likelihood(self, branch_length: f64, prob_matrix: &na::Matrix4<f64>) -> Mutation {
+        
+        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
+
+        Mutation(self.0, x[0], x[1], x[2], x[3])
+    }
+}
+
 pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
     match e {
         // (A, C, G, T)
@@ -41,7 +54,11 @@ pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
 }
 
 // Combines two vectors of Mutations into a single vector
-pub fn combine_lists(seq1: Option<&Vec<Mutation>>, seq2: Option<&Vec<Mutation>>) -> Vec<Mutation> {
+pub fn combine_lists(seq1: Option<&Vec<Mutation>>, 
+                     seq2: Option<&Vec<Mutation>>, 
+                     branchlengths: (f64, f64), 
+                     rate_matrix: &na::Matrix4<f64>) -> Vec<Mutation> {
+
     let mut out: Vec<Mutation> = Vec::new();
     let seq1 = seq1.unwrap();
     let seq2 = seq2.unwrap();
@@ -58,11 +75,22 @@ pub fn combine_lists(seq1: Option<&Vec<Mutation>>, seq2: Option<&Vec<Mutation>>)
     let mut s1_loc = s1_node.unwrap().0;
     let mut s2_loc = s2_node.unwrap().0;
 
+    // Branch lengths
+    let b1 = branchlengths.0;
+    let b2 = branchlengths.1;
+
+    // Probability matrices
+    let p1 = na::Matrix::exp(&(rate_matrix * b1));
+    let p2 = na::Matrix::exp(&(rate_matrix * b2));
+
     while (s1_i > 0) | (s2_i > 0) {
         match s1_loc.cmp(&s2_loc) {
             Ordering::Equal => {
                 // There should be a step here to calculate combined likelihoods
-                out.push(Mutation(s1_loc, 5.0, 5.0, 5.0, 5.0));
+                
+                out.push(s1_node.unwrap()
+                                .likelihood(b1, &p1)
+                                .prod(s2_node.unwrap().likelihood(b2, &p2)));
                 
                 s1_i -= 1;
                 s1_node = seq1.get(s1_i);
@@ -73,13 +101,13 @@ pub fn combine_lists(seq1: Option<&Vec<Mutation>>, seq2: Option<&Vec<Mutation>>)
                 s2_loc = s2_node.unwrap().0;
             },
             Ordering::Greater => {
-                out.push(*s1_node.unwrap());
+                out.push(s1_node.unwrap().likelihood(b1, &p1));
                 s1_i -= 1;
                 s1_node = seq1.get(s1_i);
                 s1_loc = s1_node.unwrap().0;
             },
             Ordering::Less => {
-                out.push(*s2_node.unwrap());
+                out.push(s2_node.unwrap().likelihood(b2, &p2));
                 s2_i -= 1;
                 s2_node = seq2.get(s2_i);
                 s2_loc = s2_node.unwrap().0;

@@ -74,6 +74,10 @@ impl<'a> Tree {
         }
     }
 
+    pub fn get_branchlength(&self, index: usize) -> f64 {
+        self.get_node(index).unwrap().branch_length
+    }
+
     // Returns vector of nodes in tree that are tips
     pub fn get_tips(&self) -> Vec<&Node> {
         self.nodes.iter().filter(|n| n.tip).collect()
@@ -106,7 +110,7 @@ impl<'a> Tree {
             dpth = self.get_node(par).unwrap().depth + 1;
         }
 
-        self.nodes[index] = Node::new(parent, (None, None), index, dpth, None);
+        self.nodes[index] = Node::new(parent, (None, None), index, dpth, None, 1.0);
     }
 
     pub fn get_handedness(&self, index: usize) -> Handedness {
