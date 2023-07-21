@@ -34,24 +34,34 @@ fn main() {
     let mut tr = phylo2vec_quad(vec![0; leafn]);
     
     // Define rate matrix
-    let mut q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
+    let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
         1.0, -2.0, 1.0, 1.0,
         1.0, 1.0, -2.0, 1.0,
         1.0, 1.0, 1.0 , -2.0);
 
 
     let start = Instant::now();
-    for node in tr.postorder_notips(tr.get_root()) {
 
-        let branchlengths = (tr.get_branchlength(node.children.0.unwrap()),
-                                         tr.get_branchlength(node.children.1.unwrap()));
+    let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
 
-        let seq1 = ll.likelihood_lists.get(node.children.0.unwrap());
-        let seq2 = ll.likelihood_lists.get(node.children.1.unwrap());
+    let time = 0.75;
 
-        ll.likelihood_lists[node.index] = combine_lists(seq1, seq2, branchlengths, &q);
+    let p = na::Matrix::exp(&(q * time));
+    
+    println!("{:?}", p);
 
-    }
+    println!("{:?}", muts.likelihood(time, &p));
+    // for node in tr.postorder_notips(tr.get_root()) {
+
+    //     let branchlengths = (tr.get_branchlength(node.children.0.unwrap()),
+    //                                      tr.get_branchlength(node.children.1.unwrap()));
+
+    //     let seq1 = ll.likelihood_lists.get(node.children.0.unwrap());
+    //     let seq2 = ll.likelihood_lists.get(node.children.1.unwrap());
+
+    //     ll.likelihood_lists[node.index] = combine_lists(seq1, seq2, branchlengths, &q);
+
+    // }
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());

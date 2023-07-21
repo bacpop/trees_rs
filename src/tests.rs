@@ -2,6 +2,7 @@
 mod tests {
     use crate::phylo2vec::phylo2vec_lin;
     use crate::phylo2vec::phylo2vec_quad;
+    use crate::gen_list::Mutation;
     // use crate::tree::Tree;
     // use crate::import::str2tree;
     // use crate::gen_list::Entry;
@@ -209,6 +210,31 @@ mod tests {
             tree_l.get_node(6).unwrap().parent,
             tree_q.get_node(6).unwrap().parent
         );
+    }
+
+    #[test]
+    fn genetic_likelihood() {
+        let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
+        
+        let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
+            1.0, -2.0, 1.0, 1.0,
+            1.0, 1.0, -2.0, 1.0,
+            1.0, 1.0, 1.0 , -2.0);
+
+        let time = 0.75;
+
+        let p = na::Matrix::exp(&(q * time));
+
+        assert_eq!(p[(0, 0)], 0.6082994225745668);
+        assert_eq!(p[(1, 2)], 0.5029001980127024);
+        assert_eq!(p[(2, 1)], 0.5029001980127025);
+        assert_eq!(p[(3, 3)], 0.6082994225745667);
+
+
+        let ll = muts.likelihood(time, &p);
+
+        assert_eq!(ll.1, 0.5187100816969821);
+        assert_eq!(ll.3, 0.5292500041531686);
     }
 
     //     #[test]
