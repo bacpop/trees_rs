@@ -42,15 +42,19 @@ fn main() {
 
     let start = Instant::now();
 
-    let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
+    // let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
 
-    let time = 0.75;
+    // let time = 0.75;
 
-    let p = na::Matrix::exp(&(q * time));
+    // let p = na::Matrix::exp(&(q * time));
     
-    println!("{:?}", p);
+    // println!("{:?}", p);
 
-    println!("{:?}", muts.likelihood(time, &p));
+    // println!("{:?}", muts.likelihood(&p));
+
+    tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
+    tr.update_likelihood_rootward(tr.get_root(), &mut ll, &q);
+    
     // for node in tr.postorder_notips(tr.get_root()) {
 
     //     let branchlengths = (tr.get_branchlength(node.children.0.unwrap()),

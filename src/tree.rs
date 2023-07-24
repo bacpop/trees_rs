@@ -1,4 +1,5 @@
-use crate::node::Node;
+use crate::{node::Node, gen_list::GeneticData};
+use crate::gen_list::combine_lists;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -28,6 +29,10 @@ impl<'a> Tree {
             tree: self,
             end_flag: false,
         }
+    }
+
+    pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
+        self.iter(node).filter(|node| !node.tip)
     }
 
     pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
@@ -83,6 +88,39 @@ impl<'a> Tree {
         self.nodes.iter().filter(|n| n.tip).collect()
     }
 
+    pub fn update_likelihood_postorder(&'a self, 
+        node: Option<&'a Node>, 
+        genetic_data: &mut GeneticData,
+        rate_matrix: &na::Matrix4<f64>) -> () {
+
+        for elem in self.postorder_notips(node) {
+            let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
+                                         self.get_branchlength(elem.children.1.unwrap()));
+
+            let seq1 = genetic_data.likelihood_lists.get(elem.children.0.unwrap());
+            let seq2 = genetic_data.likelihood_lists.get(elem.children.1.unwrap());
+
+            genetic_data.likelihood_lists[elem.index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
+        }
+    }
+
+    pub fn update_likelihood_rootward(&'a self,
+        node: Option<&'a Node>, 
+        genetic_data: &mut GeneticData,
+        rate_matrix: &na::Matrix4<f64>) -> () {
+        
+        for elem in self.iter_notips(node) {
+            let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
+            self.get_branchlength(elem.children.1.unwrap()));
+
+        let seq1 = genetic_data.likelihood_lists.get(elem.children.0.unwrap());
+        let seq2 = genetic_data.likelihood_lists.get(elem.children.1.unwrap());
+
+        genetic_data.likelihood_lists[elem.index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
+        }
+
+    }
+
     // pub fn get_nodes_at_depth(&self, depth: usize) -> Vec<&Node> {
     //     self.nodes
     //     .iter()
@@ -123,25 +161,26 @@ impl<'a> Tree {
         }
     }
 
-    // pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
+    pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
 
-    //     if self.get_node(node_index).is_none() {
-    //         panic!("Node to move does not exist");
-    //     }
+        if self.get_node(node_index).is_none() {
+            panic!("Node to move does not exist");
+        }
 
-    //     if self.get_node(new_parent_index).is_none() {
-    //         panic!("New parent does not exist");
-    //     }
+        if self.get_node(new_parent_index).is_none() {
+            panic!("New parent does not exist");
+        }
 
-    //     if self.get_parent(node_index).is_none() {
-    //         panic!("Cannot move root node")
-    //     }
+        if self.get_parent(node_index).is_none() {
+            panic!("Cannot move root node")
+        }
 
-    //     self.mut_parent(node_index).unwrap().remove_child(node_index);
-    //     self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
-    //     self.mut_node(new_parent_index).unwrap().new_child(node_index);
+        self.mut_parent(node_index).unwrap().remove_child(node_index);
+        self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
+        self.mut_node(new_parent_index).unwrap().new_child(node_index);
+        self.mut_node(node_index).unwrap().depth = self.get_parent(new_parent_index).unwrap().depth + 1;
 
-    // }
+    }
 
     pub fn most_left_child(&'a self, node: Option<&'a Node>) -> Option<&Node> {
         let mut cur_node = node;

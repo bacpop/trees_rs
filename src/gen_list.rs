@@ -9,7 +9,7 @@ impl Mutation {
         Mutation(self.0, self.1 * r.1, self.2 *r.2, self.3 * r.3, self.4 * r.4)
     }
 
-    pub fn likelihood(self, branch_length: f64, prob_matrix: &na::Matrix4<f64>) -> Mutation {
+    pub fn likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
         
         let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
 
@@ -74,11 +74,11 @@ pub fn combine_lists(seq1: Option<&Vec<Mutation>>,
     while mut1.is_some() | mut2.is_some() {
         if mut1.is_none() {
             // First iterator empty, push second
-            out.push(mut2.unwrap().likelihood(branchlengths.1, &p2));
+            out.push(mut2.unwrap().likelihood(&p2));
             mut2 = s2.next();
         } else if mut2.is_none() {
             // Second iterator empty, push first
-            out.push(mut1.unwrap().likelihood(branchlengths.0, &p1));
+            out.push(mut1.unwrap().likelihood(&p1));
             mut1 = s1.next();
         } else {
             // Neither iterator empty, compare indices of mutations and push highest
@@ -86,17 +86,17 @@ pub fn combine_lists(seq1: Option<&Vec<Mutation>>,
             match mut1.unwrap().0.cmp(&mut2.unwrap().0) {
                 Ordering::Equal => {
                     out.push(mut1.unwrap()
-                                .likelihood(branchlengths.0, &p1)
-                                .prod(mut2.unwrap().likelihood(branchlengths.1, &p2)));
+                                .likelihood(&p1)
+                                .prod(mut2.unwrap().likelihood(&p2)));
                             mut1 = s1.next();
                             mut2 = s2.next();
                 },
                 Ordering::Greater => {
-                    out.push(mut1.unwrap().likelihood(branchlengths.0, &p1));
+                    out.push(mut1.unwrap().likelihood(&p1));
                     mut1 = s1.next();
                 },
                 Ordering::Less => {
-                    out.push(mut2.unwrap().likelihood(branchlengths.1, &p2));
+                    out.push(mut2.unwrap().likelihood(&p2));
                     mut2 = s2.next();
                 },
             }

@@ -231,7 +231,7 @@ mod tests {
         assert_eq!(p[(3, 3)], 0.6082994225745667);
 
 
-        let ll = muts.likelihood(time, &p);
+        let ll = muts.likelihood(&p);
 
         assert_eq!(ll.1, 0.5187100816969821);
         assert_eq!(ll.3, 0.5292500041531686);
