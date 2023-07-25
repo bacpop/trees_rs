@@ -21,10 +21,11 @@ extern crate nalgebra as na;
 
 fn main() {
     
-    let mut tr = phylo2vec_lin(vec![0, 0, 1], false);
+    let mut tr = phylo2vec_quad(vec![0, 1, 0]);
     let mut tr2 = phylo2vec_lin(vec![0, 0, 0], false);
+    tr2 = tr2.update(vec![0, 1, 0]);
+
     println!("{:?}", tr);
-    tr.update(vec![0, 0, 2]);
     println!("{:?}", tr2);
 
 
@@ -35,7 +36,6 @@ fn main() {
     // Set up vector for internal nodes GeneticData
     // ll.likelihood_lists.append(&mut vec![vec![Mutation(0, 0.0,0.0,0.0,0.0,)]; leafn]);
     
-    
     // Build tree from vector
     // let mut tr = phylo2vec_quad(vec![0; leafn]);
     
@@ -45,33 +45,10 @@ fn main() {
     //     1.0, 1.0, -2.0, 1.0,
     //     1.0, 1.0, 1.0 , -2.0);
 
-
     let start = Instant::now();
-
-    // let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
-
-    // let time = 0.75;
-
-    // let p = na::Matrix::exp(&(q * time));
-    
-    // println!("{:?}", p);
-
-    // println!("{:?}", muts.likelihood(&p));
 
     // tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
     // tr.update_likelihood_rootward(tr.get_root(), &mut ll, &q);
-    
-    // for node in tr.postorder_notips(tr.get_root()) {
-
-    //     let branchlengths = (tr.get_branchlength(node.children.0.unwrap()),
-    //                                      tr.get_branchlength(node.children.1.unwrap()));
-
-    //     let seq1 = ll.likelihood_lists.get(node.children.0.unwrap());
-    //     let seq2 = ll.likelihood_lists.get(node.children.1.unwrap());
-
-    //     ll.likelihood_lists[node.index] = combine_lists(seq1, seq2, branchlengths, &q);
-
-    // }
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());

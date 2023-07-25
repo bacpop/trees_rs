@@ -151,33 +151,9 @@ impl<'a> Tree {
             dpth = self.get_node(par).unwrap().depth + 1;
         }
 
-        self.nodes[index] = Node::new(parent, (None, None), index, dpth, Vec::new(), 1.0);
+        self.nodes[index] = Node::new(parent, (None, None), index, dpth, 1.0);
     }
 
-    // Relocate a node in the tree and update old parent children, 
-    // new parent children, new node parent, new depth
-    pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
-
-        if self.get_node(node_index).is_none() {
-            panic!("Node to move does not exist");
-        }
-
-        if self.get_node(new_parent_index).is_none() {
-            panic!("New parent does not exist");
-        }
-
-        if self.get_parent(node_index).is_none() {
-            panic!("Cannot move root node")
-        }
-
-        self.mut_parent(node_index).unwrap().remove_child(node_index);
-        self.mut_node(node_index).unwrap().parent = Some(new_parent_index);
-        self.mut_node(new_parent_index).unwrap().new_child(node_index);
-        self.mut_node(node_index).unwrap().depth = self.get_parent(new_parent_index).unwrap().depth + 1;
-
-    }
-
-    
     // Checks whether this is a left or right child of its parent
     pub fn get_handedness(&self, index: usize) -> Handedness {
         let (l, _) = self.get_parent(index).unwrap().children;

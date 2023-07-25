@@ -131,8 +131,8 @@ impl Tree {
 
         // For now we're just going to fully rebuild the tree and record what nodes change
         for i in (0..k).rev() {
-            println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]]));
-            println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]));
+            // println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]]));
+            // println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]));
 
             self.add(M[[i, 0]], Some(M[[i, 2]]));
             if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {

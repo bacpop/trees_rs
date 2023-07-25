@@ -213,6 +213,75 @@ mod tests {
     }
 
     #[test]
+    fn update_tree () {
+        let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
+        let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
+
+        tree_l = tree_l.update(vec![0, 1, 0]);
+
+        assert_eq!(
+            tree_l.get_node(0).unwrap().parent,
+            tree_q.get_node(0).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(1).unwrap().parent,
+            tree_q.get_node(1).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(2).unwrap().parent,
+            tree_q.get_node(2).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(3).unwrap().parent,
+            tree_q.get_node(3).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(4).unwrap().parent,
+            tree_q.get_node(4).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(5).unwrap().parent,
+            tree_q.get_node(5).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(6).unwrap().parent,
+            tree_q.get_node(6).unwrap().parent
+        );
+
+        tree_q = phylo2vec_quad(vec![0, 1, 1]);
+        tree_l = tree_l.update(vec![0, 1, 1]);
+
+        assert_eq!(
+            tree_l.get_node(0).unwrap().parent,
+            tree_q.get_node(0).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(1).unwrap().parent,
+            tree_q.get_node(1).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(2).unwrap().parent,
+            tree_q.get_node(2).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(3).unwrap().parent,
+            tree_q.get_node(3).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(4).unwrap().parent,
+            tree_q.get_node(4).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(5).unwrap().parent,
+            tree_q.get_node(5).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(6).unwrap().parent,
+            tree_q.get_node(6).unwrap().parent
+        );
+    }
+
+    #[test]
     fn genetic_likelihood() {
         let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
         
