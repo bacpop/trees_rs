@@ -7,7 +7,7 @@ pub struct Tree {
     pub nodes: Vec<Node>,
     pub max_depth: usize,
     pub leaf_permutations: Vec<usize>,
-    pub changes: Vec<(usize, Option<usize>, Option<usize>)>,
+    pub changes: Vec<(usize, Option<usize>, Option<usize>, usize)>,
 }
 
 impl<'a> Tree {
