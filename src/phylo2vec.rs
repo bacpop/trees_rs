@@ -1,6 +1,7 @@
 use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
+use crate::node::Node;
 
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
@@ -80,10 +81,9 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
 
     if permute {
         // Permutation of leaf labels
-        let mut new_labs: Vec<usize> = (0..=k).collect();
-        new_labs.shuffle(&mut thread_rng());
+        tree.leaf_permutations.shuffle(&mut thread_rng());
         for i in M.iter_mut().filter(|el| **el <= k + 1) {
-            *i = *new_labs.get(*i).unwrap_or(i);
+            *i = *tree.leaf_permutations.get(*i).unwrap_or(i);
         }
     }
 
@@ -95,7 +95,56 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
         tree.add(M[[i, 1]], Some(M[[i, 2]]));
     }
 
+    // Does this still need to happen?
     tree.max_depth = tree.max_treedepth();
 
     tree
+}
+
+impl Tree {
+    pub fn update(mut self, new_vec: Vec<usize>) -> Tree {
+        let k = self.tree_vec.len();
+        let old_nodes = self.nodes;
+        self.nodes = vec![Node::default(); 2 * k + 1];
+        self.tree_vec = new_vec;
+        let mut M = Array2::<usize>::zeros((k, 3));
+        let mut labels_rowk: Vec<usize> = (0..=k).collect();
+        let mut rmk = k;
+
+        // Build M for new vector
+        for i in 0..k {
+            let n = k - i - 1;
+            let m = self.tree_vec[n];
+
+            M[[i, 0]] = labels_rowk[m];
+            M[[i, 1]] = labels_rowk[n + 1];
+
+            rmk += 1;
+            labels_rowk[m] = rmk;
+            M[[i, 2]] = labels_rowk[m];
+        }
+
+        // Update with leaf permutations from old tree
+        for i in M.iter_mut().filter(|el| **el <= k + 1) {
+            *i = *self.leaf_permutations.get(*i).unwrap_or(i);
+        }
+
+        // For now we're just going to fully rebuild the tree and record what nodes change
+        for i in (0..k).rev() {
+            println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]]));
+            println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]));
+
+            self.add(M[[i, 0]], Some(M[[i, 2]]));
+            if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
+                // Record
+            }
+
+            self.add(M[[i, 1]], Some(M[[i, 2]]));
+            if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
+                // Record
+            }
+        }
+
+        self
+    }
 }

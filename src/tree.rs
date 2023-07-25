@@ -6,22 +6,27 @@ pub struct Tree {
     pub tree_vec: Vec<usize>,
     pub nodes: Vec<Node>,
     pub max_depth: usize,
+    pub leaf_permutations: Vec<usize>,
 }
 
 impl<'a> Tree {
+    // Constructor function for a new tree
     pub fn new(tree_vec: Vec<usize>) -> Tree {
         let k = tree_vec.len();
         Tree {
             tree_vec,
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
+            leaf_permutations: (0..=k).collect(),
         }
     }
 
+    // Find the root of the tree
     pub fn get_root(&self) -> Option<&Node> {
         self.nodes.iter().find(|node| node.parent.is_none())
     }
 
+    // Iterates from a specified node upwards to the root of the tree
     pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
         RootIter {
             current_node: node,
@@ -31,10 +36,12 @@ impl<'a> Tree {
         }
     }
 
+    // Rootwards iterator that ignores leaves
     pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
         self.iter(node).filter(|node| !node.tip)
     }
 
+    // Traverses tree in preorder starting at a given node
     pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
         Preorder {
             current_node: node,
@@ -44,6 +51,7 @@ impl<'a> Tree {
         }
     }
 
+    // Traverses tree in postorder starting at a given node
     pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
         PostOrder {
             current_node: node,
@@ -53,14 +61,17 @@ impl<'a> Tree {
         }
     }
 
+    // Traverses tree in postorder and excludes leaf nodes
     pub fn postorder_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
         self.postorder(node).filter(|node| !node.tip)
     }
 
+    // Return a mutable reference to a given node
     pub fn mut_node(&mut self, index: usize) -> Option<&mut Node> {
         self.nodes.get_mut(index)
     }
 
+    // Return a mutable reference to the parent of a given node
     pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
         match self.nodes.get(index).unwrap().parent {
             Some(i) => self.mut_node(i),
@@ -68,10 +79,12 @@ impl<'a> Tree {
         }
     }
 
+    // Get a specified node
     pub fn get_node(&self, index: usize) -> Option<&Node> {
         self.nodes.get(index)
     }
 
+    // Get parent of specified node
     pub fn get_parent(&self, index: usize) -> Option<&Node> {
         match self.nodes.get(index).unwrap().parent {
             Some(i) => self.get_node(i),
@@ -79,6 +92,7 @@ impl<'a> Tree {
         }
     }
 
+    // Get the branch length from this node to its parent
     pub fn get_branchlength(&self, index: usize) -> f64 {
         self.get_node(index).unwrap().branch_length
     }
@@ -88,10 +102,11 @@ impl<'a> Tree {
         self.nodes.iter().filter(|n| n.tip).collect()
     }
 
+    // Traverses tree below given node (except leaves), updating likelihood
     pub fn update_likelihood_postorder(&'a self, 
         node: Option<&'a Node>, 
         genetic_data: &mut GeneticData,
-        rate_matrix: &na::Matrix4<f64>) -> () {
+        rate_matrix: &na::Matrix4<f64>) {
 
         for elem in self.postorder_notips(node) {
             let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
@@ -104,10 +119,11 @@ impl<'a> Tree {
         }
     }
 
+    // Traverses up to the root, updating likelihood as it goes
     pub fn update_likelihood_rootward(&'a self,
         node: Option<&'a Node>, 
         genetic_data: &mut GeneticData,
-        rate_matrix: &na::Matrix4<f64>) -> () {
+        rate_matrix: &na::Matrix4<f64>) {
         
         for elem in self.iter_notips(node) {
             let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
@@ -121,25 +137,12 @@ impl<'a> Tree {
 
     }
 
-    // pub fn get_nodes_at_depth(&self, depth: usize) -> Vec<&Node> {
-    //     self.nodes
-    //     .iter()
-    //     .filter(|n| n.depth == depth)
-    //     .collect()
-    // }
-
-    // Depth of given node in tree
-    // pub fn node_depth(&self, node: Option<&Node>) -> usize {
-    //     self
-    //     .iter(node)
-    //     .fold(0, |acc, _node| acc + 1)
-    // }
-
     // Find maximum node depth
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
 
+    // Add a node to the tree
     pub fn add(&mut self, index: usize, parent: Option<usize>) {
         let mut dpth: usize = 0;
 
@@ -151,16 +154,8 @@ impl<'a> Tree {
         self.nodes[index] = Node::new(parent, (None, None), index, dpth, Vec::new(), 1.0);
     }
 
-    pub fn get_handedness(&self, index: usize) -> Handedness {
-        let (l, _) = self.get_parent(index).unwrap().children;
-
-        if l == Some(index) {
-            Handedness::Left
-        } else {
-            Handedness::Right
-        }
-    }
-
+    // Relocate a node in the tree and update old parent children, 
+    // new parent children, new node parent, new depth
     pub fn relocate(&mut self, node_index: usize, new_parent_index: usize) {
 
         if self.get_node(node_index).is_none() {
@@ -182,6 +177,20 @@ impl<'a> Tree {
 
     }
 
+    
+    // Checks whether this is a left or right child of its parent
+    pub fn get_handedness(&self, index: usize) -> Handedness {
+        let (l, _) = self.get_parent(index).unwrap().children;
+
+        if l == Some(index) {
+            Handedness::Left
+        } else {
+            Handedness::Right
+        }
+    }
+
+    // Starting a given node, this function goes as far down left-handed children as it can and
+    // returns the node it lands on
     pub fn most_left_child(&'a self, node: Option<&'a Node>) -> Option<&Node> {
         let mut cur_node = node;
         let mut cur_left_child = cur_node.unwrap().children.0;
@@ -190,29 +199,15 @@ impl<'a> Tree {
             cur_node = self.get_node(cur_left_child.unwrap());
             cur_left_child = cur_node.unwrap().children.0;
         }
-        // println!("current node: {:?}", cur_node);
+
         cur_node
     }
 
+    // Swaps to the right child of the parent of a given left child node
     pub fn swap_to_right_child(&self, index: usize) -> Option<&Node> {
         self.get_node(self.get_parent(index).unwrap().children.1.unwrap())
     }
 
-    // pub fn most_left_child_mut(&'a self, node: Option<&'a mut Node>) -> Option<&'a mut Node> {
-    //     let mut cur_node = node;
-    //     let mut cur_left_child = cur_node.unwrap().children.0;
-
-    //     while cur_left_child.is_some() {
-    //         cur_node = self.mut_node(cur_left_child.unwrap());
-    //         cur_left_child = cur_node.unwrap().children.0;
-    //     }
-    //     // println!("current node: {:?}", cur_node);
-    //     cur_node
-    // }
-
-    // pub fn swap_to_right_child_mut(&self, index: usize) -> Option<&'a mut Node> {
-    //     self.mut_node(self.get_parent(index).unwrap().children.1.unwrap())
-    // }
 }
 
 #[derive(Debug)]
@@ -342,46 +337,3 @@ impl<'a> Iterator for PostOrder<'a> {
         self.current_node
     }
 }
-
-// #[derive(Debug)]
-// pub struct PostOrderMut<'a> {
-//     tree: &'a Tree,
-//     start_flag: bool,
-//     current_node: Option<&'a mut Node>,
-//     end_index: usize,
-// }
-
-// impl<'a> Iterator for PostOrderMut<'a> {
-//     type Item = &'a mut Node;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         if self.start_flag {
-            
-//             while let Some(index) = self.current_node.as_mut().unwrap().children.0 {
-//                 self.current_node = self.tree.as_mut().mut_node(index);
-//             }
-//             self.start_flag = false;
-//         } else {
-//             // If we return to start node, end iterator
-//             if self.current_node.as_mut().unwrap().index == self.end_index {
-//                 return None;
-//             }
-
-//             let ind = self.current_node.as_mut().unwrap().index;
-//             match self.tree.get_handedness(ind) {
-//                 Handedness::Left => {
-//                     self.current_node = self.tree.mut_node(self.tree.get_parent(self.current_node.unwrap().index).unwrap().children.1.unwrap());
-//                     while let Some(index) = self.current_node.unwrap().children.0 {
-//                         self.current_node = self.tree.mut_node(index);
-//                     }
-//                 }
-//                 Handedness::Right => {
-//                     self.current_node = self.tree.mut_parent(ind);
-                    
-//                 }
-//             }
-//         }
-
-//         self.current_node
-//     }
-// }
