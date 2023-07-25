@@ -130,20 +130,27 @@ impl Tree {
         }
 
         // For now we're just going to fully rebuild the tree and record what nodes change
+        let mut change_vec: Vec<(usize, Option<usize>, Option<usize>)> = Vec::new();
+
         for i in (0..k).rev() {
             // println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]]));
             // println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]));
 
-            self.add(M[[i, 0]], Some(M[[i, 2]]));
             if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
                 // Record
+                change_vec.push((M[[i, 0]], old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]])));
             }
-
-            self.add(M[[i, 1]], Some(M[[i, 2]]));
+            self.add(M[[i, 0]], Some(M[[i, 2]]));
+            
             if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
                 // Record
+                change_vec.push((M[[i, 1]], old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]])));
             }
+            self.add(M[[i, 1]], Some(M[[i, 2]]));
+            
         }
+
+        self.changes = change_vec;
 
         self
     }

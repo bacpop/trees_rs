@@ -7,6 +7,7 @@ pub struct Tree {
     pub nodes: Vec<Node>,
     pub max_depth: usize,
     pub leaf_permutations: Vec<usize>,
+    pub changes: Vec<(usize, Option<usize>, Option<usize>)>,
 }
 
 impl<'a> Tree {
@@ -18,6 +19,7 @@ impl<'a> Tree {
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
             leaf_permutations: (0..=k).collect(),
+            changes: Vec::new(),
         }
     }
 

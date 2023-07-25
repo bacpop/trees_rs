@@ -28,6 +28,8 @@ fn main() {
     println!("{:?}", tr);
     println!("{:?}", tr2);
 
+    println!("{:?}", tr2.changes);
+
 
     // let filename = "listeria0.aln";
     // Read in sequences into GeneticData format
