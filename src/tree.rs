@@ -1,5 +1,6 @@
 use crate::{node::Node, gen_list::GeneticData};
 use crate::gen_list::combine_lists;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -8,6 +9,7 @@ pub struct Tree {
     pub max_depth: usize,
     pub leaf_permutations: Vec<usize>,
     pub changes: Vec<(usize, Option<usize>, Option<usize>, usize)>,
+    pub changehm: HashMap<usize, Vec<usize>>,
 }
 
 impl<'a> Tree {
@@ -20,6 +22,7 @@ impl<'a> Tree {
             max_depth: 0,
             leaf_permutations: (0..=k).collect(),
             changes: Vec::new(),
+            changehm: HashMap::new(),
         }
     }
 

@@ -101,6 +101,18 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
     tree
 }
 
+pub fn random_tree(k: usize) -> Vec<usize> {
+    let mut rng = rand::thread_rng();
+
+    vec![0; k].iter().enumerate().map(|(i, _el) | {
+        if i > 0 {
+            rng.gen_range(0..i)
+        } else {
+            0
+        }
+    }).collect()
+}
+
 impl Tree {
     pub fn update(mut self, new_vec: Vec<usize>) -> Tree {
         let k = self.tree_vec.len();
@@ -129,7 +141,6 @@ impl Tree {
             *i = *self.leaf_permutations.get(*i).unwrap_or(i);
         }
 
-        // For now we're just going to fully rebuild the tree and record what nodes change
         // Record changes in the form (index, old parent, new parent, new parent depth)
         let mut change_vec: Vec<(usize, Option<usize>, Option<usize>, usize)> = Vec::new();
 
@@ -138,14 +149,40 @@ impl Tree {
             // println!("Comparing {:?} to {:?}", old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]));
 
             if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
-                // Record
-                change_vec.push((M[[i, 0]], old_nodes.get(M[[i, 0]]).unwrap().parent, Some(M[[i, 2]]), self.get_node(M[[i, 2]]).unwrap().depth));
+
+                let d = self.get_node(M[[i, 2]]).unwrap().depth;
+
+                match self.changehm.get(&d) {
+                    None => {
+                        self.changehm.insert(d, vec![M[[i, 2]]]);},
+                    Some(_) => {
+                        self.changehm.get_mut(&d).unwrap().push(M[[i, 2]]);
+                    },
+                }
+
+                change_vec.push((M[[i, 0]], 
+                                 old_nodes.get(M[[i, 0]]).unwrap().parent, 
+                                 Some(M[[i, 2]]), 
+                                 self.get_node(M[[i, 2]]).unwrap().depth));
             }
             self.add(M[[i, 0]], Some(M[[i, 2]]));
             
             if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
                 // Record
-                change_vec.push((M[[i, 1]], old_nodes.get(M[[i, 1]]).unwrap().parent, Some(M[[i, 2]]), self.get_node(M[[i, 2]]).unwrap().depth));
+                let d = self.get_node(M[[i, 2]]).unwrap().depth;
+
+                match self.changehm.get(&d) {
+                    None => {
+                        self.changehm.insert(d, vec![M[[i, 2]]]);},
+                    Some(_) => {
+                        self.changehm.get_mut(&d).unwrap().push(M[[i, 2]]);
+                    },
+                }
+
+                change_vec.push((M[[i, 1]], 
+                                 old_nodes.get(M[[i, 1]]).unwrap().parent, 
+                                 Some(M[[i, 2]]), 
+                                 self.get_node(M[[i, 2]]).unwrap().depth));
             }
             self.add(M[[i, 1]], Some(M[[i, 2]]));
             
