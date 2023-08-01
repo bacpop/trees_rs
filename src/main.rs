@@ -41,29 +41,29 @@ fn main() {
 
     tr = tr.update(x2);
 
-    // println!("{}", tr.nodes.len());
-    // println!("{:?}", tr.changes);
     println!("{:?}", tr.changehm);
 
-    // let mut i: Vec<usize> = tr.changehm.keys().cloned().collect();
     let max_depth = *tr.changehm.keys().max().unwrap();
-    let md: Vec<usize> = (0..=max_depth).rev().collect();
-    // i.sort();
-    // i.sort_by(|a, b| b.cmp(a));
-    println!("max depth: {:?}", md);
     
     for current_depth in (0..=max_depth).rev() {
         println!("current depth: {:?}", current_depth);
+        // Get nodes at this depth, sort and de-duplicate
         let mut nodes = tr.changehm.remove(&current_depth).unwrap();
         nodes.sort();
         nodes.dedup();
         println!("nodes in this depth: {:?}", nodes);
+        let parent_depth = if current_depth == 0 {0} else {current_depth - 1};
 
+        // Traverse all nodes at this depth
         for node in nodes {
-            // Do likelihood update traversals
+
             println!("current node: {:?}", node);
+            // Line here to update this node
+            // Something like:
+            // tr.update_likelihood(node, ll.likelihood_lists, rate_matrix);
+
+            // Put parent into HashMap
             let parent = tr.get_parent(node).unwrap().index;
-            let parent_depth = if current_depth == 0 {0} else {current_depth - 1};
             println!("parent: {:?}, at depth {}", parent, parent_depth);
             
             // Put parent into hashmap

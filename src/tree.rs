@@ -107,6 +107,20 @@ impl<'a> Tree {
         self.nodes.iter().filter(|n| n.tip).collect()
     }
 
+    pub fn update_likelihood(&self, index: usize, genetic_data: &mut GeneticData,
+        rate_matrix: &na::Matrix4<f64>) {
+
+            if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
+                let branchlengths = (self.get_branchlength(ch1), self.get_branchlength(ch2));
+
+                let seq1 = genetic_data.likelihood_lists.get(ch1);
+                let seq2 = genetic_data.likelihood_lists.get(ch2);
+    
+                genetic_data.likelihood_lists[index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
+            }
+
+        }
+
     // Traverses tree below given node (except leaves), updating likelihood
     pub fn update_likelihood_postorder(&'a self, 
         node: Option<&'a Node>, 
