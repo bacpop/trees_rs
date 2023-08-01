@@ -10,7 +10,9 @@ use rand::Rng;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
+use crate::node::Node;
 use std::collections::HashMap;
+use std::thread::current;
 use std::time::Instant;
 extern crate nalgebra as na;
 
@@ -33,8 +35,8 @@ fn main() {
     // x.append(&mut vec![0; leafn - 4]);
     let mut x2: Vec<usize> = (0..10).collect();
     x2[9] = 4;
-    // x2[8] = 2;
-    // x2[7] = 3;
+    x2[8] = 2;
+    x2[7] = 3;
     // let x: Vec<usize> = (0..1000).collect();
 
     tr = tr.update(x2);
@@ -43,7 +45,26 @@ fn main() {
     println!("{:?}", tr.changes);
     println!("{:?}", tr.changehm);
 
-    println!("{:?}", tr.changehm.into_keys().max());
+    let mut i: Vec<usize> = tr.changehm.keys().cloned().collect();
+    i.sort();
+    // i.sort_by(|a, b| b.cmp(a));
+    
+    for current_depth in i {
+        println!("{:?}", current_depth);
+        let mut nodes = tr.changehm.remove(&current_depth).unwrap();
+        nodes.dedup();
+        println!("{:?}", nodes);
+        for node in nodes {
+            // Do likelihood update traversals
+            let tovisit: Vec<&Node> = tr.postorder(tr.get_node(node)).collect();
+            let x: Vec<usize> = tovisit.iter().map(|n| n.index).collect();
+            println!("{:?}", x);
+        }
+
+    }
+    
+    // println!("{:?}", tr.changehm);
+    
     
     // Define rate matrix
     // let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
