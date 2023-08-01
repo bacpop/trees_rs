@@ -42,28 +42,43 @@ fn main() {
     tr = tr.update(x2);
 
     // println!("{}", tr.nodes.len());
-    println!("{:?}", tr.changes);
+    // println!("{:?}", tr.changes);
     println!("{:?}", tr.changehm);
 
-    let mut i: Vec<usize> = tr.changehm.keys().cloned().collect();
-    i.sort();
+    // let mut i: Vec<usize> = tr.changehm.keys().cloned().collect();
+    let max_depth = *tr.changehm.keys().max().unwrap();
+    let md: Vec<usize> = (0..=max_depth).rev().collect();
+    // i.sort();
     // i.sort_by(|a, b| b.cmp(a));
+    println!("max depth: {:?}", md);
     
-    for current_depth in i {
-        println!("{:?}", current_depth);
+    for current_depth in (0..=max_depth).rev() {
+        println!("current depth: {:?}", current_depth);
         let mut nodes = tr.changehm.remove(&current_depth).unwrap();
+        nodes.sort();
         nodes.dedup();
-        println!("{:?}", nodes);
+        println!("nodes in this depth: {:?}", nodes);
+
         for node in nodes {
             // Do likelihood update traversals
-            let tovisit: Vec<&Node> = tr.postorder(tr.get_node(node)).collect();
-            let x: Vec<usize> = tovisit.iter().map(|n| n.index).collect();
-            println!("{:?}", x);
+            println!("current node: {:?}", node);
+            let parent = tr.get_parent(node).unwrap().index;
+            let parent_depth = if current_depth == 0 {0} else {current_depth - 1};
+            println!("parent: {:?}, at depth {}", parent, parent_depth);
+            
+            // Put parent into hashmap
+            match tr.changehm.get(&parent_depth) {
+                None => {
+                    tr.changehm.insert(parent_depth, vec![parent]);},
+                Some(_) => {
+                    tr.changehm.get_mut(&parent_depth).unwrap().push(parent);
+                },
+            }
         }
 
     }
     
-    // println!("{:?}", tr.changehm);
+    println!("{:?}", tr.changehm);
     
     
     // Define rate matrix
