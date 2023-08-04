@@ -217,7 +217,7 @@ mod tests {
         let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
         let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
-        tree_l = tree_l.update(vec![0, 1, 0]);
+        tree_l.update_tree(vec![0, 1, 0]);
 
         assert_eq!(
             tree_l.get_node(0).unwrap().parent,
@@ -249,7 +249,7 @@ mod tests {
         );
 
         tree_q = phylo2vec_quad(vec![0, 1, 1]);
-        tree_l = tree_l.update(vec![0, 1, 1]);
+        tree_l.update_tree(vec![0, 1, 1]);
 
         assert_eq!(
             tree_l.get_node(0).unwrap().parent,

@@ -4,6 +4,7 @@ mod node;
 mod phylo2vec;
 mod tests;
 mod tree;
+mod likelihoods;
 
 use rand::Rng;
 
@@ -17,6 +18,11 @@ use std::time::Instant;
 extern crate nalgebra as na;
 
 fn main() {
+    // Define rate matrix
+    let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
+        1.0, -2.0, 1.0, 1.0,
+        1.0, 1.0, -2.0, 1.0,
+        1.0, 1.0, 1.0 , -2.0);
     let start = Instant::now();
 
     // let filename = "listeria0.aln";
@@ -34,61 +40,19 @@ fn main() {
     // let mut x = vec![0, 1, 1, 2];
     // x.append(&mut vec![0; leafn - 4]);
     let mut x2: Vec<usize> = (0..10).collect();
-    x2[9] = 4;
-    x2[8] = 2;
-    x2[7] = 3;
+    x2[2] = 1;
+    // x2[8] = 2;
+    // x2[7] = 3;
+    // x2[6] = 2;
+    // x2[5] = 3;
     // let x: Vec<usize> = (0..1000).collect();
 
-    tr = tr.update(x2);
-
+    tr.update_tree(x2);
     println!("{:?}", tr.changehm);
 
-    let max_depth = *tr.changehm.keys().max().unwrap();
-    
-    for current_depth in (0..=max_depth).rev() {
-        println!("current depth: {:?}", current_depth);
-        // Get nodes at this depth, sort and de-duplicate
-        let mut nodes = tr.changehm.remove(&current_depth).unwrap();
-        nodes.sort();
-        nodes.dedup();
-        println!("nodes in this depth: {:?}", nodes);
-        let parent_depth = if current_depth == 0 {0} else {current_depth - 1};
-
-        // Traverse all nodes at this depth
-        for node in nodes {
-
-            println!("current node: {:?}", node);
-            // Line here to update this node
-            // Something like:
-            // tr.update_likelihood(node, ll.likelihood_lists, rate_matrix);
-
-            // Put parent into HashMap
-            let parent = tr.get_parent(node).unwrap().index;
-            println!("parent: {:?}, at depth {}", parent, parent_depth);
-            
-            // Put parent into hashmap
-            match tr.changehm.get(&parent_depth) {
-                None => {
-                    tr.changehm.insert(parent_depth, vec![parent]);},
-                Some(_) => {
-                    tr.changehm.get_mut(&parent_depth).unwrap().push(parent);
-                },
-            }
-        }
-
-    }
+    tr.update_likelihood(&q);
     
     println!("{:?}", tr.changehm);
-    
-    
-    // Define rate matrix
-    // let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
-    //     1.0, -2.0, 1.0, 1.0,
-    //     1.0, 1.0, -2.0, 1.0,
-    //     1.0, 1.0, 1.0 , -2.0);
-
-    // tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
-    // tr.update_likelihood_rootward(tr.get_root(), &mut ll, &q);
 
     let end = Instant::now();
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
@@ -98,12 +62,5 @@ fn main() {
     // println!("{:?}", tr);
     // println!("{:?}", tr2);
 
-    // for el in tr.postorder_notips(tr.get_root()) {
-    //     println!("{:?}", el.ll_list);
-    // }
-
-    // for el in tr.preorder(tr.get_root()) {
-    //     println!("{:?}", el);
-    // }
 
 }

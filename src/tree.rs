@@ -8,7 +8,6 @@ pub struct Tree {
     pub nodes: Vec<Node>,
     pub max_depth: usize,
     pub leaf_permutations: Vec<usize>,
-    pub changes: Vec<(usize, Option<usize>, Option<usize>, usize)>,
     pub changehm: HashMap<usize, Vec<usize>>,
 }
 
@@ -21,7 +20,6 @@ impl<'a> Tree {
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
             leaf_permutations: (0..=k).collect(),
-            changes: Vec::new(),
             changehm: HashMap::new(),
         }
     }
@@ -107,7 +105,9 @@ impl<'a> Tree {
         self.nodes.iter().filter(|n| n.tip).collect()
     }
 
-    pub fn update_likelihood(&self, index: usize, genetic_data: &mut GeneticData,
+    pub fn update_likelihood_node(&self, 
+        index: usize, 
+        genetic_data: &mut GeneticData,
         rate_matrix: &na::Matrix4<f64>) {
 
             if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
