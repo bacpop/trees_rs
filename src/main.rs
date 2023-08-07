@@ -63,13 +63,28 @@ fn main() {
     //     // println!("{:?}", genetic_data.likelihood_lists.get(n.index));
     // }
 
-    // let x = combine_lists(tr.mutation_lists.get(3), tr.mutation_lists.get(4), (1.0, 1.0), &q);
+    let x = combine_lists(tr.mutation_lists.get(3), tr.mutation_lists.get(4), (1.0, 1.0), &q);
 
-    // println!("{:?}", x);
+    println!("{:?}", x);
 
-    println!("{:?}", tr.mutation_lists);
+    let p = na::Matrix::exp(&q);
+    
+    let mutation = Mutation(1, 0.15, 0.5, 0.25, 0.1);
+    let y = mutation.likelihood(&p);
+    let muts2 = Mutation(1, 0.3, 0.1, 0.3, 0.1);
+    let y2 = muts2.likelihood(&p);
+
+    let outcome = y.prod(y2);
+    
+
+    let y1 = y.1 * y2.1;
+
+    // println!("{:?}", tr.mutation_lists);
+    // println!("{:?}", tr.nodes);
     tr.update_likelihood_postorder(&q);
-    println!("{:?}", tr.mutation_lists);
+    
+    println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
+    println!("{:?}", tr.get_likelihood().ln());
 
     // tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
 

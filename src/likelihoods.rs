@@ -65,4 +65,12 @@ impl Tree {
             self.mutation_lists[index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
         }
     }
+
+    pub fn get_likelihood(self) -> f64 {
+        self.mutation_lists.get(self.get_root().unwrap().index)
+            .unwrap()
+            .iter()
+            .fold(0.0, |acc, muta| 
+                    (acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25))
+    }
 }
