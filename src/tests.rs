@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::gen_list::Mutation;
     use crate::phylo2vec::phylo2vec_lin;
     use crate::phylo2vec::phylo2vec_quad;
-    use crate::gen_list::Mutation;
     // use crate::tree::Tree;
     // use crate::import::str2tree;
     // use crate::gen_list::Entry;
@@ -213,7 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn update_tree () {
+    fn update_tree() {
         let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
         let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
@@ -284,11 +284,10 @@ mod tests {
     #[test]
     fn genetic_likelihood() {
         let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
-        
-        let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
-            1.0, -2.0, 1.0, 1.0,
-            1.0, 1.0, -2.0, 1.0,
-            1.0, 1.0, 1.0 , -2.0);
+
+        let q: na::Matrix4<f64> = na::Matrix4::new(
+            -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0,
+        );
 
         let time = 0.75;
 
@@ -298,7 +297,6 @@ mod tests {
         assert_eq!(p[(1, 2)], 0.5029001980127024);
         assert_eq!(p[(2, 1)], 0.5029001980127025);
         assert_eq!(p[(3, 3)], 0.6082994225745667);
-
 
         let ll = muts.likelihood(&p);
 

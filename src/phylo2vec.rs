@@ -1,7 +1,7 @@
+use crate::node::Node;
 use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
-use crate::node::Node;
 
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
@@ -104,13 +104,11 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
 pub fn random_tree(k: usize) -> Vec<usize> {
     let mut rng = rand::thread_rng();
 
-    vec![0; k].iter().enumerate().map(|(i, _el) | {
-        if i > 0 {
-            rng.gen_range(0..i)
-        } else {
-            0
-        }
-    }).collect()
+    vec![0; k]
+        .iter()
+        .enumerate()
+        .map(|(i, _el)| if i > 0 { rng.gen_range(0..i) } else { 0 })
+        .collect()
 }
 
 impl Tree {
@@ -143,36 +141,34 @@ impl Tree {
         }
 
         for i in (0..k).rev() {
-
             if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
-
                 let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
                 match self.changes.get(&d) {
                     None => {
-                        self.changes.insert(d, vec![M[[i, 2]]]);},
+                        self.changes.insert(d, vec![M[[i, 2]]]);
+                    }
                     Some(_) => {
                         self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
-                    },
+                    }
                 }
             }
 
             self.add(M[[i, 0]], Some(M[[i, 2]]));
-            
+
             if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
                 let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
                 match self.changes.get(&d) {
                     None => {
-                        self.changes.insert(d, vec![M[[i, 2]]]);},
+                        self.changes.insert(d, vec![M[[i, 2]]]);
+                    }
                     Some(_) => {
                         self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
-                    },
+                    }
                 }
             }
             self.add(M[[i, 1]], Some(M[[i, 2]]));
-            
         }
-
     }
 }

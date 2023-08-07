@@ -1,5 +1,5 @@
-use crate::node::Node;
 use crate::gen_list::Mutation;
+use crate::node::Node;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -71,9 +71,7 @@ impl<'a> Tree {
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
-
 }
-
 
 // STRUCTS + TREE METHODS FOR POSTORDER TRAVERSAL OF TREE
 
@@ -126,7 +124,7 @@ impl<'a> Iterator for PostOrder<'a> {
     }
 }
 
-// Tree methods + child node handedness functions 
+// Tree methods + child node handedness functions
 impl<'a> Tree {
     // Traverses tree in postorder starting at a given node
     pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
@@ -174,18 +172,15 @@ impl<'a> Tree {
     }
 }
 
+// GRAVEYARD
 
-// GRAVEYARD 
-
-
-
-    // Return a mutable reference to the parent of a given node
-    // pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
-    //     match self.nodes.get(index).unwrap().parent {
-    //         Some(i) => self.mut_node(i),
-    //         None => None,
-    //     }
-    // }
+// Return a mutable reference to the parent of a given node
+// pub fn mut_parent(&mut self, index: usize) -> Option<&mut Node> {
+//     match self.nodes.get(index).unwrap().parent {
+//         Some(i) => self.mut_node(i),
+//         None => None,
+//     }
+// }
 
 // #[derive(Debug)]
 // pub struct RootIter<'a> {
@@ -268,49 +263,49 @@ impl<'a> Tree {
 // }
 
 // Iterates from a specified node upwards to the root of the tree
-    // pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
-    //     RootIter {
-    //         current_node: node,
-    //         next_node: node,
-    //         tree: self,
-    //         end_flag: false,
-    //     }
-    // }
+// pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
+//     RootIter {
+//         current_node: node,
+//         next_node: node,
+//         tree: self,
+//         end_flag: false,
+//     }
+// }
 
-    // Rootwards iterator that ignores leaves
-    // pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
-    //     self.iter(node).filter(|node| !node.tip)
-    // }
+// Rootwards iterator that ignores leaves
+// pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
+//     self.iter(node).filter(|node| !node.tip)
+// }
 
-    // Traverses tree in preorder starting at a given node
-    // pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
-    //     Preorder {
-    //         current_node: node,
-    //         next_node: node,
-    //         tree: self,
-    //         return_nodes: vec![],
-    //     }
-    // }
+// Traverses tree in preorder starting at a given node
+// pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
+//     Preorder {
+//         current_node: node,
+//         next_node: node,
+//         tree: self,
+//         return_nodes: vec![],
+//     }
+// }
 
-    // Traverses up to the root, updating likelihood as it goes
-    // pub fn update_likelihood_rootward(&'a self,
-    //     node: Option<&'a Node>, 
-    //     genetic_data: &mut GeneticData,
-    //     rate_matrix: &na::Matrix4<f64>) {
-        
-    //     for elem in self.iter_notips(node) {
-    //         let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
-    //         self.get_branchlength(elem.children.1.unwrap()));
+// Traverses up to the root, updating likelihood as it goes
+// pub fn update_likelihood_rootward(&'a self,
+//     node: Option<&'a Node>,
+//     genetic_data: &mut GeneticData,
+//     rate_matrix: &na::Matrix4<f64>) {
 
-    //     let seq1 = genetic_data.likelihood_lists.get(elem.children.0.unwrap());
-    //     let seq2 = genetic_data.likelihood_lists.get(elem.children.1.unwrap());
+//     for elem in self.iter_notips(node) {
+//         let branchlengths = (self.get_branchlength(elem.children.0.unwrap()),
+//         self.get_branchlength(elem.children.1.unwrap()));
 
-    //     genetic_data.likelihood_lists[elem.index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
-    //     }
+//     let seq1 = genetic_data.likelihood_lists.get(elem.children.0.unwrap());
+//     let seq2 = genetic_data.likelihood_lists.get(elem.children.1.unwrap());
 
-    // }
+//     genetic_data.likelihood_lists[elem.index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
+//     }
 
-    // Returns vector of nodes in tree that are tips
-    // pub fn get_tips(&self) -> Vec<&Node> {
-    //     self.nodes.iter().filter(|n| n.tip).collect()
-    // }
+// }
+
+// Returns vector of nodes in tree that are tips
+// pub fn get_tips(&self) -> Vec<&Node> {
+//     self.nodes.iter().filter(|n| n.tip).collect()
+// }

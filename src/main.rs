@@ -1,10 +1,10 @@
 mod gen_list;
 mod import;
+mod likelihoods;
 mod node;
 mod phylo2vec;
 mod tests;
 mod tree;
-mod likelihoods;
 
 use crate::gen_list::*;
 use crate::phylo2vec::*;
@@ -14,10 +14,9 @@ extern crate nalgebra as na;
 
 fn main() {
     // Define rate matrix
-    let q: na::Matrix4<f64> = na::Matrix4::new(-2.0, 1.0, 1.0, 1.0, 
-        1.0, -2.0, 1.0, 1.0,
-        1.0, 1.0, -2.0, 1.0,
-        1.0, 1.0, 1.0 , -2.0);
+    let q: na::Matrix4<f64> = na::Matrix4::new(
+        -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0,
+    );
     let start = Instant::now();
 
     // let filename = "listeria0.aln";
@@ -26,29 +25,52 @@ fn main() {
     // let leafn: usize = ll.likelihood_lists.len() - 1;
     // Set up vector for internal nodes GeneticData
     // ll.likelihood_lists.append(&mut vec![vec![Mutation(0, 0.0,0.0,0.0,0.0)]; leafn]);
-    
+
     // Build tree from vector
     // let mut v = random_tree(100);
     let mut tr = phylo2vec_lin(vec![0, 0], false);
-    let genetic_data = GeneticData{likelihood_lists: vec![vec![Mutation(1, 1.0, 0.0, 0.0, 0.0), Mutation(7, 1.0, 0.0, 0.0, 0.0)],
-        vec![Mutation(1, 0.0, 1.0, 0.0, 0.0), Mutation(11, 1.0, 0.0, 0.0, 0.0)],
-        vec![Mutation(2, 0.0, 0.0, 1.0, 0.0), Mutation(3, 1.0, 0.0, 0.0, 0.0)],
-        vec![Mutation(4, 1.0, 0.0, 0.0, 0.0), Mutation(5, 0.0, 0.0, 0.0, 1.0)],
-        vec![Mutation(4, 0.0, 1.0, 0.0, 0.0), Mutation(10, 0.0, 0.0, 0.0, 1.0)]]};
+    let genetic_data = GeneticData {
+        likelihood_lists: vec![
+            vec![
+                Mutation(1, 1.0, 0.0, 0.0, 0.0),
+                Mutation(7, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(1, 0.0, 1.0, 0.0, 0.0),
+                Mutation(11, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(2, 0.0, 0.0, 1.0, 0.0),
+                Mutation(3, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(4, 1.0, 0.0, 0.0, 0.0),
+                Mutation(5, 0.0, 0.0, 0.0, 1.0),
+            ],
+            vec![
+                Mutation(4, 0.0, 1.0, 0.0, 0.0),
+                Mutation(10, 0.0, 0.0, 0.0, 1.0),
+            ],
+        ],
+    };
 
     // println!("{:?}", tr);
     tr.mutation_lists = genetic_data.likelihood_lists;
-    
-    for n in tr.postorder_notips(tr.get_root ()) {
-        println!("{:?}", n);
-        // println!{{}}
-        // println!("{:?}", genetic_data.likelihood_lists.get(n.index));
-    }
-    
+
+    // for n in tr.postorder_notips(tr.get_root()) {
+    //     println!("{:?}", n);
+    //     // println!{{}}
+    //     // println!("{:?}", genetic_data.likelihood_lists.get(n.index));
+    // }
+
+    // let x = combine_lists(tr.mutation_lists.get(3), tr.mutation_lists.get(4), (1.0, 1.0), &q);
+
+    // println!("{:?}", x);
+
     println!("{:?}", tr.mutation_lists);
     tr.update_likelihood_postorder(&q);
     println!("{:?}", tr.mutation_lists);
-    
+
     // tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
 
     // println!("{:?}", &ll.likelihood_lists.get(30).unwrap()[0..10]);
@@ -67,7 +89,7 @@ fn main() {
     // println!("{:?}", tr.changes);
 
     // tr.update_likelihood(&q);
-    
+
     // println!("{:?}", tr.changes);
 
     let end = Instant::now();
@@ -77,6 +99,4 @@ fn main() {
 
     // println!("{:?}", tr);
     // println!("{:?}", tr2);
-
-
 }
