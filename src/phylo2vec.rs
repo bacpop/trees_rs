@@ -114,6 +114,7 @@ pub fn random_tree(k: usize) -> Vec<usize> {
 }
 
 impl Tree {
+    // Updates a Tree to the tree from new_vec and records changes in self.changes HashMap
     pub fn update_tree(&mut self, new_vec: Vec<usize>) {
         let k = self.tree_vec.len();
         let old_nodes = self.nodes.clone();
@@ -147,11 +148,11 @@ impl Tree {
 
                 let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
-                match self.changehm.get(&d) {
+                match self.changes.get(&d) {
                     None => {
-                        self.changehm.insert(d, vec![M[[i, 2]]]);},
+                        self.changes.insert(d, vec![M[[i, 2]]]);},
                     Some(_) => {
-                        self.changehm.get_mut(&d).unwrap().push(M[[i, 2]]);
+                        self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
                     },
                 }
             }
@@ -161,11 +162,11 @@ impl Tree {
             if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
                 let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
-                match self.changehm.get(&d) {
+                match self.changes.get(&d) {
                     None => {
-                        self.changehm.insert(d, vec![M[[i, 2]]]);},
+                        self.changes.insert(d, vec![M[[i, 2]]]);},
                     Some(_) => {
-                        self.changehm.get_mut(&d).unwrap().push(M[[i, 2]]);
+                        self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
                     },
                 }
             }
