@@ -1,5 +1,6 @@
 use needletail::*;
 use std::cmp::Ordering;
+use crate::Tree;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub usize, pub f64, pub f64, pub f64, pub f64);
@@ -52,20 +53,6 @@ pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
         '-' => Mutation(i, 0.25, 0.25, 0.25, 0.25),
         _ => panic!("Unrecognised character: {}", e),
     }
-}
-
-// Takes a reference sequence and another sequence in SequenceRecord<'_> format
-// Returns a vector of Mutations for how the latter sequence differs from the reference
-pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
-    let mut out: Vec<Mutation> = Vec::new();
-
-    for (i, (s1, s2)) in refseq.iter().zip(seq.iter()).enumerate() {
-        if s1 != s2 {
-            out.push(char_to_mutation(i, s2));
-        }
-    }
-
-    out
 }
 
 // Combines two vectors of Mutations into a single vector
@@ -128,26 +115,36 @@ pub fn combine_lists(
     out
 }
 
-#[derive(Debug)]
-pub struct GeneticData {
-    pub likelihood_lists: Vec<Vec<Mutation>>,
+impl Tree {
+    pub fn add_genetic_data(&mut self, filename: &str) {
+        let mut reader = parse_fastx_file(filename).expect("Error parsing file");
+
+        // For now take first sequence as reference sequence
+        let record = reader.next().unwrap().unwrap();
+        let seq_vec: Vec<char> = record.seq().iter().map(|l| *l as char).collect();
+
+        while let Some(rec) = reader.next() {
+            let newrec: Vec<char> = rec.unwrap().seq().iter().map(|l| *l as char).collect();
+            self.mutation_lists.push(create_list(&seq_vec, &newrec));
+        }
+
+        let leafn = self.mutation_lists.len() - 1;
+        for _ in 0..leafn {
+            self.mutation_lists.push(Vec::new());
+        }
+    }
 }
 
-pub fn create_genetic_data(filename: &str) -> GeneticData {
-    let mut reader = parse_fastx_file(filename).expect("File error");
+// Takes a reference sequence and another sequence in SequenceRecord<'_> format
+// Returns a vector of Mutations for how the latter sequence differs from the reference
+pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
+    let mut out: Vec<Mutation> = Vec::new();
 
-    // For now take first sequence as reference sequence
-    let record = reader.next().unwrap().unwrap();
-    let seq_vec: Vec<char> = record.seq().iter().map(|l| *l as char).collect();
-
-    let mut ll: GeneticData = GeneticData {
-        likelihood_lists: Vec::new(),
-    };
-
-    while let Some(rec) = reader.next() {
-        let newrec: Vec<char> = rec.unwrap().seq().iter().map(|l| *l as char).collect();
-        ll.likelihood_lists.push(create_list(&seq_vec, &newrec));
+    for (i, (s1, s2)) in refseq.iter().zip(seq.iter()).enumerate() {
+        if s1 != s2 {
+            out.push(char_to_mutation(i, s2));
+        }
     }
 
-    ll
+    out
 }

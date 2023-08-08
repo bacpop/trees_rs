@@ -20,17 +20,13 @@ fn main() {
     let start = Instant::now();
 
     // let filename = "listeria0.aln";
-    // Read in sequences into GeneticData format
-    // let mut ll = create_genetic_data(filename);
-    // let leafn: usize = ll.likelihood_lists.len() - 1;
-    // Set up vector for internal nodes GeneticData
-    // ll.likelihood_lists.append(&mut vec![vec![Mutation(0, 0.0,0.0,0.0,0.0)]; leafn]);
 
     // Build tree from vector
     // let mut v = random_tree(100);
     let mut tr = phylo2vec_lin(vec![0, 0], false);
-    let genetic_data = GeneticData {
-        likelihood_lists: vec![
+    // tr.add_genetic_data(filename);
+
+    let genetic_data =  vec![
             vec![
                 Mutation(1, 1.0, 0.0, 0.0, 0.0),
                 Mutation(7, 1.0, 0.0, 0.0, 0.0),
@@ -51,11 +47,10 @@ fn main() {
                 Mutation(4, 0.0, 1.0, 0.0, 0.0),
                 Mutation(10, 0.0, 0.0, 0.0, 1.0),
             ],
-        ],
-    };
+        ];
 
     // println!("{:?}", tr);
-    tr.mutation_lists = genetic_data.likelihood_lists;
+    tr.mutation_lists = genetic_data;
 
     // for n in tr.postorder_notips(tr.get_root()) {
     //     println!("{:?}", n);
