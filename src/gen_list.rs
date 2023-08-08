@@ -1,6 +1,6 @@
+use crate::Tree;
 use needletail::*;
 use std::cmp::Ordering;
-use crate::Tree;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub usize, pub f64, pub f64, pub f64, pub f64);
@@ -47,7 +47,6 @@ pub fn combine_lists(
     let mut mut2 = s2.next();
 
     while mut1.is_some() | mut2.is_some() {
-        
         if mut1.is_none() {
             // First iterator empty, push second
             out.push(mut2.unwrap().child_likelihood(&p2));

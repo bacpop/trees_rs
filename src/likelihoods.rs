@@ -1,8 +1,8 @@
 use std::thread::current;
 
 use crate::combine_lists;
-use crate::Tree;
 use crate::Mutation;
+use crate::Tree;
 
 impl Tree {
     // Goes through all nodes that have changed and updates genetic likelihood
@@ -12,11 +12,11 @@ impl Tree {
             let max_depth: usize = *self.changes.keys().max().unwrap();
 
             for current_depth in (0..=max_depth).rev() {
-                println!("current_depth: {}", current_depth);
+                // println!("current_depth: {}", current_depth);
                 let mut nodes: Vec<usize> = self.changes.remove(&current_depth).unwrap();
                 nodes.sort();
                 nodes.dedup();
-                println!("nodes: {:?}", nodes);
+                // println!("nodes: {:?}", nodes);
                 let parent_depth: usize = if current_depth == 0 {
                     0
                 } else {
@@ -27,21 +27,24 @@ impl Tree {
                 for node in nodes {
                     // Line here to update this node
                     // Something like:
-                    println!("node: {:?}", node);
+                    // println!("node: {:?}", node);
                     self.update_node_likelihood(node, rate_matrix);
 
-                    // Put parent into HashMap so that they are updated
-                    let parent: usize = self.get_parent(node).unwrap().index;
-                    println!("parent: {}", parent);
+                    if current_depth > 0 {
+                        // Put parent into HashMap so that they are updated
+                        let parent: usize = self.get_parent(node).unwrap().index;
+                        // println!("parent: {}", parent);
 
-                    match self.changes.get(&parent_depth) {
-                        None => {
-                            self.changes.insert(parent_depth, vec![parent]);
-                        }
-                        Some(_) => {
-                            self.changes.get_mut(&parent_depth).unwrap().push(parent);
+                        match self.changes.get(&parent_depth) {
+                            None => {
+                                self.changes.insert(parent_depth, vec![parent]);
+                            }
+                            Some(_) => {
+                                self.changes.get_mut(&parent_depth).unwrap().push(parent);
+                            }
                         }
                     }
+                    
                 }
             }
         }
@@ -73,11 +76,13 @@ impl Tree {
     }
 
     pub fn get_likelihood(&self) -> f64 {
-        self.mutation_lists.get(self.get_root().unwrap().index)
+        self.mutation_lists
+            .get(self.get_root().unwrap().index)
             .unwrap()
             .iter()
-            .fold(0.0, |acc, muta| 
-                    (acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25))
+            .fold(0.0, |acc, muta| {
+                (acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25)
+            })
     }
 }
 

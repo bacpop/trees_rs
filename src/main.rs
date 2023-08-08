@@ -26,56 +26,56 @@ fn main() {
     let mut tr = phylo2vec_lin(vec![0, 0, 0], false);
     let mut tr2 = phylo2vec_lin(vec![0, 0, 1], false);
 
-    let genetic_data =  vec![
-            vec![
-                Mutation(1, 1.0, 0.0, 0.0, 0.0),
-                Mutation(7, 1.0, 0.0, 0.0, 0.0),
-            ],
-            vec![
-                Mutation(1, 0.0, 1.0, 0.0, 0.0),
-                Mutation(11, 1.0, 0.0, 0.0, 0.0),
-            ],
-            vec![
-                Mutation(2, 0.0, 0.0, 1.0, 0.0),
-                Mutation(3, 1.0, 0.0, 0.0, 0.0),
-            ],
-            vec![
-                Mutation(4, 1.0, 0.0, 0.0, 0.0),
-                Mutation(5, 0.0, 0.0, 0.0, 1.0),
-            ],
-            vec![
-                Mutation(4, 0.0, 1.0, 0.0, 0.0),
-                Mutation(10, 0.0, 0.0, 0.0, 1.0),
-            ],
-            vec![
-                Mutation(4, 0.0, 0.0, 1.0, 0.0),
-                Mutation(8, 0.0, 0.0, 0.0, 1.0),
-            ],
-            vec![
-                Mutation(4, 0.0, 1.0, 0.0, 0.0),
-                Mutation(7, 1.0, 0.0, 0.0, 0.0),
-            ],
-        ];
+    let genetic_data = vec![
+        vec![
+            Mutation(1, 1.0, 0.0, 0.0, 0.0),
+            Mutation(7, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(1, 0.0, 1.0, 0.0, 0.0),
+            Mutation(11, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(2, 0.0, 0.0, 1.0, 0.0),
+            Mutation(3, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(4, 1.0, 0.0, 0.0, 0.0),
+            Mutation(5, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 1.0, 0.0, 0.0),
+            Mutation(10, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 0.0, 1.0, 0.0),
+            Mutation(8, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 1.0, 0.0, 0.0),
+            Mutation(7, 1.0, 0.0, 0.0, 0.0),
+        ],
+    ];
 
-    
     tr.mutation_lists = genetic_data;
 
     tr.update_likelihood_postorder(&q);
-    
-    
-    // // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
-    // println!("{:?}", tr.get_likelihood());
-    let x = tr.get_likelihood();
-    // println!("{:?}", tr.nodes);
-    tr.update_tree(Some(vec![0, 0, 1]), false);
-    // println!("{:?}", tr.nodes);
 
-    // tr.update_likelihood(&q);
+
+    // // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
+    println!("{:?}", tr.get_likelihood());
+    
+    tr.update_tree(Some(vec![0, 0, 1]), false);
+    tr.update_likelihood(&q);
+    println!("{:?}", tr.get_likelihood());
+
+    tr.update_tree(Some(vec![0, 0, 0]), false);
+    tr.update_likelihood(&q);
+    println!("{:?}", tr.get_likelihood());
     // tr.update_tree(Some(vec![0, 0, 0]), false);
     // tr.update_likelihood(&q);
-    // println!("old: {}, new: {}", x, tr.get_likelihood());
     // // tr.update_likelihood(&q);
-    
+
     // println!("{:?}", tr.changes.keys().max().unwrap());
     // println!("{:?}", tr.get_likelihood());
 

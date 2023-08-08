@@ -89,8 +89,6 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
         }
     }
 
-    println!("{:?}", M);
-
     // Build tree
     tree.add(M[[k - 1, 2]], None);
 
@@ -118,7 +116,6 @@ pub fn random_tree(k: usize) -> Vec<usize> {
 impl Tree {
     // Updates a Tree to the tree from new_vec and records changes in self.changes HashMap
     pub fn update_tree(&mut self, new_vec: Option<Vec<usize>>, permute: bool) {
-
         if new_vec.is_some() {
             self.tree_vec = new_vec.unwrap();
         }
@@ -130,7 +127,7 @@ impl Tree {
         let k = self.tree_vec.len();
         let old_nodes = self.nodes.clone();
         self.nodes = vec![Node::default(); 2 * k + 1];
-        
+
         let mut M = Array2::<usize>::zeros((k, 3));
         let mut labels_rowk: Vec<usize> = (0..=k).collect();
         let mut rmk = k;
@@ -153,7 +150,6 @@ impl Tree {
             *i = *self.leaf_permutations.get(*i).unwrap_or(i);
         }
 
-        println!("{:?}", M);
         self.add(M[[k - 1, 2]], None);
 
         for i in (0..k).rev() {
@@ -187,5 +183,4 @@ impl Tree {
             self.add(M[[i, 1]], Some(M[[i, 2]]));
         }
     }
-
 }

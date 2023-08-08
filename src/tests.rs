@@ -82,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn treemake_lin() {
+    fn phylo2vec_lin_same_as_phylo2vec_quad() {
 
         let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0], vec![0, 1, 0], vec![0, 1, 2], vec![0, 1, 1]];
         let mut tree_q: Tree;
@@ -107,7 +107,7 @@ mod tests {
     }
 
     #[test]
-    fn update_tree() {
+    fn update_tree_check() {
         let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
         let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
@@ -132,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn genetic_likelihood() {
+    fn likelihood_multiplication_machinery() {
         let muts = Mutation(1, 0.15, 0.5, 0.25, 0.1);
 
         let q: na::Matrix4<f64> = na::Matrix4::new(
@@ -181,5 +181,61 @@ mod tests {
         assert_eq!(outcome.2, ll.2 * ll2.2);
         assert_eq!(outcome.3, ll.3 * ll2.3);
         assert_eq!(outcome.4, ll.4 * ll2.4);
+    }
+
+    #[test]
+    fn likelihood_internal_consistency() {
+        let q: na::Matrix4<f64> = na::Matrix4::new(
+            -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0,
+        );
+
+        let mut tr = phylo2vec_lin(vec![0, 0, 0], false);
+
+        let genetic_data = vec![
+        vec![
+            Mutation(1, 1.0, 0.0, 0.0, 0.0),
+            Mutation(7, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(1, 0.0, 1.0, 0.0, 0.0),
+            Mutation(11, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(2, 0.0, 0.0, 1.0, 0.0),
+            Mutation(3, 1.0, 0.0, 0.0, 0.0),
+        ],
+        vec![
+            Mutation(4, 1.0, 0.0, 0.0, 0.0),
+            Mutation(5, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 1.0, 0.0, 0.0),
+            Mutation(10, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 0.0, 1.0, 0.0),
+            Mutation(8, 0.0, 0.0, 0.0, 1.0),
+        ],
+        vec![
+            Mutation(4, 0.0, 1.0, 0.0, 0.0),
+            Mutation(7, 1.0, 0.0, 0.0, 0.0),
+        ],
+    ];
+
+    tr.mutation_lists = genetic_data;
+
+    tr.update_likelihood_postorder(&q);
+    
+    let old_likelihood = tr.get_likelihood();
+
+    tr.update_tree(Some(vec![0, 0, 1]), false);
+    tr.update_likelihood(&q);
+
+    tr.update_tree(Some(vec![0, 0, 0]), false);
+    tr.update_likelihood(&q);
+
+    let new_likelihood = tr.get_likelihood();
+
+    assert_eq!(old_likelihood, new_likelihood);
     }
 }
