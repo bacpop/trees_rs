@@ -5,34 +5,6 @@ use crate::Tree;
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub usize, pub f64, pub f64, pub f64, pub f64);
 
-impl Mutation {
-    pub fn prod(self, r: Mutation) -> Mutation {
-        Mutation(
-            self.0,
-            self.1 * r.1,
-            self.2 * r.2,
-            self.3 * r.3,
-            self.4 * r.4,
-        )
-    }
-
-    pub fn sum(self, r: Mutation) -> Mutation {
-        Mutation(
-            self.0,
-            self.1 + r.1,
-            self.2 + r.2,
-            self.3 + r.3,
-            self.4 + r.4,
-        )
-    }
-
-    pub fn likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
-        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
-
-        Mutation(self.0, x[0], x[1], x[2], x[3])
-    }
-}
-
 pub fn char_to_mutation(i: usize, e: &char) -> Mutation {
     match e {
         // (A, C, G, T)
@@ -78,11 +50,11 @@ pub fn combine_lists(
         
         if mut1.is_none() {
             // First iterator empty, push second
-            out.push(mut2.unwrap().likelihood(&p2));
+            out.push(mut2.unwrap().child_likelihood(&p2));
             mut2 = s2.next();
         } else if mut2.is_none() {
             // Second iterator empty, push first
-            out.push(mut1.unwrap().likelihood(&p1));
+            out.push(mut1.unwrap().child_likelihood(&p1));
             mut1 = s1.next();
         } else {
             // println!("mut1 = {:?} mut2 = {:?}", mut1.unwrap(), mut2.unwrap());
@@ -93,20 +65,20 @@ pub fn combine_lists(
                     // println!("mut1 == mut2 so pushing {:?}", mut1.unwrap());
                     out.push(
                         mut1.unwrap()
-                            .likelihood(&p1)
-                            .prod(mut2.unwrap().likelihood(&p2)),
+                            .child_likelihood(&p1)
+                            .prod(mut2.unwrap().child_likelihood(&p2)),
                     );
                     mut1 = s1.next();
                     mut2 = s2.next();
                 }
                 Ordering::Greater => {
                     // println!("mut1 > mut2 so pushing {:?}", mut2.unwrap());
-                    out.push(mut2.unwrap().likelihood(&p2));
+                    out.push(mut2.unwrap().child_likelihood(&p2));
                     mut2 = s2.next();
                 }
                 Ordering::Less => {
                     // println!("mut2 > mut1 so pushing {:?}", mut1.unwrap());
-                    out.push(mut1.unwrap().likelihood(&p1));
+                    out.push(mut1.unwrap().child_likelihood(&p1));
                     mut1 = s1.next();
                 }
             }

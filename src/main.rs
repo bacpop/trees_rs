@@ -19,81 +19,65 @@ fn main() {
     );
     let start = Instant::now();
 
-    let mut tr = phylo2vec_lin(random_tree(25), false);
-    // println!("{:?}", tr.nodes);
-    println!("{:?}", tr.leaf_permutations);
-    tr.update_tree(Some(random_tree(25)), false);
-    println!("{:?}", tr.changes);
-    // println!("{:?}", tr.leaf_permutations);
-    // tr.update_tree(None, true);
-    // println!("{:?}", tr.changes);
-    // println!("{:?}", tr.nodes);
-    // println!("{:?}", tr.leaf_permutations);
-
-
-    // tr.update_likelihood(&q);
-
+    // let mut tr = phylo2vec_lin(random_tree(21), false);
     // let filename = "listeria0.aln";
-
-    // Build tree from vector
-    // let mut v = random_tree(100);
-    // let mut tr = phylo2vec_lin(vec![0, 0], false);
     // tr.add_genetic_data(filename);
 
-    // let genetic_data =  vec![
-    //         vec![
-    //             Mutation(1, 1.0, 0.0, 0.0, 0.0),
-    //             Mutation(7, 1.0, 0.0, 0.0, 0.0),
-    //         ],
-    //         vec![
-    //             Mutation(1, 0.0, 1.0, 0.0, 0.0),
-    //             Mutation(11, 1.0, 0.0, 0.0, 0.0),
-    //         ],
-    //         vec![
-    //             Mutation(2, 0.0, 0.0, 1.0, 0.0),
-    //             Mutation(3, 1.0, 0.0, 0.0, 0.0),
-    //         ],
-    //         vec![
-    //             Mutation(4, 1.0, 0.0, 0.0, 0.0),
-    //             Mutation(5, 0.0, 0.0, 0.0, 1.0),
-    //         ],
-    //         vec![
-    //             Mutation(4, 0.0, 1.0, 0.0, 0.0),
-    //             Mutation(10, 0.0, 0.0, 0.0, 1.0),
-    //         ],
-    //     ];
+    let mut tr = phylo2vec_lin(vec![0, 0, 0], false);
+    let mut tr2 = phylo2vec_lin(vec![0, 0, 1], false);
 
-    // println!("{:?}", tr);
-    // tr.mutation_lists = genetic_data;
+    let genetic_data =  vec![
+            vec![
+                Mutation(1, 1.0, 0.0, 0.0, 0.0),
+                Mutation(7, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(1, 0.0, 1.0, 0.0, 0.0),
+                Mutation(11, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(2, 0.0, 0.0, 1.0, 0.0),
+                Mutation(3, 1.0, 0.0, 0.0, 0.0),
+            ],
+            vec![
+                Mutation(4, 1.0, 0.0, 0.0, 0.0),
+                Mutation(5, 0.0, 0.0, 0.0, 1.0),
+            ],
+            vec![
+                Mutation(4, 0.0, 1.0, 0.0, 0.0),
+                Mutation(10, 0.0, 0.0, 0.0, 1.0),
+            ],
+            vec![
+                Mutation(4, 0.0, 0.0, 1.0, 0.0),
+                Mutation(8, 0.0, 0.0, 0.0, 1.0),
+            ],
+            vec![
+                Mutation(4, 0.0, 1.0, 0.0, 0.0),
+                Mutation(7, 1.0, 0.0, 0.0, 0.0),
+            ],
+        ];
 
-    // for n in tr.postorder_notips(tr.get_root()) {
-    //     println!("{:?}", n);
-    //     // println!{{}}
-    //     // println!("{:?}", genetic_data.likelihood_lists.get(n.index));
-    // }
-
-    // let x = combine_lists(tr.mutation_lists.get(3), tr.mutation_lists.get(4), (1.0, 1.0), &q);
-
-    // println!("{:?}", x);
-
-    // let p = na::Matrix::exp(&q);
     
-    // let mutation = Mutation(1, 0.15, 0.5, 0.25, 0.1);
-    // let y = mutation.likelihood(&p);
-    // let muts2 = Mutation(1, 0.3, 0.1, 0.3, 0.1);
-    // let y2 = muts2.likelihood(&p);
+    tr.mutation_lists = genetic_data;
 
-    // let outcome = y.prod(y2);
+    tr.update_likelihood_postorder(&q);
     
-
-    // let y1 = y.1 * y2.1;
-
-    // println!("{:?}", tr.mutation_lists);
+    
+    // // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
+    // println!("{:?}", tr.get_likelihood());
+    let x = tr.get_likelihood();
     // println!("{:?}", tr.nodes);
-    // tr.update_likelihood_postorder(&q);
+    tr.update_tree(Some(vec![0, 0, 1]), false);
+    // println!("{:?}", tr.nodes);
+
+    // tr.update_likelihood(&q);
+    // tr.update_tree(Some(vec![0, 0, 0]), false);
+    // tr.update_likelihood(&q);
+    // println!("old: {}, new: {}", x, tr.get_likelihood());
+    // // tr.update_likelihood(&q);
     
-    // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
-    // println!("{:?}", tr.get_likelihood().ln());
+    // println!("{:?}", tr.changes.keys().max().unwrap());
+    // println!("{:?}", tr.get_likelihood());
 
     // tr.update_likelihood_postorder(tr.get_root(), &mut ll, &q);
 

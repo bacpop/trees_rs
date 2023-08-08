@@ -1,5 +1,8 @@
+use std::thread::current;
+
 use crate::combine_lists;
 use crate::Tree;
+use crate::Mutation;
 
 impl Tree {
     // Goes through all nodes that have changed and updates genetic likelihood
@@ -9,10 +12,11 @@ impl Tree {
             let max_depth: usize = *self.changes.keys().max().unwrap();
 
             for current_depth in (0..=max_depth).rev() {
+                println!("current_depth: {}", current_depth);
                 let mut nodes: Vec<usize> = self.changes.remove(&current_depth).unwrap();
                 nodes.sort();
                 nodes.dedup();
-
+                println!("nodes: {:?}", nodes);
                 let parent_depth: usize = if current_depth == 0 {
                     0
                 } else {
@@ -23,10 +27,12 @@ impl Tree {
                 for node in nodes {
                     // Line here to update this node
                     // Something like:
-                    self.update_likelihood_node(node, rate_matrix);
+                    println!("node: {:?}", node);
+                    self.update_node_likelihood(node, rate_matrix);
 
                     // Put parent into HashMap so that they are updated
                     let parent: usize = self.get_parent(node).unwrap().index;
+                    println!("parent: {}", parent);
 
                     match self.changes.get(&parent_depth) {
                         None => {
@@ -50,12 +56,12 @@ impl Tree {
             .collect();
 
         for node in nodes {
-            self.update_likelihood_node(node, rate_matrix);
+            self.update_node_likelihood(node, rate_matrix);
         }
     }
 
     // Updates the genetic likelihood at a given node
-    pub fn update_likelihood_node(&mut self, index: usize, rate_matrix: &na::Matrix4<f64>) {
+    pub fn update_node_likelihood(&mut self, index: usize, rate_matrix: &na::Matrix4<f64>) {
         if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
             let branchlengths = (self.get_branchlength(ch1), self.get_branchlength(ch2));
 
@@ -66,11 +72,45 @@ impl Tree {
         }
     }
 
-    pub fn get_likelihood(self) -> f64 {
+    pub fn get_likelihood(&self) -> f64 {
         self.mutation_lists.get(self.get_root().unwrap().index)
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| 
                     (acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25))
+    }
+}
+
+impl Mutation {
+    pub fn prod(self, r: Mutation) -> Mutation {
+        Mutation(
+            self.0,
+            self.1 * r.1,
+            self.2 * r.2,
+            self.3 * r.3,
+            self.4 * r.4,
+        )
+    }
+
+    pub fn sum(self, r: Mutation) -> Mutation {
+        Mutation(
+            self.0,
+            self.1 + r.1,
+            self.2 + r.2,
+            self.3 + r.3,
+            self.4 + r.4,
+        )
+    }
+
+    pub fn child_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
+        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
+
+        Mutation(self.0, x[0], x[1], x[2], x[3])
+    }
+
+    pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
+        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
+
+        Mutation(self.0, x[0].ln(), x[1].ln(), x[2].ln(), x[3].ln())
     }
 }

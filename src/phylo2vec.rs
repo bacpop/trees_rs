@@ -89,6 +89,8 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
         }
     }
 
+    println!("{:?}", M);
+
     // Build tree
     tree.add(M[[k - 1, 2]], None);
 
@@ -150,6 +152,9 @@ impl Tree {
         for i in M.iter_mut().filter(|el| **el <= k + 1) {
             *i = *self.leaf_permutations.get(*i).unwrap_or(i);
         }
+
+        println!("{:?}", M);
+        self.add(M[[k - 1, 2]], None);
 
         for i in (0..k).rev() {
             if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {

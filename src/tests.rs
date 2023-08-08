@@ -279,6 +279,42 @@ mod tests {
             tree_l.get_node(6).unwrap().parent,
             tree_q.get_node(6).unwrap().parent
         );
+
+        tree_q = phylo2vec_quad(vec![0, 0, 1]);
+        tree_l.update_tree(Some(vec![0, 0, 1]), false);
+
+        assert_eq!(
+            tree_l.get_node(0).unwrap().parent,
+            tree_q.get_node(0).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(1).unwrap().parent,
+            tree_q.get_node(1).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(2).unwrap().parent,
+            tree_q.get_node(2).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(3).unwrap().parent,
+            tree_q.get_node(3).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(4).unwrap().parent,
+            tree_q.get_node(4).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(5).unwrap().parent,
+            tree_q.get_node(5).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(6).unwrap().parent,
+            tree_q.get_node(6).unwrap().parent
+        );
+        assert_eq!(
+            tree_l.get_node(6).unwrap().index,
+            tree_q.get_node(6).unwrap().index
+        );
     }
 
     #[test]
@@ -298,7 +334,7 @@ mod tests {
         assert_eq!(p[(2, 1)], 0.5029001980127025);
         assert_eq!(p[(3, 3)], 0.6082994225745667);
 
-        let ll = muts.likelihood(&p);
+        let ll = muts.child_likelihood(&p);
 
         assert_eq!(ll.1, 0.5187100816969821);
         assert_eq!(ll.3, 0.5292500041531686);
@@ -311,7 +347,7 @@ mod tests {
         
         // Check outcome of multiplying likelihoods from two child nodes
         let muts2 = Mutation(1, 0.3, 0.1, 0.3, 0.1);
-        let ll2 = muts2.likelihood(&p);
+        let ll2 = muts2.child_likelihood(&p);
 
         let outcome = ll.prod(ll2);
 
