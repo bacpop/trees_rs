@@ -1,3 +1,5 @@
+use std::os::unix::thread;
+
 use crate::node::Node;
 use crate::Tree;
 use ndarray::*;
@@ -113,11 +115,20 @@ pub fn random_tree(k: usize) -> Vec<usize> {
 
 impl Tree {
     // Updates a Tree to the tree from new_vec and records changes in self.changes HashMap
-    pub fn update_tree(&mut self, new_vec: Vec<usize>) {
+    pub fn update_tree(&mut self, new_vec: Option<Vec<usize>>, permute: bool) {
+
+        if new_vec.is_some() {
+            self.tree_vec = new_vec.unwrap();
+        }
+
+        if permute {
+            self.leaf_permutations.shuffle(&mut thread_rng());
+        }
+
         let k = self.tree_vec.len();
         let old_nodes = self.nodes.clone();
         self.nodes = vec![Node::default(); 2 * k + 1];
-        self.tree_vec = new_vec;
+        
         let mut M = Array2::<usize>::zeros((k, 3));
         let mut labels_rowk: Vec<usize> = (0..=k).collect();
         let mut rmk = k;
@@ -171,4 +182,5 @@ impl Tree {
             self.add(M[[i, 1]], Some(M[[i, 2]]));
         }
     }
+
 }
