@@ -111,7 +111,7 @@ mod tests {
         let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
         let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
-        let vecs: Vec<Vec<usize>> = vec![vec![0, 1, 0], vec![0, 1, 1], vec![0, 0, 1]];
+        let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0], vec![0, 1, 0], vec![0, 1, 2], vec![0, 1, 1]];
 
         for vec in vecs {
             let v = vec.clone();
