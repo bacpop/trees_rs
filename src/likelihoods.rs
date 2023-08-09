@@ -81,7 +81,7 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                (acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25)
+                acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25
             })
     }
 }

@@ -116,8 +116,9 @@ pub fn random_tree(k: usize) -> Vec<usize> {
 impl Tree {
     // Updates a Tree to the tree from new_vec and records changes in self.changes HashMap
     pub fn update_tree(&mut self, new_vec: Option<Vec<usize>>, permute: bool) {
-        if new_vec.is_some() {
-            self.tree_vec = new_vec.unwrap();
+
+        if let Some(vec) = new_vec {
+            self.tree_vec = vec;
         }
 
         if permute {
@@ -145,7 +146,8 @@ impl Tree {
             M[[i, 2]] = labels_rowk[m];
         }
 
-        // Update with leaf permutations from old tree
+        // Update with leaf permutations, these are from the old tree or may have 
+        // been newly shuffled above
         for i in M.iter_mut().filter(|el| **el <= k + 1) {
             *i = *self.leaf_permutations.get(*i).unwrap_or(i);
         }

@@ -13,7 +13,7 @@ pub struct Tree {
 }
 
 // UTILITY FUNCTIONS FOR ADDING, ACCESSING, AND MUTATING NODES AND DATA IN NODES
-impl<'a> Tree {
+impl Tree {
     // Constructor function for a new tree
     pub fn new(tree_vec: Vec<usize>) -> Tree {
         let k = tree_vec.len();
