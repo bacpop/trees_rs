@@ -17,61 +17,71 @@ fn main() {
     let q: na::Matrix4<f64> = na::Matrix4::new(
         -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0,
     );
-    let start = Instant::now();
+    
 
-    // let mut tr = phylo2vec_lin(random_tree(21), false);
+    let mut tr = phylo2vec_lin(random_tree(500000), true);
+    tr.mutation_lists = create_dummy_genetic_data(500000, 1000, 100);
+    let start = Instant::now();
+    tr.update_likelihood_postorder(&q);
+    let end = Instant::now();
+    println!("{:?}", tr.get_tree_likelihood().ln());
+    
     // let filename = "listeria0.aln";
     // tr.add_genetic_data(filename);
 
-    let mut tr = phylo2vec_lin(vec![0, 0, 0], false);
-    let mut tr2 = phylo2vec_lin(vec![0, 0, 1], false);
+    // let mut tr = phylo2vec_lin(vec![0, 0, 0], false);
+    // let mut tr2 = phylo2vec_lin(vec![0, 0, 1], false);
+    // let mut x = tr.tree_vec.clone();
+    // *x.get_mut(499999).unwrap() += 1;
+    // tr.update_tree(Some(x), false);
+    // tr.update_likelihood(&q);
+    // println!("{:?}", tr.get_tree_likelihood().ln());
+    // let genetic_data = vec![
+    //     vec![
+    //         Mutation(1, 1.0, 0.0, 0.0, 0.0),
+    //         Mutation(7, 1.0, 0.0, 0.0, 0.0),
+    //     ],
+    //     vec![
+    //         Mutation(1, 0.0, 1.0, 0.0, 0.0),
+    //         Mutation(11, 1.0, 0.0, 0.0, 0.0),
+    //     ],
+    //     vec![
+    //         Mutation(2, 0.0, 0.0, 1.0, 0.0),
+    //         Mutation(3, 1.0, 0.0, 0.0, 0.0),
+    //     ],
+    //     vec![
+    //         Mutation(4, 1.0, 0.0, 0.0, 0.0),
+    //         Mutation(5, 0.0, 0.0, 0.0, 1.0),
+    //     ],
+    //     vec![
+    //         Mutation(4, 0.0, 1.0, 0.0, 0.0),
+    //         Mutation(10, 0.0, 0.0, 0.0, 1.0),
+    //     ],
+    //     vec![
+    //         Mutation(4, 0.0, 0.0, 1.0, 0.0),
+    //         Mutation(8, 0.0, 0.0, 0.0, 1.0),
+    //     ],
+    //     vec![
+    //         Mutation(4, 0.0, 1.0, 0.0, 0.0),
+    //         Mutation(7, 1.0, 0.0, 0.0, 0.0),
+    //     ],
+    // ];
 
-    let genetic_data = vec![
-        vec![
-            Mutation(1, 1.0, 0.0, 0.0, 0.0),
-            Mutation(7, 1.0, 0.0, 0.0, 0.0),
-        ],
-        vec![
-            Mutation(1, 0.0, 1.0, 0.0, 0.0),
-            Mutation(11, 1.0, 0.0, 0.0, 0.0),
-        ],
-        vec![
-            Mutation(2, 0.0, 0.0, 1.0, 0.0),
-            Mutation(3, 1.0, 0.0, 0.0, 0.0),
-        ],
-        vec![
-            Mutation(4, 1.0, 0.0, 0.0, 0.0),
-            Mutation(5, 0.0, 0.0, 0.0, 1.0),
-        ],
-        vec![
-            Mutation(4, 0.0, 1.0, 0.0, 0.0),
-            Mutation(10, 0.0, 0.0, 0.0, 1.0),
-        ],
-        vec![
-            Mutation(4, 0.0, 0.0, 1.0, 0.0),
-            Mutation(8, 0.0, 0.0, 0.0, 1.0),
-        ],
-        vec![
-            Mutation(4, 0.0, 1.0, 0.0, 0.0),
-            Mutation(7, 1.0, 0.0, 0.0, 0.0),
-        ],
-    ];
+    // tr.mutation_lists = genetic_data;
 
-    tr.mutation_lists = genetic_data;
-
-    tr.update_likelihood_postorder(&q);
+    // tr.update_likelihood_postorder(&q);
 
 
-    // // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
-    println!("{:?}", tr.get_likelihood());
+    // // // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
+    // println!("{:?}", tr.get_tree_likelihood());
     
-    tr.update_tree(Some(vec![0, 0, 1]), false);
-    tr.update_likelihood(&q);
-    println!("{:?}", tr.get_likelihood());
+    // tr.update_tree(Some(vec![0, 0, 1]), false);
+    // tr.update_likelihood(&q);
+    // println!("{:?}", tr.get_tree_likelihood());
 
-    tr.update_tree(Some(vec![0, 0, 0]), false);
-    tr.update_likelihood(&q);
-    println!("{:?}", tr.get_likelihood());
+    // tr.update_tree(Some(vec![0, 0, 0]), false);
+    // tr.update_likelihood(&q);
+    // println!("{:?}", tr.get_tree_likelihood());
     // tr.update_tree(Some(vec![0, 0, 0]), false);
     // tr.update_likelihood(&q);
     // // tr.update_likelihood(&q);
@@ -100,7 +110,7 @@ fn main() {
 
     // println!("{:?}", tr.changes);
 
-    let end = Instant::now();
+    
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
     eprintln!("Done in {}ns", end.duration_since(start).as_nanos());

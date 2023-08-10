@@ -226,7 +226,7 @@ mod tests {
 
     tr.update_likelihood_postorder(&q);
     
-    let old_likelihood = tr.get_likelihood();
+    let old_likelihood = tr.get_tree_likelihood();
 
     tr.update_tree(Some(vec![0, 0, 1]), false);
     tr.update_likelihood(&q);
@@ -234,7 +234,7 @@ mod tests {
     tr.update_tree(Some(vec![0, 0, 0]), false);
     tr.update_likelihood(&q);
 
-    let new_likelihood = tr.get_likelihood();
+    let new_likelihood = tr.get_tree_likelihood();
 
     assert_eq!(old_likelihood, new_likelihood);
     }

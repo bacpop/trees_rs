@@ -1,5 +1,4 @@
 use std::thread::current;
-
 use crate::combine_lists;
 use crate::Mutation;
 use crate::Tree;
@@ -8,46 +7,45 @@ impl Tree {
     // Goes through all nodes that have changed and updates genetic likelihood
     // Used after update_tree()
     pub fn update_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
-        if !self.changes.is_empty() {
-            let max_depth: usize = *self.changes.keys().max().unwrap();
 
-            for current_depth in (0..=max_depth).rev() {
-                // println!("current_depth: {}", current_depth);
-                let mut nodes: Vec<usize> = self.changes.remove(&current_depth).unwrap();
-                nodes.sort();
-                nodes.dedup();
-                // println!("nodes: {:?}", nodes);
-                let parent_depth: usize = if current_depth == 0 {
-                    0
-                } else {
-                    current_depth - 1
-                };
+        if self.changes.is_empty() {
+            return ()
+        }
 
-                // Traverse all nodes at current_depth
-                for node in nodes {
-                    // Line here to update this node
-                    // Something like:
-                    // println!("node: {:?}", node);
-                    self.update_node_likelihood(node, rate_matrix);
+        let max_depth: usize = *self.changes.keys().max().unwrap();
 
-                    if current_depth > 0 {
-                        // Put parent into HashMap so that they are updated
-                        let parent: usize = self.get_parent(node).unwrap().index;
-                        // println!("parent: {}", parent);
+        for current_depth in (0..=max_depth).rev() {
+            
+            let mut nodes: Vec<usize> = self.changes.remove(&current_depth).unwrap();
+            nodes.sort();
+            nodes.dedup();
 
-                        match self.changes.get(&parent_depth) {
-                            None => {
-                                self.changes.insert(parent_depth, vec![parent]);
-                            }
-                            Some(_) => {
-                                self.changes.get_mut(&parent_depth).unwrap().push(parent);
-                            }
+            let parent_depth: usize = match current_depth {
+                0 => 0,
+                _ => current_depth - 1,
+            };
+
+            // Traverse all nodes at current_depth
+            for node in nodes {
+
+                self.update_node_likelihood(node, rate_matrix);
+
+                if current_depth > 0 {
+                    // Put parent into HashMap so that they are updated
+                    let parent: usize = self.get_parent(node).unwrap().index;
+
+                    match self.changes.get(&parent_depth) {
+                        None => {
+                            self.changes.insert(parent_depth, vec![parent]);
+                        }
+                        Some(_) => {
+                            self.changes.get_mut(&parent_depth).unwrap().push(parent);
                         }
                     }
-                    
                 }
             }
         }
+        
     }
 
     // Traverses tree below given node (except leaves), updating likelihood
@@ -75,7 +73,7 @@ impl Tree {
         }
     }
 
-    pub fn get_likelihood(&self) -> f64 {
+    pub fn get_tree_likelihood(&self) -> f64 {
         self.mutation_lists
             .get(self.get_root().unwrap().index)
             .unwrap()

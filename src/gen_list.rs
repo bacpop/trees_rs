@@ -1,5 +1,6 @@
 use crate::Tree;
 use needletail::*;
+use rand::Rng;
 use std::cmp::Ordering;
 
 #[derive(Debug, Copy, Clone)]
@@ -118,4 +119,33 @@ pub fn create_list(refseq: &[char], seq: &[char]) -> Vec<Mutation> {
     }
 
     out
+}
+
+pub fn create_dummy_genetic_data(n_leaves: usize, n_mutations: usize, sequence_length: usize) -> Vec<Vec<Mutation>> {
+    let mut output: Vec<Vec<Mutation>> = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    for i in 0..n_leaves {
+        let mut temp: Vec<Mutation> = Vec::new();
+        for j in 0..n_mutations {
+            let mut mutation = Mutation(rng.gen_range(1..sequence_length), 0.0, 0.0, 0.0, 0.0);
+            match rng.gen_range(1..=4) {
+                1 => {mutation.1 = 1.0},
+                2 => {mutation.2 = 1.0},
+                3 => {mutation.3 = 1.0},
+                4 => {mutation.4 = 1.0},
+                _ => {},
+            }
+            temp.push(mutation);
+        }
+        temp.sort_by(|a, b| a.0.cmp(&b.0));
+        temp.dedup_by(|a, b| a.0.eq(&b.0));
+        output.push(temp);
+    }
+
+    for _ in 0..(n_leaves + 1) {
+        output.push(Vec::new());
+    }
+
+    output
 }
