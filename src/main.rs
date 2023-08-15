@@ -9,6 +9,7 @@ mod tree;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
+use std::collections::HashSet;
 use std::time::Instant;
 extern crate nalgebra as na;
 
@@ -19,13 +20,16 @@ fn main() {
     );
     
 
-    let mut tr = phylo2vec_lin(random_tree(500000), true);
-    tr.mutation_lists = create_dummy_genetic_data(500000, 1000, 100);
+    let mut tr = phylo2vec_lin(vec![0; 5000000], false);
+    tr.mutation_lists = create_dummy_genetic_data(5000000, 1, 100);
     let start = Instant::now();
-    tr.update_likelihood_postorder(&q);
-    let end = Instant::now();
-    println!("{:?}", tr.get_tree_likelihood().ln());
+    // tr.update_likelihood_postorder(&q);
+
+    // println!("{:?}", tr.get_tree_likelihood().ln());
     
+    // println!("{:?}", tr.nodes);
+    println!("{:?}", tr.path_length(50, 270));
+    let end = Instant::now();
     // let filename = "listeria0.aln";
     // tr.add_genetic_data(filename);
 

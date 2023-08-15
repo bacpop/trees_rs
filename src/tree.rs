@@ -1,6 +1,7 @@
 use crate::gen_list::Mutation;
 use crate::node::Node;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -70,6 +71,24 @@ impl Tree {
     // Find maximum node depth
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
+    }
+
+    pub fn path_length(&self, index1: usize, index2: usize) -> usize {
+        let mut temp: HashSet<usize> = HashSet::new();
+
+        let x: Vec<usize> = self.iter(self.get_node(index1))
+                                .chain(self.iter(self.get_node(index2)))
+                                .map(|n| n.index)
+                                .collect();
+
+        for i in &x {
+            match temp.get(&i) {
+                Some(_) => temp.remove(&i),
+                None => temp.insert(*i),
+            };
+        };
+
+        temp.iter().len()
     }
 }
 
@@ -182,41 +201,58 @@ impl<'a> Tree {
 //     }
 // }
 
-// #[derive(Debug)]
-// pub struct RootIter<'a> {
-//     current_node: Option<&'a Node>,
-//     next_node: Option<&'a Node>,
-//     tree: &'a Tree,
-//     end_flag: bool,
-// }
+#[derive(Debug)]
+pub struct RootIter<'a> {
+    current_node: Option<&'a Node>,
+    next_node: Option<&'a Node>,
+    tree: &'a Tree,
+    end_flag: bool,
+}
 
-// // Traverses from a specified node up to the root of the tree
-// impl<'a> Iterator for RootIter<'a> {
-//     type Item = &'a Node;
+// Traverses from a specified node up to the root of the tree
+impl<'a> Iterator for RootIter<'a> {
+    type Item = &'a Node;
 
-//     fn next(&mut self) -> Option<Self::Item> {
-//         let output: Option<Self::Item>;
+    fn next(&mut self) -> Option<Self::Item> {
+        let output: Option<Self::Item>;
 
-//         if self.end_flag {
-//             return None;
-//         };
+        if self.end_flag {
+            return None;
+        };
 
-//         match self.current_node.unwrap().parent {
-//             None => {
-//                 output = self.tree.get_root();
-//                 self.end_flag = true;
-//             }
-//             Some(i) => {
-//                 output = self.current_node;
-//                 self.next_node = self.tree.get_node(i);
-//             }
-//         };
+        match self.current_node.unwrap().parent {
+            None => {
+                output = self.tree.get_root();
+                self.end_flag = true;
+            }
+            Some(i) => {
+                output = self.current_node;
+                self.next_node = self.tree.get_node(i);
+            }
+        };
 
-//         self.current_node = self.next_node;
+        self.current_node = self.next_node;
 
-//         output
-//     }
-// }
+        output
+    }
+}
+
+impl<'a> Tree {
+    // Iterates from a specified node upwards to the root of the tree
+pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
+    RootIter {
+        current_node: node,
+        next_node: node,
+        tree: self,
+        end_flag: false,
+    }
+}
+
+// Rootwards iterator that ignores leaves
+pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
+    self.iter(node).filter(|node| !node.tip)
+}
+}
 
 // #[derive(Debug)]
 // pub struct Preorder<'a> {
@@ -260,21 +296,6 @@ impl<'a> Tree {
 
 //         output
 //     }
-// }
-
-// Iterates from a specified node upwards to the root of the tree
-// pub fn iter(&'a self, node: Option<&'a Node>) -> RootIter {
-//     RootIter {
-//         current_node: node,
-//         next_node: node,
-//         tree: self,
-//         end_flag: false,
-//     }
-// }
-
-// Rootwards iterator that ignores leaves
-// pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a Node> {
-//     self.iter(node).filter(|node| !node.tip)
 // }
 
 // Traverses tree in preorder starting at a given node
