@@ -1,17 +1,23 @@
 use rand::Rng;
 
-pub fn phi(v: Vec<f64>) -> Vec<f64> {
+pub fn phi(v: &Vec<f64>) -> Vec<f64> {
     v.iter().enumerate().map(|(i, value)| {
         if i == 0 {
             0.0
-        } else if value < &0.0 {
+        } else if value.lt(&0.0) {
             0.0
-        } else if value > &(i as f64) {
+        } else if value.gt(&(i as f64)) {
             (i as f64) - 0.001
         } else {
             *value as f64
         }
     }).collect()
+}
+
+pub fn piv(v: &Vec<f64>) -> Vec<f64> {
+    let mut pivec: Vec<f64> = phi(v).iter().map(|el| el.floor() + 0.5).collect();
+    pivec[0] = 0.0;
+    pivec
 }
 
 pub fn peturbation_vec(n: usize) -> Vec<f64> {
