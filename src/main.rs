@@ -5,10 +5,16 @@ mod node;
 mod phylo2vec;
 mod tests;
 mod tree;
+mod dspsa;
 
+use rand::Rng;
+use rand::random;
+
+use crate::dspsa::peturbation_vec;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
+use crate::dspsa::phi;
 use std::collections::HashSet;
 use std::time::Instant;
 extern crate nalgebra as na;
@@ -20,16 +26,84 @@ fn main() {
     );
     
 
-    let mut tr = phylo2vec_lin(vec![0; 5000000], false);
-    tr.mutation_lists = create_dummy_genetic_data(5000000, 1, 100);
+    let mut tr = phylo2vec_lin(vec![0; 20], false);
+    tr.mutation_lists = create_dummy_genetic_data(20, 1, 100);
     let start = Instant::now();
-    // tr.update_likelihood_postorder(&q);
+    tr.update_likelihood_postorder(&q);
 
-    // println!("{:?}", tr.get_tree_likelihood().ln());
+    println!("{:?}", tr.get_tree_likelihood().ln());
     
-    // println!("{:?}", tr.nodes);
-    println!("{:?}", tr.path_length(50, 270));
+    
+    let theta0: Vec<f64> = random_tree(20).iter().map(|x| *x as f64).collect();
+    let oldtheta = theta0.clone();
+    // println!("theta0: {:?}", phi(theta0));
+
+    let mut k = 0;
+
+    // Peturbation vector
+    let delta = peturbation_vec(20);
+    println!("delta: {:?}", delta);
+
+    // Pi vector
+    let mut pivec: Vec<f64> = phi(theta0).iter().map(|el| el.floor() + 0.5).collect();
+    pivec[0] = 0.0;
+    println!("pivec: {:?}", pivec);
+
+    // // theta+/-
+    let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
+    let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
+
+    
+    println!("thetaplus: {:?}", thetaplus);
+    println!("thetaminus: {:?}", thetaminus);
+    tr.update_tree(Some(thetaplus), false);
+    // println!("tree changes: {:?}", tr.changes);
+    tr.update_likelihood(&q);
+    let x1 = tr.get_tree_likelihood().ln();
+    println!("thetaplus ll: {:?}", x1);
+
+
+    tr.update_tree(Some(thetaminus), false);
+    // println!("tree changes: {:?}", tr.changes);
+    tr.update_likelihood(&q);
+    let x2 = tr.get_tree_likelihood().ln();
+    println!("thetaminus ll: {:?}", x2);
+    
+    let ldiff = x1 - x2;    
+    let ghat: Vec<f64> = delta.iter().map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
+
+
+    let a = 2.0;
+    let A = 2.0;
+    let alpha = 0.75;
+    let ak = a / (1.0 + A + k as f64).powf(alpha);
+
+    let newtheta: Vec<f64> = oldtheta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
+
+    println!("ghat: {:?}", ghat);
+    println!("new theta: {:?}", newtheta);
+
+
+    let delta2 = peturbation_vec(20);
+
+    let mut pivec2: Vec<f64> = phi(newtheta).iter().map(|el| el.floor() + 0.5).collect();
+    pivec2[0] = 0.0;
+    println!("pivec: {:?}", pivec2);
+
+    let thetaplus2: Vec<usize> = pivec2.iter().zip(delta2.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
+    let thetaminus2: Vec<usize> = pivec2.iter().zip(delta2.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
+
+    
+    println!("thetaplus: {:?}", thetaplus2);
+    println!("thetaminus: {:?}", thetaminus2);
+
+    // println!("{:?}", );
     let end = Instant::now();
+
+    // To update path lengths for BME
+
+
+
     // let filename = "listeria0.aln";
     // tr.add_genetic_data(filename);
 
