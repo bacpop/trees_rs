@@ -26,8 +26,8 @@ fn main() {
         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
     );
 
-    let p1 = na::Matrix::exp(&q);
-    println!("{:?}", p1);
+    // let p1 = na::Matrix::exp(&q);
+    // println!("{:?}", p1);
 
     // let mut tr = phylo2vec_lin(vec![0, 0], false);
 
@@ -63,7 +63,7 @@ fn main() {
 
 
 
-    let mut tr = phylo2vec_quad(vec![0; 2]);
+    let mut tr = phylo2vec_quad(vec![0; 1]);
     println!("{:?}", tr);
 
     let filename = "listeria_simple.fasta";
