@@ -79,9 +79,20 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                acc + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25
+                acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25).ln()
             })
     }
+
+    // pub fn get_tree_log_likelihood(&self) -> f64 {
+    //     self.mutation_lists
+    //         .get(self.get_root().unwrap().index)
+    //         .unwrap()
+    //         .iter()
+    //         .fold(0.0, |acc, muta| {
+    //             acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25).ln()
+    //         })
+    // }
+
 }
 
 impl Mutation {
