@@ -238,4 +238,25 @@ mod tests {
 
     assert_eq!(old_likelihood, new_likelihood);
     }
+
+    #[test]
+    fn likelihood_value_correct () {
+        let q: na::Matrix4<f64> = na::Matrix4::new(
+            -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
+        );
+        
+        let mut tr = phylo2vec_quad(vec![0; 1]);
+
+        let genetic_data = vec![vec![Mutation(0, f64::ln(0.0), 0.0, f64::ln(0.0), f64::ln(0.0))], 
+        vec![Mutation(0, f64::ln(0.0), f64::ln(0.0), f64::ln(0.0), 0.0)], 
+        vec![]]; // This is the likelihood at the only internal (root) node, it can't be empty but will be overwritten
+
+        tr.mutation_lists = genetic_data;
+
+        tr.update_likelihood_postorder(&q);
+
+        let likelihood = tr.get_tree_likelihood();
+
+        assert_eq!(-2.773571667625644, likelihood);
+    }
 }

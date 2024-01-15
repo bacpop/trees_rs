@@ -21,20 +21,23 @@ use std::time::Instant;
 extern crate nalgebra as na;
 
 fn main() {
+    // let start = Instant::now();
+
     // Define rate matrix
     let q: na::Matrix4<f64> = na::Matrix4::new(
         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
     );
     
     let mut tr = phylo2vec_quad(vec![0; 1]);
-    println!("{:?}", f64::exp(-f64::INFINITY));
 
     let filename = "listeria_simple.fasta";
     tr.add_genetic_data(filename);
 
+    println!("{:?}", tr.mutation_lists);
+
     tr.update_likelihood_postorder(&q);
 
-    println!("{:?}", tr.get_tree_likelihood());
+    println!("{}", tr.get_tree_likelihood());
     
     
     // let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();
