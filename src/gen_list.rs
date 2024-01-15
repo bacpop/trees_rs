@@ -50,11 +50,11 @@ pub fn combine_lists(
     while mut1.is_some() | mut2.is_some() {
         if mut1.is_none() {
             // First iterator empty, push second
-            out.push(mut2.unwrap().child_likelihood(&p2));
+            out.push(mut2.unwrap().child_log_likelihood(&p2));
             mut2 = s2.next();
         } else if mut2.is_none() {
             // Second iterator empty, push first
-            out.push(mut1.unwrap().child_likelihood(&p1));
+            out.push(mut1.unwrap().child_log_likelihood(&p1));
             mut1 = s1.next();
         } else {
             // println!("mut1 = {:?} mut2 = {:?}", mut1.unwrap(), mut2.unwrap());
@@ -65,20 +65,20 @@ pub fn combine_lists(
                     // println!("mut1 == mut2 so pushing {:?}", mut1.unwrap());
                     out.push(
                         mut1.unwrap()
-                            .child_likelihood(&p1)
-                            .prod(mut2.unwrap().child_likelihood(&p2)),
+                            .child_log_likelihood(&p1)
+                            .sum(mut2.unwrap().child_log_likelihood(&p2)),
                     );
                     mut1 = s1.next();
                     mut2 = s2.next();
                 }
                 Ordering::Greater => {
                     // println!("mut1 > mut2 so pushing {:?}", mut2.unwrap());
-                    out.push(mut2.unwrap().child_likelihood(&p2));
+                    out.push(mut2.unwrap().child_log_likelihood(&p2));
                     mut2 = s2.next();
                 }
                 Ordering::Less => {
                     // println!("mut2 > mut1 so pushing {:?}", mut1.unwrap());
-                    out.push(mut1.unwrap().child_likelihood(&p1));
+                    out.push(mut1.unwrap().child_log_likelihood(&p1));
                     mut1 = s1.next();
                 }
             }

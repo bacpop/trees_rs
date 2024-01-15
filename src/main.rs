@@ -60,9 +60,6 @@ fn main() {
     // println!("mut41: {:?}", mut41);
     // println!("mut41: {:?}", mut41.1 + mut41.2 + mut41.3 + mut41.4);
 
-
-
-
     let mut tr = phylo2vec_quad(vec![0; 1]);
     println!("{:?}", tr);
 
@@ -74,9 +71,12 @@ fn main() {
     // let start = Instant::now();
     tr.update_likelihood_postorder(&q);
     println!("{:?}", tr.mutation_lists);
-    // println!("{:?}", tr.mutation_lists.get(tr.get_root().unwrap().index));
+    println!("{:?}", tr.mutation_lists.get(2));
+
+    // println!("{:?}", tr.mutation_lists.get(2).unwrap().iter().map());
 
     println!("{:?}", tr.get_tree_likelihood());
+
     // println!("{:?}", tr.get_tree_log_likelihood());
     // // println!("{:?}", tr.get_root().unwrap().index);
     // // println!("{:?}", tr.mutation_lists.get(42));

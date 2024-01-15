@@ -79,7 +79,7 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25).ln()
+                acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25)
             })
     }
 
@@ -122,9 +122,23 @@ impl Mutation {
         Mutation(self.0, x[0], x[1], x[2], x[3])
     }
 
-    pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
-        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
+    pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Self {
+        let lnx = vec![self.1.ln(), self.2.ln(), self.3.ln(), self.4.ln()];
+        let mut x: Vec<f64> = Vec::new();
 
-        Mutation(self.0, x[0].ln(), x[1].ln(), x[2].ln(), x[3].ln())
+        for i in 0..=3 {
+            x.push(logse(prob_matrix.row(i).iter().zip(&lnx).map(|(a, b)| a.ln() + b).collect()));
+        }
+        Mutation(self.0, *x.get(0).unwrap(), *x.get(1).unwrap(), *x.get(2).unwrap(), *x.get(3).unwrap())
     }
+}
+
+pub fn log_sum_exp(a: f64, b: f64, c: f64, d: f64) -> f64 {
+    let xstar: f64 = a.max(b).max(c).max(d);
+    xstar + f64::ln(f64::exp(a - xstar) + f64::exp(b - xstar) + f64::exp(c - xstar) + f64::exp(d - xstar))
+}
+
+pub fn logse(x: Vec<f64>) -> f64 {
+    let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
+    xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
 }
