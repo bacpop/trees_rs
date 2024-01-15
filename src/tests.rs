@@ -186,7 +186,7 @@ mod tests {
     #[test]
     fn likelihood_internal_consistency() {
         let q: na::Matrix4<f64> = na::Matrix4::new(
-            -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0, 1.0, 1.0, 1.0, 1.0, -2.0,
+            -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
         );
 
         let mut tr = phylo2vec_lin(vec![0, 0, 0], false);

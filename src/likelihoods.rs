@@ -83,16 +83,6 @@ impl Tree {
             })
     }
 
-    // pub fn get_tree_log_likelihood(&self) -> f64 {
-    //     self.mutation_lists
-    //         .get(self.get_root().unwrap().index)
-    //         .unwrap()
-    //         .iter()
-    //         .fold(0.0, |acc, muta| {
-    //             acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25).ln()
-    //         })
-    // }
-
 }
 
 impl Mutation {
@@ -123,7 +113,7 @@ impl Mutation {
     }
 
     pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Self {
-        let lnx = vec![self.1.ln(), self.2.ln(), self.3.ln(), self.4.ln()];
+        let lnx = vec![self.1, self.2, self.3, self.4];
         let mut x: Vec<f64> = Vec::new();
 
         for i in 0..=3 {

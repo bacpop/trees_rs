@@ -25,61 +25,16 @@ fn main() {
     let q: na::Matrix4<f64> = na::Matrix4::new(
         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
     );
-
-    // let p1 = na::Matrix::exp(&q);
-    // println!("{:?}", p1);
-
-    // let mut tr = phylo2vec_lin(vec![0, 0], false);
-
-    // let genetic_data = vec![
-    //     vec![
-    //         Mutation(1, 1.0, 0.0, 0.0, 0.0),
-    //     ],
-    //     vec![
-    //         Mutation(1, 0.0, 1.0, 0.0, 0.0),
-    //         Mutation(2, 0.0, 1.0, 0.0, 0.0),
-    //     ],
-    //     vec![
-    //         Mutation(1, 0.0, 1.0, 0.0, 0.0),
-    //     ],
-    //     vec![],
-    //     vec![],
-    // ];
-
-    // tr.mutation_lists = genetic_data;
-
-    // let mut0 = tr.mutation_lists.get(0).unwrap().get(0).unwrap().child_likelihood(&p1);
-    // let mut2 = tr.mutation_lists.get(2).unwrap().get(0).unwrap().child_likelihood(&p1);
-    // let mut1 = tr.mutation_lists.get(1).unwrap().get(0).unwrap().child_likelihood(&p1);
-    // println!("mut0: {:?}", mut0);
-    // println!("mut1: {:?}", mut1);
-    // println!("mut2: {:?}",mut2);
-    // let mut3 = mut0.prod(mut2);
-    // println!("mut3: {:?}", mut3);
-    // let mut41 = mut3.child_likelihood(&p1).prod(mut1);
-    // println!("mut41: {:?}", mut41);
-    // println!("mut41: {:?}", mut41.1 + mut41.2 + mut41.3 + mut41.4);
-
+    
     let mut tr = phylo2vec_quad(vec![0; 1]);
-    println!("{:?}", tr);
+    println!("{:?}", f64::exp(-f64::INFINITY));
 
     let filename = "listeria_simple.fasta";
     tr.add_genetic_data(filename);
 
-    
-
-    // let start = Instant::now();
     tr.update_likelihood_postorder(&q);
-    println!("{:?}", tr.mutation_lists);
-    println!("{:?}", tr.mutation_lists.get(2));
-
-    // println!("{:?}", tr.mutation_lists.get(2).unwrap().iter().map());
 
     println!("{:?}", tr.get_tree_likelihood());
-
-    // println!("{:?}", tr.get_tree_log_likelihood());
-    // // println!("{:?}", tr.get_root().unwrap().index);
-    // // println!("{:?}", tr.mutation_lists.get(42));
     
     
     // let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();

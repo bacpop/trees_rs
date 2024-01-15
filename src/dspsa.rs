@@ -2,9 +2,7 @@ use rand::Rng;
 
 pub fn phi(v: &Vec<f64>) -> Vec<f64> {
     v.iter().enumerate().map(|(i, value)| {
-        if i == 0 {
-            0.0
-        } else if value.lt(&0.0) {
+        if i == 0 || value.lt(&0.0) {
             0.0
         } else if value.gt(&(i as f64)) {
             (i as f64) - 0.001
