@@ -22,7 +22,7 @@ extern crate nalgebra as na;
 
 fn main() {
     // let start = Instant::now();
-
+ 
     // Define rate matrix
     let q: na::Matrix4<f64> = na::Matrix4::new(
         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
