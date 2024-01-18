@@ -19,9 +19,9 @@ pub fn piv(v: &Vec<f64>) -> Vec<f64> {
 }
 
 pub fn peturbation_vec(n: usize) -> Vec<f64> {
-    let mut rng = rand::thread_rng();
+    let rng = rand::thread_rng();
     let distr = rand::distributions::Bernoulli::new(0.5).unwrap();
-    let mut delta: Vec<f64> = rng.sample_iter(distr).take(20).map(|el| match el {
+    let mut delta: Vec<f64> = rng.sample_iter(distr).take(n).map(|el| match el {
         true => 1.0,
         false => -1.0,
     }).collect();

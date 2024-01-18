@@ -28,83 +28,82 @@ fn main() {
         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
     );
     
-    let mut tr = phylo2vec_quad(vec![0; 1]);
-
-    let filename = "listeria_simple.fasta";
+    let mut tr = phylo2vec_quad(random_tree(25));
+    let filename = "listeria0.aln";
     tr.add_genetic_data(filename);
-
-    println!("{:?}", tr.mutation_lists);
 
     tr.update_likelihood_postorder(&q);
 
     println!("{}", tr.get_tree_likelihood());
     
     
-    // let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();
-    // let n = theta.len();
+    let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();
+    let n = theta.len();
 
-    // let a = 2.0;
-    // let A = 2.0;
-    // let alpha = 0.75;
+    let a = 2.0;
+    let A = 2.0;
+    let alpha = 0.75;
+    let k = 0;
 
-    // let mut llvec: Vec<f64> = Vec::new();
+    let mut llvec: Vec<f64> = Vec::new();
 
-    // for k in 0..=1000 {
-    //     // println!("k: {:?}", k);
-    //     // println!("theta: {:?}", theta);
+    let start = Instant::now();
+    // for k in 0..=100 {
+        println!("k: {:?}", k);
+        println!("theta: {:?}", theta);
 
-    //     // Peturbation vector
-    //     let delta = peturbation_vec(n);
-    //     // println!("delta: {:?}", delta);
+        // Peturbation vector
+        let delta = peturbation_vec(n);
+        println!("delta: {:?}", delta);
 
-    //     // Pi vector
-    //     let pivec: Vec<f64> = piv(&theta);
-    //     // println!("pivec: {:?}", pivec);
+        // Pi vector
+        let pivec: Vec<f64> = piv(&theta);
+        println!("pivec: {:?}", pivec);
 
-    //     // theta+/-
-    //     let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
-    //     let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
+        // theta+/-
+        let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
+        let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
 
-    //     // println!("thetaplus: {:?}", thetaplus);
-    //     // println!("thetaminus: {:?}", thetaminus);
+        println!("thetaplus: {:?}", thetaplus);
+        println!("thetaminus: {:?}", thetaminus);
 
-    //     // Calculate likelihood at theta trees
-    //     tr.update_tree(Some(thetaplus), false);
-    //     // println!("tree changes: {:?}", tr.changes);
-    //     tr.update_likelihood(&q);
-    //     let x1 = tr.get_tree_likelihood();
-    //     // println!("thetaplus ll: {:?}", x1);
+        // Calculate likelihood at theta trees
+        tr.update_tree(Some(thetaplus), false);
+        // println!("tree changes: {:?}", tr.changes);
+        tr.update_likelihood(&q);
+        let x1 = tr.get_tree_likelihood();
+        // println!("thetaplus ll: {:?}", x1);
 
-    //     tr.update_tree(Some(thetaminus), false);
-    //     // println!("tree changes: {:?}", tr.changes);
-    //     tr.update_likelihood(&q);
-    //     let x2 = tr.get_tree_likelihood();
-    //     // println!("thetaminus ll: {:?}", x2);
+        tr.update_tree(Some(thetaminus), false);
+        // println!("tree changes: {:?}", tr.changes);
+        tr.update_likelihood(&q);
+        let x2 = tr.get_tree_likelihood();
+        // println!("thetaminus ll: {:?}", x2);
         
-    //     // Calculations to work out new theta
-    //     let ldiff = x1 - x2;    
-    //     let ghat: Vec<f64> = delta.iter().map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
+        // Calculations to work out new theta
+        let ldiff = x1 - x2;    
+        let ghat: Vec<f64> = delta.iter().map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
 
-    //     let ak = a / (1.0 + A + k as f64).powf(alpha);
+        let ak = a / (1.0 + A + k as f64).powf(alpha);
 
-    //     theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
+        theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
 
-    //     llvec.push(x1);
+        llvec.push(x1);
 
-    //     // println!("ghat: {:?}", ghat);
+        // println!("ghat: {:?}", ghat);
     
     // }
 
-    // let out: Vec<f64> = phi(&theta).iter().map(|x| x.round()).collect();
-    // println!("final theta: {:?}", out);
-    // let end = Instant::now();
+    let out: Vec<f64> = phi(&theta).iter().map(|x| x.round()).collect();
+    println!("final theta: {:?}", out);
+    let end = Instant::now();
 
 
     // println!("{:?}", &llvec[0..5]);
-    // println!("{:?}", &llvec[995..1000]);
+    // println!("{:?}", &llvec[95..100]);
 
-    // eprintln!("Done in {}s", end.duration_since(start).as_secs());
-    // eprintln!("Done in {}ms", end.duration_since(start).as_millis());
-    // eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
+    eprintln!("Done in {}s", end.duration_since(start).as_secs());
+    eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+    eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
 
 }
