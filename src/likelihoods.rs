@@ -66,8 +66,8 @@ impl Tree {
         if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
             let branchlengths = (self.get_branchlength(ch1), self.get_branchlength(ch2));
 
-            let seq1 = self.mutation_lists.get(ch1);
-            let seq2 = self.mutation_lists.get(ch2);
+            let seq1 = self.mutation_lists.get(ch1).unwrap();
+            let seq2 = self.mutation_lists.get(ch2).unwrap();
 
             self.mutation_lists[index] = combine_lists(seq1, seq2, branchlengths, rate_matrix);
         }
@@ -79,7 +79,7 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                acc + (muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25 + muta.4 * 0.25)
+                acc + (muta.0 * 0.25 + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25)
             })
     }
 
@@ -88,38 +88,36 @@ impl Tree {
 impl Mutation {
     pub fn prod(self, r: Mutation) -> Mutation {
         Mutation(
-            self.0,
+            self.0 * r.0,
             self.1 * r.1,
             self.2 * r.2,
             self.3 * r.3,
-            self.4 * r.4,
         )
     }
 
     pub fn sum(self, r: Mutation) -> Mutation {
         Mutation(
-            self.0,
+            self.0 + r.0,
             self.1 + r.1,
             self.2 + r.2,
             self.3 + r.3,
-            self.4 + r.4,
         )
     }
 
     pub fn child_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
-        let x = prob_matrix * na::Vector4::new(self.1, self.2, self.3, self.4);
+        let x = prob_matrix * na::Vector4::new(self.0, self.1, self.2, self.3);
 
-        Mutation(self.0, x[0], x[1], x[2], x[3])
+        Mutation(x[0], x[1], x[2], x[3])
     }
 
     pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Self {
-        let lnx = vec![self.1, self.2, self.3, self.4];
+        let lnx = vec![self.0, self.1, self.2, self.3];
         let mut x: Vec<f64> = Vec::new();
 
         for i in 0..=3 {
             x.push(logse(prob_matrix.row(i).iter().zip(&lnx).map(|(a, b)| a.ln() + b).collect()));
         }
-        Mutation(self.0, *x.get(0).unwrap(), *x.get(1).unwrap(), *x.get(2).unwrap(), *x.get(3).unwrap())
+        Mutation(*x.get(0).unwrap(), *x.get(1).unwrap(), *x.get(2).unwrap(), *x.get(3).unwrap())
     }
 }
 

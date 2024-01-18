@@ -21,7 +21,7 @@ use std::time::Instant;
 extern crate nalgebra as na;
 
 fn main() {
-    // let start = Instant::now();
+    let start = Instant::now();
  
     // Define rate matrix
     let q: na::Matrix4<f64> = na::Matrix4::new(
@@ -43,29 +43,29 @@ fn main() {
     let a = 2.0;
     let A = 2.0;
     let alpha = 0.75;
-    let k = 0;
+    // let k = 0;
 
     let mut llvec: Vec<f64> = Vec::new();
 
     let start = Instant::now();
-    // for k in 0..=100 {
+    for k in 0..=100 {
         println!("k: {:?}", k);
-        println!("theta: {:?}", theta);
+        // println!("theta: {:?}", theta);
 
         // Peturbation vector
         let delta = peturbation_vec(n);
-        println!("delta: {:?}", delta);
+        // println!("delta: {:?}", delta);
 
         // Pi vector
         let pivec: Vec<f64> = piv(&theta);
-        println!("pivec: {:?}", pivec);
+        // println!("pivec: {:?}", pivec);
 
         // theta+/-
         let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
         let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
 
-        println!("thetaplus: {:?}", thetaplus);
-        println!("thetaminus: {:?}", thetaminus);
+        // println!("thetaplus: {:?}", thetaplus);
+        // println!("thetaminus: {:?}", thetaminus);
 
         // Calculate likelihood at theta trees
         tr.update_tree(Some(thetaplus), false);
@@ -92,15 +92,15 @@ fn main() {
 
         // println!("ghat: {:?}", ghat);
     
-    // }
+    }
 
     let out: Vec<f64> = phi(&theta).iter().map(|x| x.round()).collect();
     println!("final theta: {:?}", out);
     let end = Instant::now();
 
 
-    // println!("{:?}", &llvec[0..5]);
-    // println!("{:?}", &llvec[95..100]);
+    // // println!("{:?}", &llvec[0..5]);
+    // // println!("{:?}", &llvec[95..100]);
 
     eprintln!("Done in {}s", end.duration_since(start).as_secs());
     eprintln!("Done in {}ms", end.duration_since(start).as_millis());
