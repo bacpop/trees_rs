@@ -189,6 +189,71 @@ impl<'a> Tree {
     pub fn swap_to_right_child(&self, index: usize) -> Option<&Node> {
         self.get_node(self.get_parent(index).unwrap().children.1.unwrap())
     }
+
+    // Traverses tree in preorder starting at a given node
+    pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
+        Preorder {
+            current_node: node,
+            next_node: node,
+            tree: self,
+            return_nodes: vec![]
+        }
+    }
+
+    pub fn newick(&self) -> String {
+        let mut current_node: Option<&Node> = self.get_root();
+        let mut next_node: Option<&Node>;
+        let mut return_nodes: Vec<Option<&Node>> = Vec::new();
+        let mut newick: Vec<String> = vec![String::from(";"), current_node.unwrap().index.to_string()];
+
+        while current_node.is_some() {
+
+            match current_node.unwrap().children {
+                (Some(a), None) => {
+                    next_node = self.get_node(a);
+                    
+                    newick.push(String::from(")"));
+                    newick.push(next_node.unwrap().index.to_string());
+                },
+                (Some(a), Some(b)) => {
+                    next_node = self.get_node(a);
+                    return_nodes.push(self.get_node(b));
+        
+                    newick.push(String::from(")"));
+                    newick.push(next_node.unwrap().index.to_string());
+                },
+                (None, _) => {
+                    next_node = match return_nodes.pop() {
+                        None => None,
+                        Some(a) => a,
+                    };
+                    if next_node.is_some() {
+                        let n: usize = current_node.unwrap().depth - next_node.unwrap().depth;
+        
+                        if n == 0 {
+                            newick.push(String::from(","));
+                        } else if n > 0 {
+                            for _ in 1..=n {
+                                newick.push(String::from("("));
+                            }
+                            newick.push(String::from(","));
+                        }
+        
+                        newick.push(next_node.unwrap().index.to_string());
+                    } else {
+                        let n: usize = current_node.unwrap().depth;
+                        for _ in 1..=n {
+                            newick.push(String::from("("));
+                        }
+                    }
+                }
+            }
+            
+            current_node = next_node;
+        }
+        newick.reverse();
+        newick.concat()
+    }
 }
 
 // GRAVEYARD
@@ -254,59 +319,73 @@ pub fn iter_notips(&'a self, node: Option<&'a Node>) -> impl Iterator<Item = &'a
 }
 }
 
-// #[derive(Debug)]
-// pub struct Preorder<'a> {
-//     current_node: Option<&'a Node>,
-//     next_node: Option<&'a Node>,
-//     return_nodes: Vec<Option<&'a Node>>,
-//     tree: &'a Tree,
-// }
+#[derive(Debug)]
+pub struct Preorder<'a> {
+    current_node: Option<&'a Node>,
+    next_node: Option<&'a Node>,
+    return_nodes: Vec<Option<&'a Node>>,
+    tree: &'a Tree,
+    // pub newick: String,
+}
 
-// // Traverses tree in preorder starting from specified node
-// impl<'a> Iterator for Preorder<'a> {
-//     type Item = &'a Node;
+// Traverses tree in preorder starting from specified node
+impl<'a> Iterator for Preorder<'a> {
+    type Item = &'a Node;
 
-//     fn next(&mut self) -> Option<Self::Item> {
-//         let output: Option<Self::Item> = self.current_node;
+    fn next(&mut self) -> Option<Self::Item> {
+        let output: Option<&'a Node> = self.current_node;
 
-//         if self.current_node.is_none() {
-//             return output;
-//         }
+        if self.current_node.is_none() {
+            return output;
+        }
+        match self.current_node.unwrap().children {
+            (Some(a), None) => {
+                self.next_node = self.tree.get_node(a);
+                // self.newick.push(')');
+                // self.newick.push_str(&output.unwrap().index.to_string());
+            }
+            (Some(a), Some(b)) => {
+                self.next_node = self.tree.get_node(a);
+                self.return_nodes.push(self.tree.get_node(b));
+                // self.newick.push('(');
+                // self.newick.push_str(&self.next_node.unwrap().index.to_string());
+                // self.newick.push(',');
+                // new_newick.push(')');
+            }
+            (None, None) => {
+                self.next_node = match self.return_nodes.pop() {
+                    None => None,
+                    Some(node) => node,
+                };
+                if self.next_node.is_some() {
+                    match self.next_node.unwrap().parent {
+                        Some(x) if x == output.unwrap().index => {
+                            // new_newick.push('(');
+                        },
+                        Some(x) => {
+                            // new_newick.push(',');
+                        },
+                        None => {
 
-//         match self.current_node.unwrap().children {
-//             (Some(a), None) => {
-//                 self.next_node = self.tree.get_node(a);
-//             }
-//             (Some(a), Some(b)) => {
-//                 self.next_node = self.tree.get_node(a);
-//                 self.return_nodes.push(self.tree.get_node(b));
-//             }
-//             (None, None) => {
-//                 self.next_node = match self.return_nodes.pop() {
-//                     None => None,
-//                     Some(node) => node,
-//                 };
-//             }
-//             _ => {
-//                 panic!("Iterator has found a node with only a right child")
-//             }
-//         };
+                        }
+                    }
+                } else {
+                    // new_newick.push('(');
+                }
+            }
+            _ => {
+                panic!("Iterator has found a node with only a right child")
+            }
+        };
 
-//         self.current_node = self.next_node;
+        self.current_node = self.next_node;
 
-//         output
-//     }
-// }
+        // self.newick.push(new_newick);
+        output
+    }
+}
 
-// Traverses tree in preorder starting at a given node
-// pub fn preorder(&'a self, node: Option<&'a Node>) -> Preorder {
-//     Preorder {
-//         current_node: node,
-//         next_node: node,
-//         tree: self,
-//         return_nodes: vec![],
-//     }
-// }
+
 
 // Traverses up to the root, updating likelihood as it goes
 // pub fn update_likelihood_rootward(&'a self,
