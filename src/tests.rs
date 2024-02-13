@@ -294,5 +294,9 @@ mod tests {
         assert_eq!(tr.get_node(6).unwrap().children, (Some(1), Some(5)));
         assert_eq!(tr.get_node(7).unwrap().children, (Some(6), Some(2)));
         assert_eq!(tr.get_node(8).unwrap().children, (Some(0), Some(7)));
+
+        // R code:
+        // mt <- ape::read.tree(text = "newick_string_here")
+        // plot(mt)
     }
 }
