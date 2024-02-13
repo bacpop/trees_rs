@@ -259,4 +259,40 @@ mod tests {
 
         assert_eq!(-2.773571667625644, likelihood);
     }
+
+    #[test]
+    fn newick_test () {
+        let mut tr = phylo2vec_quad(vec![0, 0, 0]);
+        
+        // Newick string for this tree is (1,(2,(3,0)4)5)6;
+        // This should be the tree topology according to the ape package in R
+        assert_eq!(tr.get_node(4).unwrap().children, (Some(0), Some(3)));
+        assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
+        assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(1)));
+
+        let mut tr = phylo2vec_quad(vec![0, 0, 1]);
+        
+        // Newick string for this tree is ((3,1)4,(2,0)5)6;
+        // This should be the tree topology according to the ape package in R
+        assert_eq!(tr.get_node(4).unwrap().children, (Some(1), Some(3)));
+        assert_eq!(tr.get_node(5).unwrap().children, (Some(0), Some(2)));
+        assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(4)));
+
+        let mut tr = phylo2vec_quad(vec![0, 1, 1]);
+        
+        // Newick string for this tree is ((2,(3,1)4)5,0)6;
+        // This should be the tree topology according to the ape package in R
+        assert_eq!(tr.get_node(4).unwrap().children, (Some(1), Some(3)));
+        assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
+        assert_eq!(tr.get_node(6).unwrap().children, (Some(0), Some(5)));
+
+        let mut tr = phylo2vec_quad(vec![0, 1, 1, 3]);
+        
+        // Newick string for this tree is ((2,((4,3)5,1)6)7,0)8;
+        // This should be the tree topology according to the ape package in R
+        assert_eq!(tr.get_node(5).unwrap().children, (Some(3), Some(4)));
+        assert_eq!(tr.get_node(6).unwrap().children, (Some(1), Some(5)));
+        assert_eq!(tr.get_node(7).unwrap().children, (Some(6), Some(2)));
+        assert_eq!(tr.get_node(8).unwrap().children, (Some(0), Some(7)));
+    }
 }
