@@ -79,7 +79,7 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                acc + (muta.0 * 0.25 + muta.1 * 0.25 + muta.2 * 0.25 + muta.3 * 0.25)
+                acc + (f64::exp(muta.0) * 0.25 + f64::exp(muta.1) * 0.25 + f64::exp(muta.2) * 0.25 + f64::exp(muta.3) * 0.25).ln()
             })
     }
 
