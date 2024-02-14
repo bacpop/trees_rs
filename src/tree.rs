@@ -204,23 +204,33 @@ impl<'a> Tree {
         let mut current_node: Option<&Node> = self.get_root();
         let mut next_node: Option<&Node>;
         let mut return_nodes: Vec<Option<&Node>> = Vec::new();
-        let mut newick: Vec<String> = vec![String::from(";"), current_node.unwrap().index.to_string()];
+        let mut newick: Vec<String> = vec![String::from(";"), current_node.unwrap().branch_length.to_string(),
+        String::from(":"), current_node.unwrap().index.to_string()];
 
         while current_node.is_some() {
 
             match current_node.unwrap().children {
                 (Some(a), None) => {
                     next_node = self.get_node(a);
-                    
+
                     newick.push(String::from(")"));
+                    newick.push(next_node.unwrap().branch_length.to_string());
+                    newick.push(String::from(":"));
                     newick.push(next_node.unwrap().index.to_string());
+
                 },
                 (Some(a), Some(b)) => {
                     next_node = self.get_node(a);
                     return_nodes.push(self.get_node(b));
-        
+                    
+                    // newick.push(vec![String::from(")"), next_node.unwrap().index.to_string(), 
+                    // String::from(":"), next_node.unwrap().branch_length.to_string()].join(""));
+
                     newick.push(String::from(")"));
+                    newick.push(next_node.unwrap().branch_length.to_string());
+                    newick.push(String::from(":"));
                     newick.push(next_node.unwrap().index.to_string());
+
                 },
                 (None, _) => {
                     next_node = match return_nodes.pop() {
@@ -238,7 +248,9 @@ impl<'a> Tree {
                             }
                             newick.push(String::from(","));
                         }
-        
+
+                        newick.push(next_node.unwrap().branch_length.to_string());
+                        newick.push(String::from(":"));
                         newick.push(next_node.unwrap().index.to_string());
                     } else {
                         let n: usize = current_node.unwrap().depth;
@@ -341,16 +353,10 @@ impl<'a> Iterator for Preorder<'a> {
         match self.current_node.unwrap().children {
             (Some(a), None) => {
                 self.next_node = self.tree.get_node(a);
-                // self.newick.push(')');
-                // self.newick.push_str(&output.unwrap().index.to_string());
             }
             (Some(a), Some(b)) => {
                 self.next_node = self.tree.get_node(a);
                 self.return_nodes.push(self.tree.get_node(b));
-                // self.newick.push('(');
-                // self.newick.push_str(&self.next_node.unwrap().index.to_string());
-                // self.newick.push(',');
-                // new_newick.push(')');
             }
             (None, None) => {
                 self.next_node = match self.return_nodes.pop() {
@@ -360,17 +366,15 @@ impl<'a> Iterator for Preorder<'a> {
                 if self.next_node.is_some() {
                     match self.next_node.unwrap().parent {
                         Some(x) if x == output.unwrap().index => {
-                            // new_newick.push('(');
                         },
                         Some(x) => {
-                            // new_newick.push(',');
                         },
                         None => {
 
                         }
                     }
                 } else {
-                    // new_newick.push('(');
+
                 }
             }
             _ => {
@@ -380,7 +384,6 @@ impl<'a> Iterator for Preorder<'a> {
 
         self.current_node = self.next_node;
 
-        // self.newick.push(new_newick);
         output
     }
 }
