@@ -6,24 +6,32 @@ use std::cmp::Ordering;
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
 
+const NEGINF: f64 = -f64::INFINITY;
+const AMUT: Mutation = Mutation(0.0, NEGINF, NEGINF, NEGINF);
+const CMUT: Mutation = Mutation(NEGINF, 0.0, NEGINF, NEGINF);
+const GMUT: Mutation = Mutation(NEGINF, NEGINF, 0.0, NEGINF);
+const TMUT: Mutation = Mutation(NEGINF, NEGINF, NEGINF, 0.0);
+
 pub fn char_to_mutation(e: &char) -> Mutation {
     match e {
         // (A, C, G, T)
-        'A' => Mutation(0.0, -f64::INFINITY, -f64::INFINITY, -f64::INFINITY),
-        'C' => Mutation(-f64::INFINITY, 0.0, -f64::INFINITY, -f64::INFINITY),
-        'G' => Mutation(-f64::INFINITY, -f64::INFINITY, 0.0, -f64::INFINITY),
-        'T' => Mutation(-f64::INFINITY, -f64::INFINITY, -f64::INFINITY, 0.0),
-        'Y' => Mutation(-f64::INFINITY, f64::ln(0.5), -f64::INFINITY, f64::ln(0.5)),
-        'W' => Mutation(f64::ln(0.5), -f64::INFINITY, -f64::INFINITY, f64::ln(0.5)),
-        'R' => Mutation(f64::ln(0.5), -f64::INFINITY, f64::ln(0.5), -f64::INFINITY),
-        'K' => Mutation(-f64::INFINITY, -f64::INFINITY, f64::ln(0.5), f64::ln(0.5)),
-        'S' => Mutation(-f64::INFINITY, f64::ln(0.5), f64::ln(0.5), -f64::INFINITY),
-        'M' => Mutation(f64::ln(0.5), f64::ln(0.5), -f64::INFINITY, -f64::INFINITY),
-        'B' => Mutation(-f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
-        'D' => Mutation(f64::ln(1.0 / 3.0), -f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
-        'V' => Mutation(f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), -f64::INFINITY),
+        'A' => AMUT,
+        'C' => CMUT,
+        'G' => GMUT,
+        'T' => TMUT,
+        // 'Y' => Mutation(-f64::INFINITY, f64::ln(0.5), -f64::INFINITY, f64::ln(0.5)),
+        // 'W' => Mutation(f64::ln(0.5), -f64::INFINITY, -f64::INFINITY, f64::ln(0.5)),
+        // 'R' => Mutation(f64::ln(0.5), -f64::INFINITY, f64::ln(0.5), -f64::INFINITY),
+        // 'K' => Mutation(-f64::INFINITY, -f64::INFINITY, f64::ln(0.5), f64::ln(0.5)),
+        // 'S' => Mutation(-f64::INFINITY, f64::ln(0.5), f64::ln(0.5), -f64::INFINITY),
+        // 'M' => Mutation(f64::ln(0.5), f64::ln(0.5), -f64::INFINITY, -f64::INFINITY),
+        // 'B' => Mutation(-f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
+        // 'D' => Mutation(f64::ln(1.0 / 3.0), -f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
+        // 'V' => Mutation(f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), -f64::INFINITY),
         // This is currently incorrect. Not sure how to handle gaps.
-        '-' => Mutation(0.25, 0.25, 0.25, 0.25),
+        '-' => {
+            let ln25: f64 = f64::ln(0.25);
+            Mutation(ln25, ln25, ln25, ln25)},
         _ => panic!("Unrecognised character: {}", e),
     }
 }

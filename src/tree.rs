@@ -222,9 +222,6 @@ impl<'a> Tree {
                 (Some(a), Some(b)) => {
                     next_node = self.get_node(a);
                     return_nodes.push(self.get_node(b));
-                    
-                    // newick.push(vec![String::from(")"), next_node.unwrap().index.to_string(), 
-                    // String::from(":"), next_node.unwrap().branch_length.to_string()].join(""));
 
                     newick.push(String::from(")"));
                     newick.push(next_node.unwrap().branch_length.to_string());
