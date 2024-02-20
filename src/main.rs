@@ -14,6 +14,7 @@ use crate::dspsa::peturbation_vec;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
+use crate::likelihoods::logse;
 use crate::node::Node;
 use crate::dspsa::phi;
 use crate::dspsa::piv;
@@ -33,18 +34,18 @@ fn main() {
            1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
     );
     
-    // let mut tr = phylo2vec_quad(vec![0, 0]);
-    let mut tr = phylo2vec_quad(random_tree(3));
+    // let mut tr = phylo2vec_quad(vec![0, 0, 0]);
+    let mut tr = phylo2vec_quad(random_tree(27));
     // let filename = "listeria0.aln";
-    let filename = "listeria_simple.fasta";
+    let filename = "listeria0.aln";
     tr.add_genetic_data(filename);
 
     tr.update_likelihood_postorder(&q);
 
-    // println!("{:?}", tr.mutation_lists.len());
+    // println!("{:?}", tr.mutation_lists);
     println!("{}", tr.get_tree_likelihood());
     println!("{:?}", tr.newick());
-    // println!("{:?}", tr.tree_vec);
+    println!("{:?}", tr.tree_vec);
     // println!("{:?}", tr.nodes);
 
     // let mut out = it.newick;

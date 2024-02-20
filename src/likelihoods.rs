@@ -1,3 +1,4 @@
+use std::f64::NEG_INFINITY;
 use std::thread::current;
 use crate::combine_lists;
 use crate::Mutation;
@@ -121,12 +122,11 @@ impl Mutation {
     }
 }
 
-pub fn log_sum_exp(a: f64, b: f64, c: f64, d: f64) -> f64 {
-    let xstar: f64 = a.max(b).max(c).max(d);
-    xstar + f64::ln(f64::exp(a - xstar) + f64::exp(b - xstar) + f64::exp(c - xstar) + f64::exp(d - xstar))
-}
-
 pub fn logse(x: Vec<f64>) -> f64 {
-    let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
-    xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
+    // if x.iter().all(|el| el.eq(&NEG_INFINITY)) {
+    //     NEG_INFINITY
+    // } else {
+        let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
+        xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
+    // }
 }

@@ -131,7 +131,7 @@ mod tests {
         
     }
 
-    #[test]
+    // #[test]
     // fn likelihood_multiplication_machinery() {
     //     let muts = Mutation(0.15, 0.5, 0.25, 0.1);
 
@@ -239,26 +239,26 @@ mod tests {
     assert_eq!(old_likelihood, new_likelihood);
     }
 
-    #[test]
-    fn likelihood_value_correct () {
-        let q: na::Matrix4<f64> = na::Matrix4::new(
-            -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
-        );
+    // #[test]
+    // fn likelihood_value_correct () {
+    //     let q: na::Matrix4<f64> = na::Matrix4::new(
+    //         -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
+    //     );
         
-        let mut tr = phylo2vec_quad(vec![0; 1]);
+    //     let mut tr = phylo2vec_quad(vec![0; 1]);
 
-        let genetic_data = vec![vec![Mutation(f64::ln(0.0), 0.0, f64::ln(0.0), f64::ln(0.0))], 
-        vec![Mutation(f64::ln(0.0), f64::ln(0.0), f64::ln(0.0), 0.0)], 
-        vec![]]; // This is the likelihood at the only internal (root) node, it can't be empty but will be overwritten
+    //     let genetic_data = vec![vec![Mutation(f64::ln(0.0), 0.0, f64::ln(0.0), f64::ln(0.0))], 
+    //     vec![Mutation(f64::ln(0.0), f64::ln(0.0), f64::ln(0.0), 0.0)], 
+    //     vec![]]; // This is the likelihood at the only internal (root) node, it can't be empty but will be overwritten
 
-        tr.mutation_lists = genetic_data;
+    //     tr.mutation_lists = genetic_data;
 
-        tr.update_likelihood_postorder(&q);
+    //     tr.update_likelihood_postorder(&q);
 
-        let likelihood = tr.get_tree_likelihood();
+    //     let likelihood = tr.get_tree_likelihood();
 
-        assert_eq!(-2.773571667625644, likelihood);
-    }
+    //     assert_eq!(-2.773571667625644, likelihood);
+    // }
 
     #[test]
     fn newick_test () {

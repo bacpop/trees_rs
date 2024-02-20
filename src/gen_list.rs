@@ -7,31 +7,39 @@ use std::cmp::Ordering;
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
 
 const NEGINF: f64 = -f64::INFINITY;
+        // (A, C, G, T)
 const AMUT: Mutation = Mutation(0.0, NEGINF, NEGINF, NEGINF);
 const CMUT: Mutation = Mutation(NEGINF, 0.0, NEGINF, NEGINF);
 const GMUT: Mutation = Mutation(NEGINF, NEGINF, 0.0, NEGINF);
 const TMUT: Mutation = Mutation(NEGINF, NEGINF, NEGINF, 0.0);
+const YMUT: Mutation = Mutation(NEGINF, 0.0, NEGINF, 0.0);
+const WMUT: Mutation = Mutation(0.0, NEGINF, NEGINF, 0.0);
+const RMUT: Mutation = Mutation(0.0, NEGINF, 0.0, NEGINF);
+const KMUT: Mutation = Mutation(NEGINF, NEGINF, 0.0, 0.0);
+const SMUT: Mutation = Mutation(NEGINF, 0.0, 0.0, NEGINF);
+const MMUT: Mutation = Mutation(0.0, 0.0, NEGINF, NEGINF);
+const BMUT: Mutation = Mutation(NEGINF, 0.0, 0.0, 0.0);
+const DMUT: Mutation = Mutation(0.0, NEGINF, 0.0, 0.0);
+const VMUT: Mutation = Mutation(0.0, 0.0, 0.0, NEGINF);
 
 pub fn char_to_mutation(e: &char) -> Mutation {
     match e {
-        // (A, C, G, T)
         'A' => AMUT,
         'C' => CMUT,
         'G' => GMUT,
         'T' => TMUT,
-        // 'Y' => Mutation(-f64::INFINITY, f64::ln(0.5), -f64::INFINITY, f64::ln(0.5)),
-        // 'W' => Mutation(f64::ln(0.5), -f64::INFINITY, -f64::INFINITY, f64::ln(0.5)),
-        // 'R' => Mutation(f64::ln(0.5), -f64::INFINITY, f64::ln(0.5), -f64::INFINITY),
-        // 'K' => Mutation(-f64::INFINITY, -f64::INFINITY, f64::ln(0.5), f64::ln(0.5)),
-        // 'S' => Mutation(-f64::INFINITY, f64::ln(0.5), f64::ln(0.5), -f64::INFINITY),
-        // 'M' => Mutation(f64::ln(0.5), f64::ln(0.5), -f64::INFINITY, -f64::INFINITY),
-        // 'B' => Mutation(-f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
-        // 'D' => Mutation(f64::ln(1.0 / 3.0), -f64::INFINITY, f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0)),
-        // 'V' => Mutation(f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), f64::ln(1.0 / 3.0), -f64::INFINITY),
-        // This is currently incorrect. Not sure how to handle gaps.
+        'Y' => YMUT,
+        'W' => WMUT,
+        'R' => RMUT,
+        'K' => KMUT,
+        'S' => SMUT,
+        'M' => MMUT,
+        'B' => BMUT,
+        'D' => DMUT,
+        'V' => VMUT,
         '-' => {
-            let ln25: f64 = f64::ln(0.25);
-            Mutation(ln25, ln25, ln25, ln25)},
+            // This way of coding gives same answer as other tree programs
+            Mutation(0.0, 0.0, 0.0, 0.0)},
         _ => panic!("Unrecognised character: {}", e),
     }
 }
