@@ -27,7 +27,11 @@ fn jc69_likelihood() {
     let output_parts: Vec<&str> = output_string.split("\n").collect();
     let likelihood: f64 = output_parts[0].parse().unwrap();
     let mut output_tr_file = sandbox.create_file("tree.nwk").unwrap();
-    writeln!(output_tr_file.0, "{}", output_parts[1]);
+    // Remove the quotes
+    let mut tree_string = output_parts[1].to_string();
+    tree_string.pop();
+    tree_string.remove(0);
+    writeln!(output_tr_file.0, "{tree_string}").unwrap();
 
     // Parallel alignment algorithm used
     // phyml -i <path_to_sequence> -u <path to newick tree> -m JC69 -o n -a 1
