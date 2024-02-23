@@ -44,7 +44,6 @@ fn jc69_likelihood() {
     tree_string.remove(0);
     writeln!(output_tr_file.0, "{tree_string}").unwrap();
 
-    // Parallel alignment algorithm used
     // phyml -i <path_to_sequence> -u <path to newick tree> -m JC69 -o n -a 1
     let mut phyml_likelihood: f64 = 0.0;
     let phyml_out = Command::new("phyml")
