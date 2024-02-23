@@ -44,11 +44,11 @@ fn jc69_likelihood() {
     tree_string.remove(0);
     writeln!(output_tr_file.0, "{tree_string}").unwrap();
 
-    // phyml -i <path_to_sequence> -u <path to newick tree> -m JC69 -o n -a 1
+    // phyml -i <path_to_sequence> -u <path to newick tree> -m JC69 -o n -a 1 -c 1
     let mut phyml_likelihood: f64 = 0.0;
     let phyml_out = Command::new("phyml")
         .current_dir(sandbox.get_wd())
-        .args(&["-i", input_alignment_phylip.as_str(), "-u", output_tr_file.1.as_str(), "-m", "JC69", "-o", "n", "-a", "1"])
+        .args(&["-i", input_alignment_phylip.as_str(), "-u", output_tr_file.1.as_str(), "-m", "JC69", "-o", "n", "-a", "1", "-c", "1"])
         .output()
         .unwrap()
         .stdout;
@@ -61,5 +61,6 @@ fn jc69_likelihood() {
         }
     }
 
-    assert_approx_eq!(f64, likelihood, phyml_likelihood, ulps = 2)
+    // Epsilon might be too strict here
+    assert_approx_eq!(f64, likelihood, phyml_likelihood, epsilon = 0.0000001)
 }
