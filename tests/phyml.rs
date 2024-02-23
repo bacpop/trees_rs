@@ -14,18 +14,29 @@ use pretty_assertions::assert_eq;
 fn jc69_likelihood() {
     // Makes a temporary directory to work in
     let sandbox = TestSetup::setup();
-    let input_alignment = sandbox.file_string("listeria0.phylip", TestDir::Input);
+    let input_alignment_fasta = sandbox.file_string("listeria0.aln", TestDir::Input);
+    let input_alignment_phylip = sandbox.file_string("listeria0.phylip", TestDir::Input);
 
-    // Likelihood and treefrom program
+    Command::new(cargo_bin("bactrees"))
+        .current_dir(sandbox.get_wd())
+        .arg("-a")
+        .arg(input_alignment_fasta.as_str())
+        .assert()
+        .success();
+
+    // Likelihood and tree from program
     // TODO when this can take input file use `.arg(sandbox.file_string("listeria0.aln", TestDir::Input))` to provide it
     let output = Command::new(cargo_bin("bactrees"))
         .current_dir(sandbox.get_wd())
+        .arg("-a")
+        .arg(input_alignment_fasta.as_str())
         .output()
         .unwrap()
         .stdout;
     let output_string = String::from_utf8(output).unwrap();
     let output_parts: Vec<&str> = output_string.split("\n").collect();
     let likelihood: f64 = output_parts[0].parse().unwrap();
+
     let mut output_tr_file = sandbox.create_file("tree.nwk").unwrap();
     // Remove the quotes
     let mut tree_string = output_parts[1].to_string();
@@ -38,7 +49,7 @@ fn jc69_likelihood() {
     let mut phyml_likelihood: f64 = 0.0;
     let phyml_out = Command::new("phyml")
         .current_dir(sandbox.get_wd())
-        .args(&["-i", input_alignment.as_str(), "-u", output_tr_file.1.as_str(), "-m", "JC69", "-o", "n", "-a", "1"])
+        .args(&["-i", input_alignment_phylip.as_str(), "-u", output_tr_file.1.as_str(), "-m", "JC69", "-o", "n", "-a", "1"])
         .output()
         .unwrap()
         .stdout;
