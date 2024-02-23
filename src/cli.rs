@@ -4,7 +4,7 @@ use clap::{ArgGroup, Parser, Subcommand, ValueEnum};
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    /// File to mutate (fasta with single contig)
+    /// Alignment file in FASTA format
     #[arg(short, long, default_value = "listeria0.aln")]
     pub alignment: String,
 }

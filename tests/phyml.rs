@@ -17,6 +17,7 @@ fn jc69_likelihood() {
     let input_alignment_fasta = sandbox.file_string("listeria0.aln", TestDir::Input);
     let input_alignment_phylip = sandbox.file_string("listeria0.phylip", TestDir::Input);
 
+    // First test that this can be run
     Command::new(cargo_bin("bactrees"))
         .current_dir(sandbox.get_wd())
         .arg("-a")
@@ -25,7 +26,6 @@ fn jc69_likelihood() {
         .success();
 
     // Likelihood and tree from program
-    // TODO when this can take input file use `.arg(sandbox.file_string("listeria0.aln", TestDir::Input))` to provide it
     let output = Command::new(cargo_bin("bactrees"))
         .current_dir(sandbox.get_wd())
         .arg("-a")
