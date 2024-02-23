@@ -22,6 +22,7 @@ fn jc69_likelihood() {
         .current_dir(sandbox.get_wd())
         .arg("-a")
         .arg(input_alignment_fasta.as_str())
+        .arg("--no-optimise")
         .assert()
         .success();
 
@@ -30,6 +31,7 @@ fn jc69_likelihood() {
         .current_dir(sandbox.get_wd())
         .arg("-a")
         .arg(input_alignment_fasta.as_str())
+        .arg("--no-optimise")
         .output()
         .unwrap()
         .stdout;

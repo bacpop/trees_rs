@@ -50,90 +50,75 @@ pub fn main() {
     println!("{}", tr.get_tree_likelihood());
     println!("{:?}", tr.newick());
     println!("{:?}", tr.tree_vec);
-    // println!("{:?}", tr.nodes);
 
-    // let mut out = it.newick;
+    if !args.no_optimise {
+        let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();
+        let n = theta.len();
 
-    // while it.next().is_some() {
-    //     it.next();
+        let a = 2.0;
+        let A = 2.0;
+        let alpha = 0.75;
+        // let k = 0;
 
-    // }
+        let mut llvec: Vec<f64> = Vec::new();
 
-    // println!("{:?}", &it.newick);
-    // let prr: String = pr.chars().rev().collect();
-    // println!("{:?}", prr);
+        let start = Instant::now();
+        for k in 0..=200 {
+            println!("k: {:?}", k);
+            // println!("theta: {:?}", theta);
 
-    // out.reverse();
-    // println!("{:?}", out.join(""));
+        //     // Peturbation vector
+            let delta = peturbation_vec(n);
+            // println!("delta: {:?}", delta);
 
+        //     // Pi vector
+            let pivec: Vec<f64> = piv(&theta);
+        //     // println!("pivec: {:?}", pivec);
 
-    // let mut theta: Vec<f64> = tr.tree_vec.iter().map(|x| *x as f64).collect();
-    // let n = theta.len();
+        //     // theta+/-
+            let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
+            let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
 
-    // let a = 2.0;
-    // let A = 2.0;
-    // let alpha = 0.75;
-    // // let k = 0;
+        //     // println!("thetaplus: {:?}", thetaplus);
+        //     // println!("thetaminus: {:?}", thetaminus);
 
-    // let mut llvec: Vec<f64> = Vec::new();
+        //     // Calculate likelihood at theta trees
+            tr.update_tree(Some(thetaplus), false);
+        //     // println!("tree changes: {:?}", tr.changes);
+            tr.update_likelihood(&q);
+            let x1 = tr.get_tree_likelihood();
+        //     // println!("thetaplus ll: {:?}", x1);
 
-    // let start = Instant::now();
-    // for k in 0..=100 {
-    //     println!("k: {:?}", k);
-    //     // println!("theta: {:?}", theta);
+            tr.update_tree(Some(thetaminus), false);
+        //     // println!("tree changes: {:?}", tr.changes);
+            tr.update_likelihood(&q);
+            let x2 = tr.get_tree_likelihood();
+        //     // println!("thetaminus ll: {:?}", x2);
 
-    //     // Peturbation vector
-    //     let delta = peturbation_vec(n);
-    //     // println!("delta: {:?}", delta);
+        //     // Calculations to work out new theta
+            let ldiff = x1 - x2; 
+            let ghat: Vec<f64> = delta.iter().map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
 
-    //     // Pi vector
-    //     let pivec: Vec<f64> = piv(&theta);
-    //     // println!("pivec: {:?}", pivec);
+            let ak = a / (1.0 + A + k as f64).powf(alpha);
 
-    //     // theta+/-
-    //     let thetaplus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x + (y / 2.0)).round() as usize).collect();
-    //     let thetaminus: Vec<usize> = pivec.iter().zip(delta.iter()).map(|(x, y)| (x - (y / 2.0)).round() as usize).collect();
+            theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
 
-    //     // println!("thetaplus: {:?}", thetaplus);
-    //     // println!("thetaminus: {:?}", thetaminus);
+            llvec.push(x1);
 
-    //     // Calculate likelihood at theta trees
-    //     tr.update_tree(Some(thetaplus), false);
-    //     // println!("tree changes: {:?}", tr.changes);
-    //     tr.update_likelihood(&q);
-    //     let x1 = tr.get_tree_likelihood();
-    //     // println!("thetaplus ll: {:?}", x1);
+        //     // println!("ghat: {:?}", ghat);
 
-    //     tr.update_tree(Some(thetaminus), false);
-    //     // println!("tree changes: {:?}", tr.changes);
-    //     tr.update_likelihood(&q);
-    //     let x2 = tr.get_tree_likelihood();
-    //     // println!("thetaminus ll: {:?}", x2);
+        }
 
-    //     // Calculations to work out new theta
-    //     let ldiff = x1 - x2;
-    //     let ghat: Vec<f64> = delta.iter().map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
+        let out: Vec<f64> = phi(&theta).iter().map(|x| x.round()).collect();
+        println!("final theta: {:?}", out);
 
-    //     let ak = a / (1.0 + A + k as f64).powf(alpha);
+        println!("{:?}", &llvec);
+        // println!("{:?}", &llvec[95..100]);
+    }
+    let end = Instant::now();
 
-    //     theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
-
-    //     llvec.push(x1);
-
-    //     // println!("ghat: {:?}", ghat);
-
-    // }
-
-    // let out: Vec<f64> = phi(&theta).iter().map(|x| x.round()).collect();
-    // println!("final theta: {:?}", out);
-    // let end = Instant::now();
-
-
-    // // // println!("{:?}", &llvec[0..5]);
-    // // // println!("{:?}", &llvec[95..100]);
-
-    // eprintln!("Done in {}s", end.duration_since(start).as_secs());
-    // eprintln!("Done in {}ms", end.duration_since(start).as_millis());
-    // eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
+    eprintln!("Done in {}s", end.duration_since(start).as_secs());
+    eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+    eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
 
 }
