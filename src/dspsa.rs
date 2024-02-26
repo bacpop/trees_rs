@@ -102,12 +102,10 @@ impl Tree {
             // Set new theta
             theta = theta.iter().zip(ghat.iter())
             .map(|(theta, g)| *theta - ak * g).collect();
-        println!("New tree vector is: {:?}", theta);
         }
 
         // Update final tree after finishing optimisation
-        println!("New tree vector is: {:?}", theta);
-        let new_tree_vec: Vec<usize> = theta.iter().map(|x| *x as usize).collect();
+        let new_tree_vec: Vec<usize> = phi(&theta).iter().map(|x| x.round() as usize).collect();
         println!("New tree vector is: {:?}", new_tree_vec);
         self.update_tree(Some(new_tree_vec), false);
         self.update_likelihood(&q);
