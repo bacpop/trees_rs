@@ -104,19 +104,17 @@ pub fn char_to_mutation(e: &char) -> Mutation {
 // }
 
 pub fn combine_lists(
-    seq1: &Vec<Mutation>,
-    seq2: &Vec<Mutation>,
+    seq1: &[Mutation],
+    seq2: &[Mutation],
     branchlengths: (f64, f64),
     rate_matrix: &na::Matrix4<f64>,
 ) -> Vec<Mutation> {
-    
-    let mut out: Vec<Mutation> = Vec::new();
 
     // Probability matrices
     let p1 = na::Matrix::exp(&(rate_matrix * branchlengths.0));
     let p2 = na::Matrix::exp(&(rate_matrix * branchlengths.1));
 
-    out = seq1.iter()
+    let out: Vec<Mutation> = seq1.iter()
     .zip(seq2.iter())
     .map(|(b1, b2)| b1.child_log_likelihood(&p1)
                                             .sum(b2.child_log_likelihood(&p2)))

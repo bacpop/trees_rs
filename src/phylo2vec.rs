@@ -8,7 +8,7 @@ use rand::{seq::SliceRandom, thread_rng, Rng};
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
     let k = tree.tree_vec.len();
-    let mut not_processed = vec![true].repeat(k);
+    let mut not_processed = [true].repeat(k);
     let mut M = Array2::<usize>::zeros((k, 3));
     let mut labels = Array2::<usize>::zeros((k + 1, k + 1));
 

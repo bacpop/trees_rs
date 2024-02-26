@@ -10,7 +10,7 @@ impl Tree {
     pub fn update_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
 
         if self.changes.is_empty() {
-            return ()
+            return
         }
 
         let max_depth: usize = *self.changes.keys().max().unwrap();

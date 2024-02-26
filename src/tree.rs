@@ -82,8 +82,8 @@ impl Tree {
                                 .collect();
 
         for i in &x {
-            match temp.get(&i) {
-                Some(_) => temp.remove(&i),
+            match temp.get(i) {
+                Some(_) => temp.remove(i),
                 None => temp.insert(*i),
             };
         };
@@ -360,19 +360,6 @@ impl<'a> Iterator for Preorder<'a> {
                     None => None,
                     Some(node) => node,
                 };
-                if self.next_node.is_some() {
-                    match self.next_node.unwrap().parent {
-                        Some(x) if x == output.unwrap().index => {
-                        },
-                        Some(x) => {
-                        },
-                        None => {
-
-                        }
-                    }
-                } else {
-
-                }
             }
             _ => {
                 panic!("Iterator has found a node with only a right child")

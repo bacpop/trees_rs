@@ -101,7 +101,7 @@ pub fn main() {
 
             let ak = a / (1.0 + A + k as f64).powf(alpha);
 
-            theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta as f64 - ak * g).collect();
+            theta = theta.iter().zip(ghat.iter()).map(|(theta, g)| *theta - ak * g).collect();
 
             llvec.push(x1);
 
