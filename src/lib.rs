@@ -47,12 +47,12 @@ pub fn main() {
     tr.update_likelihood_postorder(&q);
 
     // println!("{:?}", tr.mutation_lists);
-    println!("{}", tr.get_tree_likelihood());
-    println!("{:?}", tr.newick());
-    println!("{:?}", tr.tree_vec);
+    // println!("{}", tr.get_tree_likelihood());
+    // println!("{:?}", tr.newick());
+    // println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
-        tr.optimise(&q, 5);
+        tr.optimise(&q, 10);
     }
     
     // let end = Instant::now();

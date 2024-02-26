@@ -52,8 +52,8 @@ impl Tree {
     pub fn optimise(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
         // Convert tree vector to Vec<f64>
         let mut theta: Vec<f64> = self.tree_vec.iter().map(|x| *x as f64).collect();
-        println!("Current tree vector is: {:?}", theta);
-        println!("Current likelihood is: {}", self.get_tree_likelihood());
+        println!("Current tree vector is: {:?}", self.tree_vec);
+        println!("Current likelihood is: {}", - self.get_tree_likelihood());
         let n: usize = theta.len();
 
         // Tuning parameters for optimisation, will
@@ -67,6 +67,7 @@ impl Tree {
         let mut pivec: Vec<f64> = Vec::with_capacity(n);
         let mut thetaplus: Vec<usize> = Vec::with_capacity(n);
         let mut thetaminus: Vec<usize> = Vec::with_capacity(n);
+        let mut ghat: Vec<f64> = Vec::with_capacity(n);
 
         // Optimisation loop
         for k in 0..=iterations {
@@ -85,17 +86,19 @@ impl Tree {
             // Update tree and calculate likelihoods
             self.update_tree(Some(thetaplus), false);
             self.update_likelihood(&q);
-            let lplus: f64 = self.get_tree_likelihood();
+            let lplus: f64 = - self.get_tree_likelihood();
 
             self.update_tree(Some(thetaminus), false);
             self.update_likelihood(&q);
-            let lminus: f64 = self.get_tree_likelihood();
+            let lminus: f64 = - self.get_tree_likelihood();
 
             // Update theta based on likelihoods of theta+/-
             let ldiff = lplus - lminus;
 
-            let ghat: Vec<f64> = delta.iter()
-            .map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
+            // let ghat: Vec<f64> = delta.iter()
+            // .map(|el| if !el.eq(&0.0) {el * ldiff} else {0.0}).collect();
+
+            ghat = delta.iter().map(|delta| ldiff * (1.0 / delta)).collect();
 
             let ak: f64 = a / (1.0 + cap_a + k as f64).powf(alpha);
 
@@ -109,6 +112,6 @@ impl Tree {
         println!("New tree vector is: {:?}", new_tree_vec);
         self.update_tree(Some(new_tree_vec), false);
         self.update_likelihood(&q);
-        println!("New tree likelihood is {}", self.get_tree_likelihood());
+        println!("New tree likelihood is {}", - self.get_tree_likelihood());
     }
 }
