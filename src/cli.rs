@@ -5,7 +5,7 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 pub struct Args {
     /// Alignment file in FASTA format
-    #[arg(short, long, default_value = "listeria0.aln")]
+    #[arg(short, long, default_value = "tests/test_files_in/listeria0.aln")]
     pub alignment: String,
 
     /// Write the likelihood of the tree and alignment, do not optimise
