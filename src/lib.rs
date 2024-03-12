@@ -39,20 +39,20 @@ pub fn main() {
            1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
     );
 
-    // let mut tr = phylo2vec_quad(vec![0, 0, 0]);
     let mut tr = phylo2vec_quad(random_tree(27));
+
+    let end = Instant::now();
     // let filename = "listeria0.aln";
     tr.add_genetic_data(&args.alignment);
 
     tr.update_likelihood_postorder(&q);
 
-    // println!("{:?}", tr.mutation_lists);
-    // println!("{}", tr.get_tree_likelihood());
-    // println!("{:?}", tr.newick());
-    // println!("{:?}", tr.tree_vec);
+    println!("{}", tr.get_tree_likelihood());
+    println!("{:?}", tr.newick());
+    println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
-        tr.optimise(&q, 10);
+        // tr.optimise(&q, 100);
     }
     
     // let end = Instant::now();

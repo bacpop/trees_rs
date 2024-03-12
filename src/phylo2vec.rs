@@ -185,4 +185,35 @@ impl Tree {
             self.add(M[[i, 1]], Some(M[[i, 2]]));
         }
     }
+
+    pub fn update_quad(&mut self, new_vec: Vec<usize>) {
+
+        // if !self.changes.is_empty() {
+        //     panic!("There are already changes that need updating");
+        // }
+
+        let new_tree: Tree = phylo2vec_quad(new_vec);
+        let k: usize = new_tree.nodes.len();
+        let mut old_parent: Option<usize>;
+        let mut new_parent: Option<usize>;
+
+        for i in (0..k).rev() {
+            old_parent = self.get_node(i).unwrap().parent;
+            new_parent = new_tree.get_node(i).unwrap().parent;
+
+            if old_parent.ne(&new_parent) {
+                let d = new_tree.get_node(i).unwrap().depth;
+
+                match self.changes.get(&d) {
+                    None => {self.changes.insert(d, vec![i]);},
+                    Some(_) => {self.changes.get_mut(&d).unwrap().push(i);}
+                }
+            }
+        }
+
+        self.tree_vec = new_tree.tree_vec;
+        self.nodes = new_tree.nodes;
+
+    }
+
 }

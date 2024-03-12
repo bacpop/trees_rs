@@ -87,14 +87,6 @@ impl Tree {
 }
 
 impl Mutation {
-    pub fn prod(self, r: Mutation) -> Mutation {
-        Mutation(
-            self.0 * r.0,
-            self.1 * r.1,
-            self.2 * r.2,
-            self.3 * r.3,
-        )
-    }
 
     pub fn sum(self, r: Mutation) -> Mutation {
         Mutation(
@@ -103,12 +95,6 @@ impl Mutation {
             self.2 + r.2,
             self.3 + r.3,
         )
-    }
-
-    pub fn child_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Mutation {
-        let x = prob_matrix * na::Vector4::new(self.0, self.1, self.2, self.3);
-
-        Mutation(x[0], x[1], x[2], x[3])
     }
 
     pub fn child_log_likelihood(self, prob_matrix: &na::Matrix4<f64>) -> Self {
@@ -123,10 +109,6 @@ impl Mutation {
 }
 
 pub fn logse(x: Vec<f64>) -> f64 {
-    // if x.iter().all(|el| el.eq(&NEG_INFINITY)) {
-    //     NEG_INFINITY
-    // } else {
         let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
         xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
-    // }
 }
