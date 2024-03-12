@@ -115,76 +115,76 @@ pub fn random_tree(k: usize) -> Vec<usize> {
 
 impl Tree {
     // Updates a Tree to the tree from new_vec and records changes in self.changes HashMap
-    pub fn update_tree(&mut self, new_vec: Option<Vec<usize>>, permute: bool) {
+    // pub fn update_tree(&mut self, new_vec: Option<Vec<usize>>, permute: bool) {
 
-        if let Some(vec) = new_vec {
-            self.tree_vec = vec;
-        }
+    //     if let Some(vec) = new_vec {
+    //         self.tree_vec = vec;
+    //     }
 
-        if permute {
-            self.leaf_permutations.shuffle(&mut thread_rng());
-        }
+    //     if permute {
+    //         self.leaf_permutations.shuffle(&mut thread_rng());
+    //     }
 
-        let k = self.tree_vec.len();
-        let old_nodes = self.nodes.clone();
-        self.nodes = vec![Node::default(); 2 * k + 1];
+    //     let k = self.tree_vec.len();
+    //     let old_nodes = self.nodes.clone();
+    //     self.nodes = vec![Node::default(); 2 * k + 1];
 
-        let mut M = Array2::<usize>::zeros((k, 3));
-        let mut labels_rowk: Vec<usize> = (0..=k).collect();
-        let mut rmk = k;
+    //     let mut M = Array2::<usize>::zeros((k, 3));
+    //     let mut labels_rowk: Vec<usize> = (0..=k).collect();
+    //     let mut rmk = k;
 
-        // Build M for new vector
-        for i in 0..k {
-            let n = k - i - 1;
-            let m = self.tree_vec[n];
+    //     // Build M for new vector
+    //     for i in 0..k {
+    //         let n = k - i - 1;
+    //         let m = self.tree_vec[n];
 
-            M[[i, 0]] = labels_rowk[m];
-            M[[i, 1]] = labels_rowk[n + 1];
+    //         M[[i, 0]] = labels_rowk[m];
+    //         M[[i, 1]] = labels_rowk[n + 1];
 
-            rmk += 1;
-            labels_rowk[m] = rmk;
-            M[[i, 2]] = labels_rowk[m];
-        }
+    //         rmk += 1;
+    //         labels_rowk[m] = rmk;
+    //         M[[i, 2]] = labels_rowk[m];
+    //     }
 
-        // Update with leaf permutations, these are from the old tree or may have 
-        // been newly shuffled above
-        for i in M.iter_mut().filter(|el| **el <= k + 1) {
-            *i = *self.leaf_permutations.get(*i).unwrap_or(i);
-        }
+    //     // Update with leaf permutations, these are from the old tree or may have 
+    //     // been newly shuffled above
+    //     for i in M.iter_mut().filter(|el| **el <= k + 1) {
+    //         *i = *self.leaf_permutations.get(*i).unwrap_or(i);
+    //     }
 
-        self.add(M[[k - 1, 2]], None);
+    //     self.add(M[[k - 1, 2]], None);
 
-        for i in (0..k).rev() {
-            if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
-                let d = self.get_node(M[[i, 2]]).unwrap().depth;
+    //     for i in (0..k).rev() {
+    //         if old_nodes.get(M[[i, 0]]).unwrap().parent != Some(M[[i, 2]]) {
+    //             let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
-                match self.changes.get(&d) {
-                    None => {
-                        self.changes.insert(d, vec![M[[i, 2]]]);
-                    }
-                    Some(_) => {
-                        self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
-                    }
-                }
-            }
+    //             match self.changes.get(&d) {
+    //                 None => {
+    //                     self.changes.insert(d, vec![M[[i, 2]]]);
+    //                 }
+    //                 Some(_) => {
+    //                     self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
+    //                 }
+    //             }
+    //         }
 
-            self.add(M[[i, 0]], Some(M[[i, 2]]));
+    //         self.add(M[[i, 0]], Some(M[[i, 2]]));
 
-            if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
-                let d = self.get_node(M[[i, 2]]).unwrap().depth;
+    //         if old_nodes.get(M[[i, 1]]).unwrap().parent != Some(M[[i, 2]]) {
+    //             let d = self.get_node(M[[i, 2]]).unwrap().depth;
 
-                match self.changes.get(&d) {
-                    None => {
-                        self.changes.insert(d, vec![M[[i, 2]]]);
-                    }
-                    Some(_) => {
-                        self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
-                    }
-                }
-            }
-            self.add(M[[i, 1]], Some(M[[i, 2]]));
-        }
-    }
+    //             match self.changes.get(&d) {
+    //                 None => {
+    //                     self.changes.insert(d, vec![M[[i, 2]]]);
+    //                 }
+    //                 Some(_) => {
+    //                     self.changes.get_mut(&d).unwrap().push(M[[i, 2]]);
+    //                 }
+    //             }
+    //         }
+    //         self.add(M[[i, 1]], Some(M[[i, 2]]));
+    //     }
+    // }
 
     pub fn update_quad(&mut self, new_vec: Vec<usize>) {
 

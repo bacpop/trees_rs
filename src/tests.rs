@@ -103,30 +103,30 @@ mod tests {
 
     }
 
-    #[test]
-    fn update_tree_check() {
-        let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
-        let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
+    // #[test]
+    // fn update_tree_check() {
+    //     let mut tree_q = phylo2vec_quad(vec![0, 1, 0]);
+    //     let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
 
-        let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0], vec![0, 1, 0], vec![0, 1, 2], vec![0, 1, 1]];
+    //     let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0], vec![0, 1, 0], vec![0, 1, 2], vec![0, 1, 1]];
 
-        for vec in vecs {
-            let v = vec.clone();
-            tree_q = phylo2vec_quad(v);
-            tree_l.update_tree(Some(vec), false);
+    //     for vec in vecs {
+    //         let v = vec.clone();
+    //         tree_q = phylo2vec_quad(v);
+    //         tree_l.update_quad(vec);
 
-            for i in 0..=6 {
-                assert_eq!(
-                    tree_l.get_node(i).unwrap().parent,
-                    tree_q.get_node(i).unwrap().parent);
-                assert_eq!(
-                    tree_l.get_node(i).unwrap().index,
-                    tree_q.get_node(i).unwrap().index
-                );
-            }
-        }
+    //         for i in 0..=6 {
+    //             assert_eq!(
+    //                 tree_l.get_node(i).unwrap().parent,
+    //                 tree_q.get_node(i).unwrap().parent);
+    //             assert_eq!(
+    //                 tree_l.get_node(i).unwrap().index,
+    //                 tree_q.get_node(i).unwrap().index
+    //             );
+    //         }
+    //     }
         
-    }
+    // }
 
     #[test]
     fn update_tree_quad_check() {

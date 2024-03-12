@@ -7,8 +7,8 @@ pub fn phi(v: &[f64]) -> Vec<f64> {
     v.iter().enumerate().map(|(i, value)| {
         if i == 0 || value.lt(&0.0) {
             0.0
-        } else if value.gt(&(i as f64)) {
-            (i as f64) - 0.000001
+        } else if value.gt(&((2 * (i - 1)) as f64)) {
+            ((2 * (i - 1)) as f64) - 0.000001
         } else {
             *value
         }
@@ -80,7 +80,7 @@ impl Tree {
         // Optimisation loop
         for k in 0..=iterations {
             println!("Optimisation step {} out of {}", k, iterations);
-            println!("Tree likelihood: {}", self.get_tree_likelihood());
+            println!("Tree likelihood: {}", -self.get_tree_likelihood());
             // Generate peturbation vector
             delta = peturbation_vec(n);
             // println!("Peturbation vector: {:?}", delta);
@@ -97,11 +97,11 @@ impl Tree {
             // println!("theta-: {:?}", thetaminus);
 
             // Update tree and calculate likelihoods
-            self.update_tree(Some(thetaplus), false);
+            self.update_quad(thetaplus);
             self.update_likelihood(&q);
             let lplus: f64 = -self.get_tree_likelihood();
 
-            self.update_tree(Some(thetaminus), false);
+            self.update_quad(thetaminus);
             self.update_likelihood(&q);
             let lminus: f64 = -self.get_tree_likelihood();
 
@@ -129,8 +129,8 @@ impl Tree {
         // Update final tree after finishing optimisation
         let new_tree_vec: Vec<usize> = phi(&theta).iter().map(|x| x.round() as usize).collect();
         println!("New tree vector is: {:?}", new_tree_vec);
-        self.update_tree(Some(new_tree_vec), false);
+        self.update_quad(new_tree_vec);
         self.update_likelihood(&q);
-        println!("New tree likelihood is {}", self.get_tree_likelihood());
+        println!("New tree likelihood is {}", -self.get_tree_likelihood());
     }
 }
