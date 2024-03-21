@@ -52,7 +52,8 @@ pub fn main() {
     println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
-        tr.optimise(&q, 25);
+        // tr.optimise(&q, 10);
+        tr.hillclimb(&q, 20);
     }
     
     // let end = Instant::now();

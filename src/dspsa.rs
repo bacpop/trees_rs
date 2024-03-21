@@ -51,12 +51,56 @@ pub fn theta_change(pivec: &Vec<f64>, delta: &Vec<f64>, plus: bool) -> Vec<usize
 }
 
 impl Tree {
+    pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
+
+        let mut working_tree: Tree = Tree {
+            tree_vec: self.tree_vec.clone(),
+            nodes: self.nodes.clone(),
+            max_depth: self.max_depth,
+            leaf_permutations: self.leaf_permutations.clone(),
+            changes: self.changes.clone(),
+            mutation_lists: self.mutation_lists.clone()
+        };
+
+        let mut theta: Vec<f64> = self.tree_vec.iter().map(|x| *x as f64).collect();
+        let n: usize = theta.len();
+        let mut delta: Vec<f64> = Vec::with_capacity(n);
+        let mut pivec: Vec<f64> = Vec::with_capacity(n);
+        let mut thetaplus: Vec<usize> = Vec::with_capacity(n);
+
+        for k in 0..=iterations {
+            println!("Optimisation step {} out of {}", k, iterations);
+            println!("Tree log likelihood: {}", self.get_tree_likelihood());
+            // Generate peturbation vector
+            delta = peturbation_vec(n);
+            // println!("Peturbation vector: {:?}", delta);
+
+            // Generate pi vector
+            pivec = piv(&theta);
+            // println!("Pi vector: {:?}", pivec);
+
+            // Calculate theta+ and theta-,
+            // New tree vectors based on peturbation
+            thetaplus = theta_change(&pivec, &delta, true);
+
+            working_tree.update_quad(thetaplus);
+            working_tree.update_likelihood(&q);
+
+            if(working_tree.get_tree_likelihood() > self.get_tree_likelihood()) {
+                println!("Climbing hill!");
+                self.update_quad(working_tree.tree_vec.clone());
+                self.update_likelihood(&q);
+                theta = self.tree_vec.iter().map(|x| *x as f64).collect();
+            }
+        }
+    }
+
     pub fn optimise(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
 
         // Update likelihood if not done already
-        if self.get_tree_likelihood().eq(&0.0) {
-            self.update_likelihood(&q);
-        }
+        // if self.get_tree_likelihood().eq(&0.0) {
+        //     self.update_likelihood(&q);
+        // }
 
         // Convert tree vector to Vec<f64>
         let mut theta: Vec<f64> = self.tree_vec.iter().map(|x| *x as f64).collect();
@@ -67,7 +111,7 @@ impl Tree {
         // Tuning parameters for optimisation, will
         // eventually have defaults or be passed in
         let a: f64 = 1.5;
-        let cap_a: f64 = 10000.0;
+        let cap_a: f64 = 1000.0;
         let alpha: f64 = 0.51;
 
         // Pre-allocate vectors
@@ -76,11 +120,12 @@ impl Tree {
         let mut thetaplus: Vec<usize> = Vec::with_capacity(n);
         let mut thetaminus: Vec<usize> = Vec::with_capacity(n);
         let mut ghat: Vec<f64> = Vec::with_capacity(n);
+        let mut new_tree_vec: Vec<usize> = Vec::with_capacity(n);
 
         // Optimisation loop
         for k in 0..=iterations {
             println!("Optimisation step {} out of {}", k, iterations);
-            println!("Tree likelihood: {}", -self.get_tree_likelihood());
+            println!("Negative tree log likelihood: {}", -self.get_tree_likelihood());
             // Generate peturbation vector
             delta = peturbation_vec(n);
             // println!("Peturbation vector: {:?}", delta);
@@ -121,16 +166,19 @@ impl Tree {
 
             // Set new theta
             theta = theta.iter().zip(ghat.iter())
-            .map(|(theta, g)| *theta - ak * g).collect();
+            .map(|(theta, g)| *theta - (ak * g)).collect();
 
+            new_tree_vec = phi(&theta).iter().map(|x| x.round() as usize).collect();
+            self.update_quad(new_tree_vec);
+            self.update_likelihood(&q)
             // println!("New theta is: {:?}", theta);
         }
 
         // Update final tree after finishing optimisation
-        let new_tree_vec: Vec<usize> = phi(&theta).iter().map(|x| x.round() as usize).collect();
-        println!("New tree vector is: {:?}", new_tree_vec);
-        self.update_quad(new_tree_vec);
-        self.update_likelihood(&q);
-        println!("New tree likelihood is {}", -self.get_tree_likelihood());
+        // let new_tree_vec: Vec<usize> = phi(&theta).iter().map(|x| x.round() as usize).collect();
+        // println!("New tree vector is: {:?}", new_tree_vec);
+        // self.update_quad(new_tree_vec);
+        // self.update_likelihood(&q);
+        println!("New tree likelihood is {}", self.get_tree_likelihood());
     }
 }

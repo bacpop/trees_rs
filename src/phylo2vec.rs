@@ -109,7 +109,7 @@ pub fn random_tree(k: usize) -> Vec<usize> {
     vec![0; k]
         .iter()
         .enumerate()
-        .map(|(i, _el)| if i > 0 { rng.gen_range(0..i) } else { 0 })
+        .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
         .collect()
 }
 
@@ -187,10 +187,6 @@ impl Tree {
     // }
 
     pub fn update_quad(&mut self, new_vec: Vec<usize>) {
-
-        // if !self.changes.is_empty() {
-        //     panic!("There are already changes that need updating");
-        // }
 
         let new_tree: Tree = phylo2vec_quad(new_vec);
         let k: usize = new_tree.nodes.len();
