@@ -7,6 +7,8 @@ mod tests;
 mod tree;
 mod dspsa;
 
+use cxx::let_cxx_string;
+use cxx::CxxString;
 use rand::Rng;
 use rand::random;
 
@@ -30,6 +32,11 @@ pub fn main() {
     let args = cli_args();
 
     let start = Instant::now();
+    let nw = phylo2vec_quad(random_tree(2)).newick();
+    println!("{:?}", nw);
+    let_cxx_string!(nw_cpp = nw);
+    let x = phylo2vec::ffi::doToVector(nw_cpp, 3, true);
+    println!("{:?}", x);
 
     // Define rate matrix
     let q: na::Matrix4<f64> = na::Matrix4::new(

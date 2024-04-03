@@ -1,4 +1,4 @@
-#include "phylo2vec.hpp"
+#include "bactrees/include/phylo2vec.hpp"
 
 // #include <omp.h>
 
@@ -478,7 +478,7 @@ std::map<int, std::string> convertMapping(std::map<std::string, std::string> map
 }
 
 // This is the exported function
-std::vector<int> doToVector(std::string& newick, int num_leaves, bool with_mapping) {
+std::unique_ptr<std::vector<int>> doToVector(std::string& newick, int num_leaves, bool with_mapping) {
     std::vector<int> converted_v;
 
     if (with_mapping) {
@@ -497,5 +497,5 @@ std::vector<int> doToVector(std::string& newick, int num_leaves, bool with_mappi
         converted_v = newick2v(newick, num_leaves).v;
     }
 
-  return converted_v;
+  return std::make_unique<std::vector<int>>(converted_v);
 }
