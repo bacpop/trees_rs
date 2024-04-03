@@ -5,6 +5,16 @@ use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 
+extern "C" {
+    fn doToVector(newick: &String, num_leaves: i32, with_mapping: bool) -> Vec<i32>;
+}
+
+pub fn newick2vec(newick: &String, num_leaves: i32, with_mapping: bool) -> Vec<i32> {
+    unsafe {
+        doToVector(newick, num_leaves, with_mapping)
+    }
+}
+
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
     let k = tree.tree_vec.len();
