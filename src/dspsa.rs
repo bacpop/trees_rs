@@ -1,8 +1,99 @@
-use std::ops::Sub;
-
-use rand::Rng;
+use rand::{distributions::Bernoulli, rngs::ThreadRng, Rng};
 use crate::Tree;
 
+pub fn hill_peturb(mut v: &Vec<usize>, n: usize) -> Vec<usize> {
+    let mut vout = v.clone();
+    let mut rng = rand::thread_rng();
+    let mut ind_rng = rand::thread_rng();
+    let distr = rand::distributions::Bernoulli::new(0.5).unwrap();
+    let ind_distr = rand::distributions::Uniform::new(0, v.len());
+
+    let mut inds: Vec<usize> = ind_rng.sample_iter(ind_distr).take(n).collect();
+    inds.sort();
+
+    for ind in inds {
+        match rng.sample(distr) {
+            true => {vout[ind] += 1;},
+            false => {vout[ind] -= 1;},
+        };  
+        if ind.eq(&0) || vout[ind].lt(&0) {
+           vout[ind] = 0;
+        } else if vout[ind].gt(&(2 * (ind - 1))) {
+           vout[ind] = 2 * (ind - 1);
+        }
+    };
+
+    // let vout: Vec<usize> = v.iter().enumerate().map(|(i, el)|{
+    //     let out = match rng.sample(distr) {
+    //         true => el + 1,
+    //         false => el - 1,
+    //     };    
+        
+    //     if i.eq(&0) || out.lt(&0) {
+    //         0
+    //     } else if out.gt(&(2 * (i - 1))) {
+    //         2 * (i - 1)
+    //     } else {
+    //         out
+    //     }
+    // }).collect();
+    // println!("{:?}", vout);
+    vout
+}
+
+impl Tree {
+    pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
+
+        let mut working_tree: Tree = Tree {
+            tree_vec: self.tree_vec.clone(),
+            nodes: self.nodes.clone(),
+            max_depth: self.max_depth,
+            leaf_permutations: self.leaf_permutations.clone(),
+            changes: self.changes.clone(),
+            mutation_lists: self.mutation_lists.clone()
+        };
+
+        let n: usize = self.tree_vec.len();
+        let mut candidate_vec: Vec<usize>;
+        for k in 0..=iterations {
+            
+            println!("Optimisation step {} out of {}", k, iterations);
+            println!("Old vector {:?}", self.tree_vec);
+            println!("Tree log likelihood: {}", self.get_tree_likelihood());
+
+            candidate_vec = hill_peturb(&self.tree_vec, 2);
+            working_tree.update_quad(&candidate_vec);
+            working_tree.update_likelihood(&q);
+
+            println!("New vector {:?}", candidate_vec);
+            println!("New likelihood {}", working_tree.get_tree_likelihood());
+
+            if(working_tree.get_tree_likelihood() > self.get_tree_likelihood()) {
+                println!("Climbing hill!");
+                self.update_quad(&working_tree.tree_vec);
+                self.update_likelihood(&q);
+            }
+        }
+    }
+
+
+    // pub fn theta_change(pivec: &Vec<f64>, delta: &Vec<f64>, plus: bool) -> Vec<usize> {
+
+    //     let zip = pivec.iter().zip(delta.iter());
+        
+    //     match plus {
+    //         true => {
+    //             zip
+    //             .map(|(x, y)| (x + (y / 2.0)).round() as usize)
+    //             .collect()
+    //         },
+    //         false => {
+    //             zip
+    //             .map(|(x, y)| (x - (y / 2.0)).round() as usize)
+    //             .collect()
+    //         }
+    //     }
+    // }
 // pub fn phi(v: &[f64]) -> Vec<f64> {
 //     v.iter().enumerate().map(|(i, value)| {
 //         if i == 0 || value.lt(&0.0) {
@@ -31,77 +122,6 @@ use crate::Tree;
 //     delta[0] = 0.0;
 //     delta
 // }
-
-pub fn hill_peturb(v: &Vec<usize>) -> Vec<usize> {
-    let mut rng = rand::thread_rng();
-    let distr = rand::distributions::Bernoulli::new(0.5).unwrap();
-
-    let vout: Vec<usize> = v.iter().enumerate().map(|(i, el)|{
-        let out = match rng.sample(distr) {
-            true => el + 1,
-            false => el - 1,
-        };    
-        
-    if i.eq(&0) || out.lt(&0) {
-        0
-    } else if out.gt(&(2 * (i - 1))) {
-        2 * (i - 1)
-    } else {
-        out
-    }
-    }).collect();
-
-    vout
-}
-
-pub fn theta_change(pivec: &Vec<f64>, delta: &Vec<f64>, plus: bool) -> Vec<usize> {
-
-    let zip = pivec.iter().zip(delta.iter());
-    
-    match plus {
-        true => {
-            zip
-            .map(|(x, y)| (x + (y / 2.0)).round() as usize)
-            .collect()
-        },
-        false => {
-            zip
-            .map(|(x, y)| (x - (y / 2.0)).round() as usize)
-            .collect()
-        }
-    }
-}
-
-impl Tree {
-    pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
-
-        let mut working_tree: Tree = Tree {
-            tree_vec: self.tree_vec.clone(),
-            nodes: self.nodes.clone(),
-            max_depth: self.max_depth,
-            leaf_permutations: self.leaf_permutations.clone(),
-            changes: self.changes.clone(),
-            mutation_lists: self.mutation_lists.clone()
-        };
-
-        let n: usize = self.tree_vec.len();
-        let mut candidate_vec: Vec<usize> = Vec::with_capacity(n);
-        for k in 0..=iterations {
-            
-            println!("Optimisation step {} out of {}", k, iterations);
-            println!("Tree log likelihood: {}", self.get_tree_likelihood());
-
-            candidate_vec = hill_peturb(&self.tree_vec);
-            working_tree.update_quad(candidate_vec);
-            working_tree.update_likelihood(&q);
-
-            if(working_tree.get_tree_likelihood() > self.get_tree_likelihood()) {
-                println!("Climbing hill!");
-                self.update_quad(working_tree.tree_vec.clone());
-                self.update_likelihood(&q);
-            }
-        }
-    }
 
     // pub fn optimise(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
 

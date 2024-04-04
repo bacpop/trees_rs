@@ -37,7 +37,7 @@ pub fn main() {
            1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
     );
 
-    let mut tr = phylo2vec_quad(random_tree(27));
+    let mut tr = phylo2vec_quad(&random_tree(27));
 
     // let end = Instant::now();
     tr.add_genetic_data(&args.alignment);

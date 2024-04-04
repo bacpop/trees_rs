@@ -16,10 +16,10 @@ pub struct Tree {
 // UTILITY FUNCTIONS FOR ADDING, ACCESSING, AND MUTATING NODES AND DATA IN NODES
 impl Tree {
     // Constructor function for a new tree
-    pub fn new(tree_vec: Vec<usize>) -> Tree {
+    pub fn new(tree_vec: &Vec<usize>) -> Tree {
         let k = tree_vec.len();
         Tree {
-            tree_vec,
+            tree_vec: tree_vec.clone(),
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
             leaf_permutations: (0..=k).collect(),

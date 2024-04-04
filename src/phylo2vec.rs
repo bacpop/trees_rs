@@ -6,7 +6,7 @@ use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use cxx::let_cxx_string;
 
-pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
+pub fn phylo2vec_quad(v: &Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
     let mut sub_vec = tree.tree_vec.clone();
     sub_vec.remove(0);
@@ -66,7 +66,7 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
 }
 
 pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
-    let mut tree = Tree::new(v);
+    let mut tree = Tree::new(&v);
     let mut sub_vec = tree.tree_vec.clone();
     sub_vec.remove(0);
     let k = sub_vec.len();
@@ -191,7 +191,7 @@ impl Tree {
     //     }
     // }
 
-    pub fn update_quad(&mut self, new_vec: Vec<usize>) {
+    pub fn update_quad(&mut self, new_vec: &Vec<usize>) {
 
         let new_tree: Tree = phylo2vec_quad(new_vec);
         let k: usize = new_tree.nodes.len();
