@@ -4,10 +4,13 @@ use crate::node::Node;
 use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
+use cxx::let_cxx_string;
 
 pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
     let mut tree = Tree::new(v);
-    let k = tree.tree_vec.len();
+    let mut sub_vec = tree.tree_vec.clone();
+    sub_vec.remove(0);
+    let k = sub_vec.len();
     let mut not_processed = [true].repeat(k);
     let mut M = Array2::<usize>::zeros((k, 3));
     let mut labels = Array2::<usize>::zeros((k + 1, k + 1));
@@ -27,13 +30,13 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
         let n = rowmax[0..k]
             .iter()
             .enumerate()
-            .rposition(|(index, el)| (tree.tree_vec[index] <= *el) & not_processed[index])
+            .rposition(|(index, el)| (sub_vec[index] <= *el) & not_processed[index])
             .unwrap();
 
         let m = labels
             .slice(s![n, ..])
             .iter()
-            .position(|x| *x == tree.tree_vec[n])
+            .position(|x| *x == sub_vec[n])
             .unwrap();
 
         M[[i, 0]] = labels[[k, m]];
@@ -64,14 +67,16 @@ pub fn phylo2vec_quad(v: Vec<usize>) -> Tree {
 
 pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
     let mut tree = Tree::new(v);
-    let k = tree.tree_vec.len();
+    let mut sub_vec = tree.tree_vec.clone();
+    sub_vec.remove(0);
+    let k = sub_vec.len();
     let mut M = Array2::<usize>::zeros((k, 3));
     let mut labels_rowk: Vec<usize> = (0..=k).collect();
     let mut rmk = k;
 
     for i in 0..k {
         let n = k - i - 1;
-        let m = tree.tree_vec[n];
+        let m = sub_vec[n];
 
         M[[i, 0]] = labels_rowk[m];
         M[[i, 1]] = labels_rowk[n + 1];
@@ -106,7 +111,7 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
 pub fn random_tree(k: usize) -> Vec<usize> {
     let mut rng = rand::thread_rng();
 
-    vec![0; k]
+    vec![0; k + 1]
         .iter()
         .enumerate()
         .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
@@ -220,4 +225,11 @@ pub mod ffi {
         include!("bactrees/include/phylo2vec.hpp");
         fn doToVector(newick: Pin<&mut CxxString>, num_leaves: i32, with_mapping: bool) -> UniquePtr<CxxVector<i32>>;
     }
+}
+
+pub fn newick_to_vec(nw: &String, n_leaves: usize) -> Vec<usize>{
+    let_cxx_string!(nw_cpp = nw);
+    let x = ffi::doToVector(nw_cpp, n_leaves as i32, false);
+    let mut y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
+    y
 }
