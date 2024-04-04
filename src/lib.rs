@@ -31,37 +31,43 @@ use crate::cli::*;
 pub fn main() {
     let args = cli_args();
 
-    let start = Instant::now();
-    let nw = phylo2vec_quad(random_tree(2)).newick();
-    println!("{:?}", nw);
+    // let start = Instant::now();
+    let mut tr = phylo2vec_quad(random_tree(2));
+    let nw = tr.newick();
+    let n_leaves = tr.nodes.iter().filter(|n| n.tip).count();
+    println!("Tree vector: {:?} with {} leaves and newick: {:?}", tr.tree_vec, n_leaves, nw);
     let_cxx_string!(nw_cpp = nw);
-    let x = phylo2vec::ffi::doToVector(nw_cpp, 3, true);
-    println!("{:?}", x);
+    let x = phylo2vec::ffi::doToVector(nw_cpp, n_leaves as i32, false);
+    let mut y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
+    y.reverse();
+    println!("Newick from conversion: {:?}", y);
+    let trstr = phylo2vec_quad(y).newick();
+    // println!("{:?}", trstr);
 
     // Define rate matrix
-    let q: na::Matrix4<f64> = na::Matrix4::new(
-        -1.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0,
-         1.0 / 3.0, -1.0, 1.0 / 3.0, 1.0 / 3.0,
-          1.0 / 3.0, 1.0 / 3.0, -1.0, 1.0 / 3.0,
-           1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
-    );
+    // let q: na::Matrix4<f64> = na::Matrix4::new(
+    //     -1.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0,
+    //      1.0 / 3.0, -1.0, 1.0 / 3.0, 1.0 / 3.0,
+    //       1.0 / 3.0, 1.0 / 3.0, -1.0, 1.0 / 3.0,
+    //        1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
+    // );
 
-    let mut tr = phylo2vec_quad(random_tree(27));
+    // let mut tr = phylo2vec_quad(random_tree(27));
 
-    let end = Instant::now();
-    // let filename = "listeria0.aln";
-    tr.add_genetic_data(&args.alignment);
+    // let end = Instant::now();
+    // // let filename = "listeria0.aln";
+    // tr.add_genetic_data(&args.alignment);
 
-    tr.update_likelihood_postorder(&q);
+    // tr.update_likelihood_postorder(&q);
 
-    println!("{}", tr.get_tree_likelihood());
-    println!("{:?}", tr.newick());
-    println!("{:?}", tr.tree_vec);
+    // println!("{}", tr.get_tree_likelihood());
+    // println!("{:?}", tr.newick());
+    // println!("{:?}", tr.tree_vec);
 
-    if !args.no_optimise {
-        // tr.optimise(&q, 10);
-        tr.hillclimb(&q, 20);
-    }
+    // if !args.no_optimise {
+    //     // tr.optimise(&q, 10);
+    //     tr.hillclimb(&q, 20);
+    // }
     
     // let end = Instant::now();
 

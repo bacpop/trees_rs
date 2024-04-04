@@ -487,12 +487,12 @@ std::unique_ptr<std::vector<int>> doToVector(std::string& newick, int num_leaves
 
         std::map<int, std::string> converted_mapping = convertMapping(tmp.mapping);
 
-        std::cout << "Number of leaves: " << tmp.num_leaves << std::endl;
+        // std::cout << "Number of leaves: " << tmp.num_leaves << std::endl;
 
-        std::cout << "Mapping:" << std::endl;
-        for (const auto& elem : converted_mapping) {
-            std::cout << elem.first << "->" << elem.second << std::endl;
-        }
+        // std::cout << "Mapping:" << std::endl;
+        // for (const auto& elem : converted_mapping) {
+        //     std::cout << elem.first << "->" << elem.second << std::endl;
+        // }
     } else {
         converted_v = newick2v(newick, num_leaves).v;
     }
