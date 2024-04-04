@@ -12,14 +12,12 @@ use cxx::CxxString;
 use rand::Rng;
 use rand::random;
 
-use crate::dspsa::peturbation_vec;
+use crate::dspsa::hill_peturb;
 use crate::gen_list::*;
 use crate::phylo2vec::*;
 use crate::tree::Tree;
 use crate::likelihoods::logse;
 use crate::node::Node;
-use crate::dspsa::phi;
-use crate::dspsa::piv;
 use std::collections::HashSet;
 use std::thread::current;
 use std::time::Instant;
@@ -49,9 +47,9 @@ pub fn main() {
     println!("{}", tr.get_tree_likelihood());
     println!("{:?}", tr.newick());
     println!("{:?}", tr.tree_vec);
+    // println!("{:?}", tr.mutation_lists);
 
     if !args.no_optimise {
-        // tr.optimise(&q, 10);
         tr.hillclimb(&q, 20);
     }
     
