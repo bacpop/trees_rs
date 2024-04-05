@@ -1,5 +1,3 @@
-use std::f64::NEG_INFINITY;
-use std::thread::current;
 use crate::combine_lists;
 use crate::Mutation;
 use crate::Tree;
@@ -104,7 +102,7 @@ impl Mutation {
         for i in 0..=3 {
             x.push(logse(prob_matrix.row(i).iter().zip(&lnx).map(|(a, b)| a.ln() + b).collect()));
         }
-        Mutation(*x.get(0).unwrap(), *x.get(1).unwrap(), *x.get(2).unwrap(), *x.get(3).unwrap())
+        Mutation(*x.first().unwrap(), *x.get(1).unwrap(), *x.get(2).unwrap(), *x.get(3).unwrap())
     }
 }
 

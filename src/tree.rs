@@ -16,10 +16,10 @@ pub struct Tree {
 // UTILITY FUNCTIONS FOR ADDING, ACCESSING, AND MUTATING NODES AND DATA IN NODES
 impl Tree {
     // Constructor function for a new tree
-    pub fn new(tree_vec: &Vec<usize>) -> Tree {
+    pub fn new(tree_vec: &[usize]) -> Tree {
         let k = tree_vec.len();
         Tree {
-            tree_vec: tree_vec.clone(),
+            tree_vec: tree_vec.to_vec(),
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
             leaf_permutations: (0..=k).collect(),
@@ -236,14 +236,15 @@ impl<'a> Tree {
                     };
                     if next_node.is_some() {
                         let n: usize = current_node.unwrap().depth - next_node.unwrap().depth;
-        
-                        if n == 0 {
-                            newick.push(String::from(","));
-                        } else if n > 0 {
-                            for _ in 1..=n {
-                                newick.push(String::from("("));
-                            }
-                            newick.push(String::from(","));
+
+                        match n {
+                            0 => {newick.push(String::from(","));},
+                            _ => {
+                                for _ in 1..=n {
+                                    newick.push(String::from("("));
+                                }
+                                newick.push(String::from(","));
+                            },
                         }
 
                         newick.push(next_node.unwrap().branch_length.to_string());

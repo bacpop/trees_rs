@@ -1,14 +1,11 @@
-use std::os::unix::thread;
-
-use crate::node::Node;
 use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use cxx::let_cxx_string;
 
-pub fn phylo2vec_quad(v: &Vec<usize>) -> Tree {
+pub fn phylo2vec_quad(v: &[usize]) -> Tree {
     let mut tree = Tree::new(v);
-    let mut sub_vec = tree.tree_vec.clone();
+    let mut sub_vec = v.to_vec();
     sub_vec.remove(0);
     let k = sub_vec.len();
     let mut not_processed = [true].repeat(k);
@@ -191,7 +188,7 @@ impl Tree {
     //     }
     // }
 
-    pub fn update_quad(&mut self, new_vec: &Vec<usize>) {
+    pub fn update_quad(&mut self, new_vec: &[usize]) {
 
         let new_tree: Tree = phylo2vec_quad(new_vec);
         let k: usize = new_tree.nodes.len();
@@ -230,6 +227,6 @@ pub mod ffi {
 pub fn newick_to_vec(nw: &String, n_leaves: usize) -> Vec<usize>{
     let_cxx_string!(nw_cpp = nw);
     let x = ffi::doToVector(nw_cpp, n_leaves as i32, false);
-    let mut y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
+    let y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
     y
 }

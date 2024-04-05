@@ -1,10 +1,10 @@
-use rand::{distributions::Bernoulli, rngs::ThreadRng, Rng};
+use rand::Rng;
 use crate::Tree;
 
-pub fn hill_peturb(mut v: &Vec<usize>, n: usize) -> Vec<usize> {
-    let mut vout = v.clone();
+pub fn hill_peturb(v: &[usize], n: usize) -> Vec<usize> {
+    let mut vout = v.to_vec();
     let mut rng = rand::thread_rng();
-    let mut ind_rng = rand::thread_rng();
+    let ind_rng = rand::thread_rng();
     let distr = rand::distributions::Bernoulli::new(0.5).unwrap();
     let ind_distr = rand::distributions::Uniform::new(0, v.len());
 
@@ -23,21 +23,6 @@ pub fn hill_peturb(mut v: &Vec<usize>, n: usize) -> Vec<usize> {
         }
     };
 
-    // let vout: Vec<usize> = v.iter().enumerate().map(|(i, el)|{
-    //     let out = match rng.sample(distr) {
-    //         true => el + 1,
-    //         false => el - 1,
-    //     };    
-        
-    //     if i.eq(&0) || out.lt(&0) {
-    //         0
-    //     } else if out.gt(&(2 * (i - 1))) {
-    //         2 * (i - 1)
-    //     } else {
-    //         out
-    //     }
-    // }).collect();
-    // println!("{:?}", vout);
     vout
 }
 
@@ -53,25 +38,24 @@ impl Tree {
             mutation_lists: self.mutation_lists.clone()
         };
 
-        let n: usize = self.tree_vec.len();
         let mut candidate_vec: Vec<usize>;
         for k in 0..=iterations {
             
             println!("Optimisation step {} out of {}", k, iterations);
-            println!("Old vector {:?}", self.tree_vec);
+            // println!("Old vector {:?}", self.tree_vec);
             println!("Tree log likelihood: {}", self.get_tree_likelihood());
 
-            candidate_vec = hill_peturb(&self.tree_vec, 2);
+            candidate_vec = hill_peturb(&self.tree_vec, 28);
             working_tree.update_quad(&candidate_vec);
-            working_tree.update_likelihood(&q);
+            working_tree.update_likelihood(q);
 
-            println!("New vector {:?}", candidate_vec);
+            // println!("New vector {:?}", candidate_vec);
             println!("New likelihood {}", working_tree.get_tree_likelihood());
 
-            if(working_tree.get_tree_likelihood() > self.get_tree_likelihood()) {
+            if working_tree.get_tree_likelihood() > self.get_tree_likelihood() {
                 println!("Climbing hill!");
                 self.update_quad(&working_tree.tree_vec);
-                self.update_likelihood(&q);
+                self.update_likelihood(q);
             }
         }
     }

@@ -50,7 +50,7 @@ pub fn main() {
     // println!("{:?}", tr.mutation_lists);
 
     if !args.no_optimise {
-        tr.hillclimb(&q, 20);
+        tr.hillclimb(&q, 100);
     }
     
     // let end = Instant::now();

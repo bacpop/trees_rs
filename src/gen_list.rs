@@ -1,7 +1,5 @@
 use crate::Tree;
 use needletail::*;
-use rand::Rng;
-use std::cmp::Ordering;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
