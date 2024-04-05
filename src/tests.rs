@@ -4,7 +4,7 @@ mod tests {
     use crate::phylo2vec::phylo2vec_lin;
     use crate::phylo2vec::phylo2vec_quad;
     use crate::tree::Tree;
-    use crate::newick_to_vec;
+    use crate::newick::newick_to_vec;
     use crate::random_tree;
 
     #[test]

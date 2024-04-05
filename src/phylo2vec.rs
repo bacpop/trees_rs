@@ -1,7 +1,6 @@
 use crate::Tree;
 use ndarray::*;
 use rand::{seq::SliceRandom, thread_rng, Rng};
-use cxx::let_cxx_string;
 
 pub fn phylo2vec_quad(v: &[usize]) -> Tree {
     let mut tree = Tree::new(v);
@@ -214,19 +213,4 @@ impl Tree {
 
     }
 
-}
-
-#[cxx::bridge]
-pub mod ffi {
-    unsafe extern "C++" {
-        include!("bactrees/include/phylo2vec.hpp");
-        fn doToVector(newick: Pin<&mut CxxString>, num_leaves: i32, with_mapping: bool) -> UniquePtr<CxxVector<i32>>;
-    }
-}
-
-pub fn newick_to_vec(nw: &String, n_leaves: usize) -> Vec<usize>{
-    let_cxx_string!(nw_cpp = nw);
-    let x = ffi::doToVector(nw_cpp, n_leaves as i32, false);
-    let y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
-    y
 }
