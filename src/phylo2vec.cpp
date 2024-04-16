@@ -396,10 +396,15 @@ std::vector<int> toVector(std::string newick, int num_leaves) {
 
     std::vector<int> labels(num_leaves);
     std::iota(labels.begin(), labels.end(), 0);
-
+    // std::cout << "1";
     try {
         for (int i = 0; i < num_leaves - 1; ++i) {
+            // std::cout << "2";
+            // std::cout << "i:" << i;
+            std::cout << newick << "\n";
+            // std::cout << labels << "\n";
             std::pair<int, int> tmp = findLeftLeaf(newick, labels, processed, num_leaves);
+            // std::cout << "3";
             int left_leaf = tmp.first;
             int idx = tmp.second;
 
@@ -436,6 +441,7 @@ void processNewick(std::string &newick) {
 }
 
 Newick2VResult newick2v(std::string &newick, int num_leaves) {
+
     processNewick(newick);
 
     if (num_leaves == -1) {
@@ -485,7 +491,7 @@ std::unique_ptr<std::vector<int>> doToVector(std::string& newick, int num_leaves
         Newick2VResult tmp = newick2vWithMapping(newick, num_leaves);
         converted_v = tmp.v;
 
-        std::map<int, std::string> converted_mapping = convertMapping(tmp.mapping);
+        // std::map<int, std::string> converted_mapping = convertMapping(tmp.mapping);
 
         // std::cout << "Number of leaves: " << tmp.num_leaves << std::endl;
 

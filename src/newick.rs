@@ -68,6 +68,8 @@ pub fn parse_rapidNJ_newick(nw: &String) -> String {
 
     // Put newick string with new labels together
     let mut new_str: String = new_newick.join("");
+    new_str.push_str(&node_index.to_string());
+    new_str.push_str(":0.0001");
     new_str.push_str(";");
 
     new_str
