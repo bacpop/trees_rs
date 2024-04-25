@@ -58,6 +58,10 @@ impl Tree {
         }
     }
 
+    pub fn count_leaves(&self) -> usize {
+        self.nodes.iter().filter(|node| node.tip).count()
+    }
+
     // Find the root of the tree
     pub fn get_root(&self) -> Option<&Node> {
         self.nodes.iter().find(|node| node.parent.is_none())

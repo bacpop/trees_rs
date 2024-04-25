@@ -79,7 +79,7 @@ impl Default for Node {
             tip: false,
             index: 0,
             depth: 0,
-            branch_length: 1.0,
+            branch_length: 0.000001,
         }
     }
 }

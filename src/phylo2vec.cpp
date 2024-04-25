@@ -320,18 +320,22 @@ std::pair<int, int> findLeftLeaf(std::string newick, const std::vector<int> &lab
     int index_i = -1;
     for (int i = 0; i < num_leaves; ++i) {
         index_i = i;
+        // std::cout << "i:" << i << "\n";
         if (!processed[num_leaves - i - 1]) {
             // Find whether the node with the current label has a sister node
             std::string label = std::to_string(labels[num_leaves - i - 1]);
+            // std::cout << "label:" << label << "\n";
 
             if (newick.find("(" + label + ",") != std::string::npos) {
                 // Is label on the left of a newick pair?
+                // std::cout << "case A \n";
                 std::string left_sep = "(" + label + ",";
                 std::string right_sep = ")";
                 left_leaf = rpartition(newick, left_sep)[2];
                 left_leaf = partition(left_leaf, right_sep)[0];
             } else if (newick.find("," + label + ")") != std::string::npos) {
                 // Is label on the right of a newick pair?
+                // std::cout << "case B \n";
                 std::string left_sep = "(";
                 std::string right_sep = "," + label + ")";
 
@@ -339,6 +343,7 @@ std::pair<int, int> findLeftLeaf(std::string newick, const std::vector<int> &lab
                 left_leaf = rpartition(left_leaf, left_sep)[2];
             } else {
                 // Otherwise --> it has no sister node No sister node --> we can skip it
+                // std::cout << "case C \n";
                 continue;
             }
 
@@ -351,7 +356,7 @@ std::pair<int, int> findLeftLeaf(std::string newick, const std::vector<int> &lab
             left_leaf = "";
         }
     }
-
+    // std::cout << "left_leaf:" << left_leaf << "\n";
     return std::make_pair(std::stoi(left_leaf), index_i);
 }
 
@@ -400,7 +405,7 @@ std::vector<int> toVector(std::string newick, int num_leaves) {
     try {
         for (int i = 0; i < num_leaves - 1; ++i) {
             // std::cout << "2";
-            // std::cout << "i:" << i;
+            // std::cout << "i:" << i << "\n";
             // std::cout << newick << "\n";
             // std::cout << labels << "\n";
             std::pair<int, int> tmp = findLeftLeaf(newick, labels, processed, num_leaves);

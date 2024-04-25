@@ -253,9 +253,9 @@ mod tests {
 
     #[test]
     fn newick_conversion () {
-        let mut tr = phylo2vec_quad(&random_tree(10));
+        let mut tr = phylo2vec_quad(&random_tree(27));
         let nw = tr.newick();
-        let n_leaves = tr.nodes.iter().filter(|n| n.tip).count();
+        let n_leaves = tr.count_leaves();
         let y = newick_to_vec(&nw, n_leaves);
         let trstr = phylo2vec_quad(&y).newick();
         assert_eq!(trstr, nw);
