@@ -33,7 +33,7 @@ impl Tree {
             tree_vec: self.tree_vec.clone(),
             nodes: self.nodes.clone(),
             max_depth: self.max_depth,
-            leaf_permutations: self.leaf_permutations.clone(),
+            label_dictionary: self.label_dictionary.clone(),
             changes: self.changes.clone(),
             mutation_lists: self.mutation_lists.clone()
         };

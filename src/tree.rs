@@ -8,7 +8,7 @@ pub struct Tree {
     pub tree_vec: Vec<usize>,
     pub nodes: Vec<Node>,
     pub max_depth: usize,
-    pub leaf_permutations: Vec<usize>,
+    pub label_dictionary: HashMap<usize, String>,
     pub changes: HashMap<usize, Vec<usize>>,
     pub mutation_lists: Vec<Vec<Mutation>>,
 }
@@ -22,7 +22,7 @@ impl Tree {
             tree_vec: tree_vec.to_vec(),
             nodes: vec![Node::default(); 2 * k + 1],
             max_depth: 0,
-            leaf_permutations: (0..=k).collect(),
+            label_dictionary: HashMap::new(),
             changes: HashMap::new(),
             mutation_lists: Vec::new(),
         }

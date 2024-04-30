@@ -1,5 +1,7 @@
 use cxx::let_cxx_string;
 use std::collections::HashMap;
+use crate::tree::Tree;
+use crate::node::Node;
 
 #[cxx::bridge]
 pub mod ffi {
@@ -14,6 +16,114 @@ pub fn newick_to_vec(nw: &String, n_leaves: usize) -> Vec<usize>{
     let x = ffi::doToVector(nw_cpp, n_leaves as i32, false);
     let y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
     y
+}
+
+pub fn tree_from_rapidNJ_newick(rjstr: String) -> Tree {
+
+    let mut new_str: String = rjstr.clone();
+    let full_split: Vec<&str> = rjstr.split(['(', ',',')',';']).filter(|c| !c.is_empty()).collect();
+    let mut label_dictionary: HashMap<usize, String> = HashMap::with_capacity(full_split.len());
+    let mut branch_length: HashMap<usize, f64> = HashMap::with_capacity(full_split.len());
+    let mut bl: f64;
+    let mut leaf_idx: usize = 0;
+    let mut internal_idx: usize = ((full_split.len() + 1) / 2) + 1;
+    let mut idx: usize;
+
+    for (i, x) in full_split.iter().enumerate() {
+        // Split this node into (possibly non-existant) label and branch length
+        let bits: Vec<&str> = x.split(':').filter(|c| !c.is_empty()).collect();
+
+        // Depending on size of split vector we know if we have a labelled (leaf) node or not
+        if bits.len().eq(&2) {
+            // If 2 parts we have a label and a length
+            idx = leaf_idx;
+            leaf_idx += 1;
+            label_dictionary.insert(idx, bits.first().unwrap().to_string());
+        } else {
+            // If 1 part we assign an internal label
+            idx = internal_idx;
+            internal_idx += 1;
+        }
+
+        // Save branch length
+        bl = bits.last().unwrap().parse().unwrap();
+        branch_length.insert(i, bl);
+
+        // Put new label into new string and replace branch length
+        new_str = new_str.replace(x, &format!("{}", idx.to_string()));
+    };
+
+    // This section tries to solve the polytomy at the root of rapidNJ trees
+    // By splicing in some brackets and naming more internal nodes
+    // Add first end bracket before last comma in string
+    let firstcom = new_str.rfind(',').unwrap();
+    new_str.insert(firstcom, ')');
+    // Give an internal node label after this new bracket
+    let mut nstr: String = vec![&new_str[0..=firstcom], &internal_idx.to_string(), &new_str[firstcom+1..new_str.len()]].join("");
+    internal_idx += 1;
+    // Find last closing bracket in string
+    let firstbrack = nstr.rfind(')').unwrap();
+    // Add root node label
+    nstr = vec![&nstr[0..=firstbrack], &internal_idx.to_string(), &";"].join("");
+    // Add corresponding opening bracket to start of string
+    nstr.insert(0, '(');
+
+    // This section goes through the Newick string and records the parent nodes of each node
+    // so that we can build a Tree struct
+    let mut current_parent: Option<usize> = None;
+    let mut parent_vector: Vec<Option<usize>> = vec![None; internal_idx + 1];
+    let mut idx: Option<usize> = Some(internal_idx);
+
+    for i in (1..nstr.len()).rev() {
+
+        let ch: char = nstr.chars().nth(i).unwrap();
+
+        if ch.eq(&')') || ch.eq(&',') {
+
+            if ch.eq(&')') {
+                current_parent = idx;
+            }
+
+            let mut j = i - 1;
+            let mut jch: char = nstr.chars().nth(j).unwrap();
+            while j > 0 && jch.ne(&'(') && jch.ne(&',') && jch.ne(&')') {
+                j -= 1;
+                jch = nstr.chars().nth(j).unwrap();
+            }
+
+            if j != (i - 1) {
+                let mut leaf: &str = &nstr[(j + 1)..i];
+                idx = Some(leaf.parse().unwrap());
+                parent_vector[idx.unwrap()] = current_parent;
+            }
+
+        } else if ch.eq(&'(') {
+            current_parent = parent_vector[current_parent.unwrap()];
+        }
+    };
+
+    // Build the tree by going over the vector
+    let mut proto_tree: Tree = Tree {
+        tree_vec: vec![0],
+        nodes: vec![Node::default(); internal_idx + 1],
+        max_depth: 0,
+        label_dictionary,
+        changes: HashMap::new(),
+        mutation_lists: Vec::new(),
+    };
+
+    // Add nodes to Tree from parent vector, give correct branch length
+    for (i, parent) in parent_vector.iter().enumerate().rev() {
+        proto_tree.add(i, *parent);
+
+        if let Some(lngth) = branch_length.get(&i) {
+            proto_tree.nodes[i].branch_length = *lngth;
+        } else {
+            proto_tree.nodes[i].branch_length = 0.00001;
+        }
+    };
+
+    proto_tree
 }
 
     // Newick string example

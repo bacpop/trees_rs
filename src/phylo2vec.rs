@@ -82,13 +82,13 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
         M[[i, 2]] = labels_rowk[m];
     }
 
-    if permute {
-        // Permutation of leaf labels
-        tree.leaf_permutations.shuffle(&mut thread_rng());
-        for i in M.iter_mut().filter(|el| **el <= k + 1) {
-            *i = *tree.leaf_permutations.get(*i).unwrap_or(i);
-        }
-    }
+    // if permute {
+    //     // Permutation of leaf labels
+    //     tree.leaf_permutations.shuffle(&mut thread_rng());
+    //     for i in M.iter_mut().filter(|el| **el <= k + 1) {
+    //         *i = *tree.leaf_permutations.get(*i).unwrap_or(i);
+    //     }
+    // }
 
     // Build tree
     tree.add(M[[k - 1, 2]], None);
