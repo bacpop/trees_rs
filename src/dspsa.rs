@@ -46,7 +46,7 @@ impl Tree {
             println!("Tree log likelihood: {}", self.get_tree_likelihood());
 
             candidate_vec = hill_peturb(&self.tree_vec, 28);
-            working_tree.update_quad(&candidate_vec);
+            working_tree.update(&candidate_vec);
             working_tree.update_likelihood(q);
 
             // println!("New vector {:?}", candidate_vec);
@@ -54,7 +54,7 @@ impl Tree {
 
             if working_tree.get_tree_likelihood() > self.get_tree_likelihood() {
                 println!("Climbing hill!");
-                self.update_quad(&working_tree.tree_vec);
+                self.update(&working_tree.tree_vec);
                 self.update_likelihood(q);
             }
         }
