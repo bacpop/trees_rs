@@ -12,6 +12,7 @@ pub struct Node {
 }
 
 impl Node {
+    // Create a new Node
     pub fn new(
         parent: Option<usize>,
         children: (Option<usize>, Option<usize>),
@@ -29,6 +30,7 @@ impl Node {
         }
     }
 
+    // Add a new child to a Node
     pub fn new_child(&mut self, new_child: usize) {
         self.children = match self.children {
             (None, None) => (Some(new_child), None),
@@ -40,6 +42,7 @@ impl Node {
         self.tip = false;
     }
 
+    // Remove a child from a Node
     pub fn remove_child(&mut self, child: usize) {
         self.children = match self.children {
             (Some(a), Some(b)) if a == child => (Some(b), None),

@@ -6,26 +6,12 @@ mod build_tree;
 mod tests;
 mod tree;
 mod dspsa;
-mod newick;
+mod tree_iterators;
+mod tree_to_newick;
 
-use cxx::kind;
-use cxx::let_cxx_string;
-use cxx::CxxString;
-use rand::Rng;
-use rand::random;
-use regex::{RegexSet, RegexSetBuilder};
-
-use crate::dspsa::hill_peturb;
 use crate::gen_list::*;
 use crate::build_tree::*;
 use crate::tree::Tree;
-use crate::likelihoods::logse;
-use crate::node::Node;
-use std::collections::HashMap;
-use std::iter::SkipWhile;
-use std::thread::current;
-use std::thread::park_timeout_ms;
-use std::time::Instant;
 extern crate nalgebra as na;
 
 
@@ -48,7 +34,7 @@ pub fn main() {
            1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
     );
 
-    let mut tr = vector_to_tree(&random_tree(27));
+    let mut tr = vector_to_tree(&random_vector(27));
 
     // let end = Instant::now();
     tr.add_genetic_data(&args.alignment);

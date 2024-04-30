@@ -5,7 +5,7 @@ mod tests {
     use crate::build_tree::vector_to_tree;
     use crate::tree::Tree;
     use crate::build_tree::newick_to_vector;
-    use crate::random_tree;
+    use crate::random_vector;
 
     #[test]
     fn treemake_quad() {
@@ -253,7 +253,7 @@ mod tests {
 
     #[test]
     fn newick_conversion () {
-        let mut tr = vector_to_tree(&random_tree(27));
+        let mut tr = vector_to_tree(&random_vector(27));
         let nw = tr.newick();
         let n_leaves = tr.count_leaves();
         let y = newick_to_vector(&nw, n_leaves);

@@ -2,7 +2,7 @@ use crate::Tree;
 use crate::node::Node;
 use cxx::let_cxx_string;
 use ndarray::*;
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::Rng;
 use std::collections::HashMap;
 
 ////////////////////////////////////////////////
@@ -201,7 +201,18 @@ pub mod ffi {
     }
 }
 
+////////////////////////////////////////////////
+// Create a random vector with a given length //
+////////////////////////////////////////////////
+pub fn random_vector(k: usize) -> Vec<usize> {
+    let mut rng = rand::thread_rng();
 
+    vec![0; k + 1]
+        .iter()
+        .enumerate()
+        .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
+        .collect()
+}
 
 pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
     let mut tree = Tree::new(&v);
@@ -236,43 +247,4 @@ pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
     tree.max_depth = tree.max_treedepth();
 
     tree
-}
-
-pub fn random_tree(k: usize) -> Vec<usize> {
-    let mut rng = rand::thread_rng();
-
-    vec![0; k + 1]
-        .iter()
-        .enumerate()
-        .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
-        .collect()
-}
-
-impl Tree {
-    pub fn update(&mut self, new_vec: &[usize]) {
-
-        let new_tree: Tree = vector_to_tree(new_vec);
-        let k: usize = new_tree.nodes.len();
-        let mut old_parent: Option<usize>;
-        let mut new_parent: Option<usize>;
-
-        for i in (0..k).rev() {
-            old_parent = self.get_node(i).unwrap().parent;
-            new_parent = new_tree.get_node(i).unwrap().parent;
-
-            if old_parent.ne(&new_parent) {
-                let d = new_tree.get_node(i).unwrap().depth;
-
-                match self.changes.get(&d) {
-                    None => {self.changes.insert(d, vec![i]);},
-                    Some(_) => {self.changes.get_mut(&d).unwrap().push(i);}
-                }
-            }
-        }
-
-        self.tree_vec = new_tree.tree_vec;
-        self.nodes = new_tree.nodes;
-
-    }
-
 }
