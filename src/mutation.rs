@@ -58,7 +58,7 @@ pub fn to_mutation(x1: Vec<f64>) -> Mutation {
     if x1.len().ne(&4) {
         panic!("Length of vector too long to cast to Mutation");
     } else {
-        Mutation(*x1.first().unwrap(), *x1.get(1).unwrap(), *x1.get(2).unwrap(), *x1.get(3).unwrap())
+        Mutation(x1[0], x1[1], x1[2], x1[3])
     }
 }
 
@@ -70,7 +70,7 @@ impl Mutation {
     }
 
     // Adds two Mutations together
-    pub fn sum(self, r: Mutation) -> Mutation {
+    pub fn add(self, r: Mutation) -> Mutation {
         Mutation(
             self.0 + r.0,
             self.1 + r.1,
@@ -79,6 +79,38 @@ impl Mutation {
         )
     }
 
+    pub fn get(self, i: usize) -> Option<f64> {
+            match i {
+                0 => {Some(self.0)},
+                1 => {Some(self.1)},
+                2 => {Some(self.2)},
+                3 => {Some(self.3)},
+                _ => {None},
+            }
+    }
+
+    pub fn iter(self) -> MutationIter {
+        MutationIter {
+            ind: 0, 
+            muta: self
+        }
+    }
+
 }
 
+#[derive(Debug)]
+pub struct MutationIter {
+    ind: usize,
+    muta: Mutation,
+}
+
+impl Iterator for MutationIter {
+    type Item = f64;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let out: Option<f64> = self.muta.get(self.ind);
+        self.ind += 1;
+        out
+    }
+}
 

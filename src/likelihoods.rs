@@ -15,7 +15,7 @@ pub fn base_likelihood(mut1: &Mutation, mut2: &Mutation, p1: &na::Matrix4<f64>, 
         x2.push(logse(p2.row(i).iter().zip(&v2).map(|(a, b)| a.ln() + b).collect()));
     };
 
-    to_mutation(x1).sum(to_mutation(x2))
+    to_mutation(x1).add(to_mutation(x2))
 }
 
 // Calculates the likelihood for a Node by calculating the likelihood at each base
