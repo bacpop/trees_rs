@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::gen_list::Mutation;
+    use crate::mutation::Mutation;
     use crate::build_tree::phylo2vec_lin;
     use crate::build_tree::vector_to_tree;
     use crate::tree::Tree;

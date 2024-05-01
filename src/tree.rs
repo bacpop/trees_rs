@@ -1,7 +1,8 @@
-use crate::gen_list::Mutation;
+use crate::mutation::{Mutation, create_list};
 use crate::node::Node;
 use std::collections::HashMap;
 use crate::vector_to_tree;
+use needletail::*;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -67,6 +68,21 @@ impl Tree {
 
     }
 
+    pub fn add_genetic_data(&mut self, filename: &str) {
+        let mut reader = parse_fastx_file(filename).expect("Error parsing file");
+
+        // Add genetic data 
+        while let Some(rec) = reader.next() {
+            let newrec: Vec<char> = rec.unwrap().seq().iter().map(|l| *l as char).collect();
+            self.mutation_lists.push(create_list(&newrec));
+        }
+
+        // Add empty lists for internal nodes
+        let leafn = self.mutation_lists.len() - 1;
+        for _ in 0..leafn {
+            self.mutation_lists.push(Vec::new());
+        }
+    }
 
     // Get a specified node
     pub fn get_node(&self, index: usize) -> Option<&Node> {

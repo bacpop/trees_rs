@@ -1,4 +1,4 @@
-mod gen_list;
+mod mutation;
 mod import;
 mod likelihoods;
 mod node;
@@ -9,12 +9,9 @@ mod hillclimb;
 mod tree_iterators;
 mod tree_to_newick;
 
-use crate::gen_list::*;
 use crate::build_tree::*;
 use crate::tree::Tree;
 extern crate nalgebra as na;
-
-
 pub mod cli;
 use crate::cli::*;
 
@@ -46,7 +43,7 @@ pub fn main() {
     println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
-        // tr.hillclimb(&q, 100);
+        tr.hillclimb(&q, 25);
     }
     
     // let end = Instant::now();

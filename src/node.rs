@@ -1,4 +1,3 @@
-use crate::gen_list::Mutation;
 use std::fmt;
 
 #[derive(Debug, Clone)]
@@ -43,17 +42,17 @@ impl Node {
     }
 
     // Remove a child from a Node
-    pub fn remove_child(&mut self, child: usize) {
-        self.children = match self.children {
-            (Some(a), Some(b)) if a == child => (Some(b), None),
-            (Some(a), Some(b)) if b == child => (Some(a), None),
-            (Some(a), None) if a == child => (None, None),
-            (None, Some(_b)) => {
-                panic!("Trying to remove child from parent with only a right child!")
-            }
-            _ => panic!("Trying to remove child that does not exist in parent"),
-        };
-    }
+    // pub fn remove_child(&mut self, child: usize) {
+    //     self.children = match self.children {
+    //         (Some(a), Some(b)) if a == child => (Some(b), None),
+    //         (Some(a), Some(b)) if b == child => (Some(a), None),
+    //         (Some(a), None) if a == child => (None, None),
+    //         (None, Some(_b)) => {
+    //             panic!("Trying to remove child from parent with only a right child!")
+    //         }
+    //         _ => panic!("Trying to remove child that does not exist in parent"),
+    //     };
+    // }
 }
 
 impl fmt::Display for Node {

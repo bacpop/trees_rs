@@ -45,7 +45,7 @@ impl Tree {
             
             println!("Optimisation step {} out of {}", k, iterations);
             // println!("Old vector {:?}", self.tree_vec);
-            println!("Tree log likelihood: {}", self.get_tree_likelihood());
+            println!("Current best likelihood: {}", best_likelihood);
 
             candidate_vec = hill_peturb(&self.tree_vec, self.tree_vec.len());
             working_tree.update(&candidate_vec);
@@ -53,7 +53,7 @@ impl Tree {
             let new_likelihood = working_tree.get_tree_likelihood();
 
             // println!("New vector {:?}", candidate_vec);
-            println!("New likelihood {}", new_likelihood);
+            println!("Candidate likelihood {}", new_likelihood);
 
             if new_likelihood > best_likelihood {
                 println!("Climbing hill!");
