@@ -103,7 +103,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
         branch_length.insert(i, bl);
 
         // Put new label into new string and replace branch length
-        new_str = new_str.replace(x, &format!("{}", idx.to_string()));
+        new_str = new_str.replace(x, &idx.to_string());
     };
 
     // This section tries to solve the polytomy at the root of rapidNJ trees
@@ -112,12 +112,12 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
     let firstcom = new_str.rfind(',').unwrap();
     new_str.insert(firstcom, ')');
     // Give an internal node label after this new bracket
-    let mut nstr: String = vec![&new_str[0..=firstcom], &internal_idx.to_string(), &new_str[firstcom+1..new_str.len()]].join("");
+    let mut nstr: String = [&new_str[0..=firstcom], &internal_idx.to_string(), &new_str[firstcom+1..new_str.len()]].join("");
     internal_idx += 1;
     // Find last closing bracket in string
     let firstbrack = nstr.rfind(')').unwrap();
     // Add root node label
-    nstr = vec![&nstr[0..=firstbrack], &internal_idx.to_string(), &";"].join("");
+    nstr = [&nstr[0..=firstbrack], &internal_idx.to_string(), &";"].join("");
     // Add corresponding opening bracket to start of string
     nstr.insert(0, '(');
 
@@ -145,7 +145,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
             }
 
             if j != (i - 1) {
-                let mut leaf: &str = &nstr[(j + 1)..i];
+                let leaf: &str = &nstr[(j + 1)..i];
                 idx = Some(leaf.parse().unwrap());
                 parent_vector[idx.unwrap()] = current_parent;
             }

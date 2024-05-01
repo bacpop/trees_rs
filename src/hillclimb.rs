@@ -62,10 +62,11 @@ impl Tree {
             }
         };
 
-        if best_vec.is_some() {
-            self.update(&best_vec.unwrap());
+        if let Some(vec) = best_vec {
+            self.update(&vec);
             self.update_likelihood(q);
         }
+        
     }
 
 
