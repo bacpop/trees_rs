@@ -5,7 +5,7 @@ mod node;
 mod build_tree;
 mod tests;
 mod tree;
-mod dspsa;
+mod hillclimb;
 mod tree_iterators;
 mod tree_to_newick;
 
@@ -39,7 +39,7 @@ pub fn main() {
     // let end = Instant::now();
     tr.add_genetic_data(&args.alignment);
 
-    tr.update_likelihood_postorder(&q);
+    tr.initialise_likelihood(&q);
 
     println!("{}", tr.get_tree_likelihood());
     println!("{:?}", tr.newick());

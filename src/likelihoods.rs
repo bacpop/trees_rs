@@ -49,7 +49,7 @@ impl Tree {
 
     // Traverses tree below given node (except leaves), updating likelihood
     // Used after initial tree constructions to fill in likelihood at all internal nodes
-    pub fn update_likelihood_postorder(&mut self, rate_matrix: &na::Matrix4<f64>) {
+    pub fn initialise_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
         let nodes: Vec<usize> = self
             .postorder_notips(self.get_root())
             .map(|n| n.index)
@@ -72,6 +72,7 @@ impl Tree {
         }
     }
 
+    // Fetches likelihood value for a tree
     pub fn get_tree_likelihood(&self) -> f64 {
         self.mutation_lists
             .get(self.get_root().unwrap().index)

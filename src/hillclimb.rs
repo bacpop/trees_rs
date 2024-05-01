@@ -39,24 +39,32 @@ impl Tree {
         };
 
         let mut candidate_vec: Vec<usize>;
+        let mut best_vec: Option<Vec<usize>> = None;
+        let mut best_likelihood: f64 = working_tree.get_tree_likelihood();
         for k in 0..=iterations {
             
             println!("Optimisation step {} out of {}", k, iterations);
             // println!("Old vector {:?}", self.tree_vec);
             println!("Tree log likelihood: {}", self.get_tree_likelihood());
 
-            candidate_vec = hill_peturb(&self.tree_vec, 28);
+            candidate_vec = hill_peturb(&self.tree_vec, self.tree_vec.len());
             working_tree.update(&candidate_vec);
             working_tree.update_likelihood(q);
+            let new_likelihood = working_tree.get_tree_likelihood();
 
             // println!("New vector {:?}", candidate_vec);
-            println!("New likelihood {}", working_tree.get_tree_likelihood());
+            println!("New likelihood {}", new_likelihood);
 
-            if working_tree.get_tree_likelihood() > self.get_tree_likelihood() {
+            if new_likelihood > best_likelihood {
                 println!("Climbing hill!");
-                self.update(&working_tree.tree_vec);
-                self.update_likelihood(q);
+                best_vec = Some(working_tree.tree_vec.clone());
+                best_likelihood = new_likelihood;
             }
+        };
+
+        if best_vec.is_some() {
+            self.update(&best_vec.unwrap());
+            self.update_likelihood(q);
         }
     }
 

@@ -196,7 +196,7 @@ mod tests {
 
     tr.mutation_lists = genetic_data;
 
-    tr.update_likelihood_postorder(&q);
+    tr.initialise_likelihood(&q);
     
     let old_likelihood = tr.get_tree_likelihood();
 
