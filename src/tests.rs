@@ -1,14 +1,13 @@
 #[cfg(test)]
 mod tests {
     use crate::mutation::Mutation;
-    use crate::build_tree::phylo2vec_lin;
     use crate::build_tree::vector_to_tree;
-    use crate::tree::Tree;
     use crate::build_tree::newick_to_vector;
     use crate::random_vector;
 
     #[test]
-    fn treemake_quad() {
+    fn check_tree_build_manual() {
+        // I check that built trees have the correct parent by comparing to known parent values
         let mut tree = vector_to_tree(&vec![0, 0, 0, 0]);
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
@@ -81,74 +80,22 @@ mod tests {
     }
 
     #[test]
-    fn phylo2vec_lin_same_as_vector_to_tree() {
-
-        let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
-        let mut tree_q: Tree;
-        let mut tree_l: Tree;
-
-        for vec in vecs {
-            let v = vec.clone();
-            tree_q = vector_to_tree(&v);
-            tree_l = phylo2vec_lin(vec, false);
-
-            for i in 0..=6 {
-                assert_eq!(
-                    tree_l.get_node(i).unwrap().parent,
-                    tree_q.get_node(i).unwrap().parent);
-                assert_eq!(
-                    tree_l.get_node(i).unwrap().index,
-                    tree_q.get_node(i).unwrap().index
-                );
-            }
-        }
-
-    }
-
-    // #[test]
-    // fn update_tree_check() {
-    //     let mut tree_q = vector_to_tree(vec![0, 1, 0]);
-    //     let mut tree_l = phylo2vec_lin(vec![0, 0, 0], false);
-
-    //     let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0], vec![0, 1, 0], vec![0, 1, 2], vec![0, 1, 1]];
-
-    //     for vec in vecs {
-    //         let v = vec.clone();
-    //         tree_q = vector_to_tree(v);
-    //         tree_l.update_quad(vec);
-
-    //         for i in 0..=6 {
-    //             assert_eq!(
-    //                 tree_l.get_node(i).unwrap().parent,
-    //                 tree_q.get_node(i).unwrap().parent);
-    //             assert_eq!(
-    //                 tree_l.get_node(i).unwrap().index,
-    //                 tree_q.get_node(i).unwrap().index
-    //             );
-    //         }
-    //     }
-        
-    // }
-
-    #[test]
-    fn update_tree_quad_check() {
-        let mut tree_q = vector_to_tree(&vec![0, 0, 1, 0]);
-        let mut tree_l = phylo2vec_lin(vec![0, 0, 0, 0], false);
+    fn update_tree() {
+        let mut tree_1 = vector_to_tree(&vec![0, 0, 1, 0]);
 
         let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
 
         for vec in vecs {
-            let v = vec.clone();
-            tree_q = vector_to_tree(&v);
-            tree_l.update(&vec);
+            let tree_2 = vector_to_tree(&vec);
+            tree_1.update(&vec);
 
-            for i in 0..=6 {
+            for i in 0..=tree_1.tree_vec.len() {
                 assert_eq!(
-                    tree_l.get_node(i).unwrap().parent,
-                    tree_q.get_node(i).unwrap().parent);
+                    tree_1.get_node(i).unwrap().parent,
+                    tree_2.get_node(i).unwrap().parent);
                 assert_eq!(
-                    tree_l.get_node(i).unwrap().index,
-                    tree_q.get_node(i).unwrap().index
+                    tree_1.get_node(i).unwrap().index,
+                    tree_2.get_node(i).unwrap().index
                 );
             }
         }
@@ -156,12 +103,12 @@ mod tests {
     }
     
     #[test]
-    fn likelihood_internal_consistency() {
+    fn likelihood_internal_consistency_check() {
         let q: na::Matrix4<f64> = na::Matrix4::new(
             -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
         );
 
-        let mut tr = phylo2vec_lin(vec![0, 0, 0, 0], false);
+        let mut tr = vector_to_tree(&vec![0, 0, 0, 0]);
 
         let genetic_data = vec![
         vec![
@@ -212,8 +159,8 @@ mod tests {
     }
 
     #[test]
-    fn newick_test () {
-        let mut tr = vector_to_tree(&vec![0, 0, 0, 0]);
+    fn manual_parent_check () {
+        let tr = vector_to_tree(&vec![0, 0, 0, 0]);
         
         // Newick string for this tree is (1,(2,(3,0)4)5)6;
         // This should be the tree topology according to the ape package in R
@@ -221,7 +168,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(1)));
 
-        let mut tr = vector_to_tree(&vec![0, 0, 0, 1]);
+        let tr = vector_to_tree(&vec![0, 0, 0, 1]);
         
         // Newick string for this tree is ((3,1)4,(2,0)5)6;
         // This should be the tree topology according to the ape package in R
@@ -229,7 +176,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(0), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(4)));
 
-        let mut tr = vector_to_tree(&vec![0, 0, 1, 1]);
+        let tr = vector_to_tree(&vec![0, 0, 1, 1]);
         
         // Newick string for this tree is ((2,(3,1)4)5,0)6;
         // This should be the tree topology according to the ape package in R
@@ -237,7 +184,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(0), Some(5)));
 
-        let mut tr = vector_to_tree(&vec![0, 0, 1, 1, 3]);
+        let tr = vector_to_tree(&vec![0, 0, 1, 1, 3]);
         
         // Newick string for this tree is ((2,((4,3)5,1)6)7,0)8;
         // This should be the tree topology according to the ape package in R
@@ -252,11 +199,13 @@ mod tests {
     }
 
     #[test]
-    fn newick_conversion () {
-        let mut tr = vector_to_tree(&random_vector(27));
+    fn newick_vector_conversion_check () {
+        let v = random_vector(27);
+        let tr = vector_to_tree(&v);
         let nw = tr.newick();
         let n_leaves = tr.count_leaves();
         let y = newick_to_vector(&nw, n_leaves);
+        assert_eq!(v, y);
         let trstr = vector_to_tree(&y).newick();
         assert_eq!(trstr, nw);
     }

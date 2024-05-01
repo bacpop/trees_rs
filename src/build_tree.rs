@@ -213,38 +213,3 @@ pub fn random_vector(k: usize) -> Vec<usize> {
         .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
         .collect()
 }
-
-pub fn phylo2vec_lin(v: Vec<usize>, permute: bool) -> Tree {
-    let mut tree = Tree::new(&v);
-    let mut sub_vec = tree.tree_vec.clone();
-    sub_vec.remove(0);
-    let k = sub_vec.len();
-    let mut M = Array2::<usize>::zeros((k, 3));
-    let mut labels_rowk: Vec<usize> = (0..=k).collect();
-    let mut rmk = k;
-
-    for i in 0..k {
-        let n = k - i - 1;
-        let m = sub_vec[n];
-
-        M[[i, 0]] = labels_rowk[m];
-        M[[i, 1]] = labels_rowk[n + 1];
-
-        rmk += 1;
-        labels_rowk[m] = rmk;
-        M[[i, 2]] = labels_rowk[m];
-    }
-
-    // Build tree
-    tree.add(M[[k - 1, 2]], None);
-
-    for i in (0..k).rev() {
-        tree.add(M[[i, 0]], Some(M[[i, 2]]));
-        tree.add(M[[i, 1]], Some(M[[i, 2]]));
-    }
-
-    // Does this still need to happen?
-    tree.max_depth = tree.max_treedepth();
-
-    tree
-}
