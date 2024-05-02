@@ -19,13 +19,14 @@ impl Tree {
     // Constructor function for a new tree
     pub fn new(tree_vec: &[usize]) -> Tree {
         let k = tree_vec.len();
+        let n_nodes: usize  = 2 * k + 1;
         Tree {
             tree_vec: tree_vec.to_vec(),
-            nodes: vec![Node::default(); 2 * k + 1],
+            nodes: vec![Node::default(); n_nodes],
             max_depth: 0,
             label_dictionary: HashMap::new(),
             changes: HashMap::new(),
-            mutation_lists: Vec::new(),
+            mutation_lists: Vec::with_capacity(n_nodes),
         }
     }
 

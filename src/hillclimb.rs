@@ -31,43 +31,29 @@ impl Tree {
     // Hill climbing optimisation algorithm
     pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
 
-        let mut working_tree: Tree = Tree {
-            tree_vec: self.tree_vec.clone(),
-            nodes: self.nodes.clone(),
-            max_depth: self.max_depth,
-            label_dictionary: self.label_dictionary.clone(),
-            changes: self.changes.clone(),
-            mutation_lists: self.mutation_lists.clone()
-        };
+        let mut candidate_vec: Vec<usize> = Vec::with_capacity(self.tree_vec.len());
+        let mut best_vec: Vec<usize> = self.tree_vec.clone();
+        let mut best_likelihood: f64 = self.get_tree_likelihood();
+        let mut new_likelihood: f64;
 
-        let mut candidate_vec: Vec<usize>;
-        let mut best_vec: Option<Vec<usize>> = None;
-        let mut best_likelihood: f64 = working_tree.get_tree_likelihood();
         for k in 0..=iterations {
-            
             println!("Optimisation step {} out of {}", k, iterations);
-            // println!("Old vector {:?}", self.tree_vec);
-            println!("Current best likelihood: {}", best_likelihood);
 
-            candidate_vec = peturb_vector(&self.tree_vec, self.tree_vec.len());
-            working_tree.update(&candidate_vec);
-            working_tree.update_likelihood(q);
-            let new_likelihood = working_tree.get_tree_likelihood();
-
-            // println!("New vector {:?}", candidate_vec);
-            println!("Candidate likelihood {}", new_likelihood);
+            candidate_vec = peturb_vector(&best_vec, self.tree_vec.len());
+            self.update(&candidate_vec);
+            self.update_likelihood(q);
+            new_likelihood = self.get_tree_likelihood();
+            println!("Candidate likelihood: {} \n Current likelihood: {}", new_likelihood, best_likelihood);
 
             if new_likelihood > best_likelihood {
                 println!("Climbing hill!");
-                best_vec = Some(working_tree.tree_vec.clone());
+                best_vec = candidate_vec;
                 best_likelihood = new_likelihood;
             }
         };
 
-        if let Some(vec) = best_vec {
-            self.update(&vec);
-            self.update_likelihood(q);
-        }
+        self.update(&best_vec);
+        self.update_likelihood(q);
         
     }
 

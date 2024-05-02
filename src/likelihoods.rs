@@ -17,8 +17,9 @@ pub fn child_likelihood(muta: &Mutation, p: &na::Matrix4<f64>) -> Mutation {
     let mut outmut: Mutation = Mutation(0.0, 0.0, 0.0, 0.0);
 
     for i in 0..=3 {
-        if let Some(mut val) = outmut.get_mut(i) {
-            *val = p.row(i).iter().zip(muta.iter()).map(|(a, b)| a.ln() + b).reduce(|a, b| a.ln_add_exp(b)).unwrap();
+        if let Some(val) = outmut.get_mut(i) {
+            *val = p.row(i).iter().zip(muta.iter()).map(|(a, b)| a.ln() + b)
+                .reduce(|a, b| a.ln_add_exp(b)).unwrap();
         }
     }
 
@@ -44,12 +45,6 @@ pub fn calculate_likelihood(
 
     out
 }
-
-// LogSumExp function
-// pub fn logse(x: Vec<f64>) -> f64 {
-//     let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
-//     xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
-// }
 
 // LogSumExp function that includes base frequency values for final likelihood calculation
 pub fn base_freq_logse(muta: &Mutation, bf: [f64; 4]) -> f64 {
@@ -114,7 +109,7 @@ impl Tree {
         
     }
 
-    // Traverses tree below given node (except leaves), updating likelihood
+    // Traverses tree in post-order below given node (except leaves), updating likelihood
     // Used after initial tree constructions to fill in likelihood at all internal nodes
     pub fn initialise_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
         let nodes: Vec<usize> = self
@@ -125,6 +120,7 @@ impl Tree {
         for node in nodes {
             self.update_node_likelihood(node, rate_matrix);
         }
+
     }
 
     // Fetches likelihood value for a tree
@@ -134,7 +130,6 @@ impl Tree {
             .unwrap()
             .iter()
             .fold(0.0, |acc, muta| {
-                // acc + (f64::exp(muta.0) * 0.25 + f64::exp(muta.1) * 0.25 + f64::exp(muta.2) * 0.25 + f64::exp(muta.3) * 0.25).ln()
                 acc + base_freq_logse(muta, BF_DEFAULT)
             })
     }

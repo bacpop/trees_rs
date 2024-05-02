@@ -13,6 +13,7 @@ use crate::tree::Tree;
 extern crate nalgebra as na;
 pub mod cli;
 use crate::cli::*;
+use std::time::Instant;
 
 pub fn main() {
     let args = cli_args(); 
@@ -29,7 +30,6 @@ pub fn main() {
 
     let mut tr = vector_to_tree(&random_vector(27));
 
-    // let end = Instant::now();
     tr.add_genetic_data(&args.alignment);
 
     tr.initialise_likelihood(&q);
@@ -39,13 +39,15 @@ pub fn main() {
     println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
+        let start = Instant::now();
         tr.hillclimb(&q, 25);
+        let end = Instant::now();
+
+        eprintln!("Done in {}s", end.duration_since(start).as_secs());
+        // eprintln!("Done in {}ms", end.duration_since(start).as_millis());
+        // eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
     }
     
-    // let end = Instant::now();
 
-    // eprintln!("Done in {}s", end.duration_since(start).as_secs());
-    // eprintln!("Done in {}ms", end.duration_since(start).as_millis());
-    // eprintln!("Done in {}ns", end.duration_since(start).as_nanos());
 
 }

@@ -21,7 +21,7 @@ const VMUT: Mutation = Mutation(0.0, 0.0, 0.0, NEGINF);
 // Takes a reference sequence and another sequence in SequenceRecord<'_> format
 // Returns a vector of Mutations for how the latter sequence differs from the reference
 pub fn create_list(seq: &[char]) -> Vec<Mutation> {
-    let mut out: Vec<Mutation> = Vec::new();
+    let mut out: Vec<Mutation> = Vec::with_capacity(seq.len());
 
     for base in seq.iter() {
         out.push(char_to_mutation(base));
