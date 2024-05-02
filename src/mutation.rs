@@ -89,6 +89,16 @@ impl Mutation {
             }
     }
 
+    pub fn get_mut<'a>(&'a mut self, i: usize) -> Option<&mut f64> {
+        match i {
+            0 => {Some(&mut self.0)},
+            1 => {Some(&mut self.1)},
+            2 => {Some(&mut self.2)},
+            3 => {Some(&mut self.3)},
+            _ => {None},
+        }
+    }
+
     pub fn iter(self) -> MutationIter {
         MutationIter {
             ind: 0, 
@@ -104,7 +114,7 @@ pub struct MutationIter {
     muta: Mutation,
 }
 
-impl Iterator for MutationIter {
+impl<'a> Iterator for MutationIter {
     type Item = f64;
 
     fn next(&mut self) -> Option<Self::Item> {

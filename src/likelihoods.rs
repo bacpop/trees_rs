@@ -1,21 +1,28 @@
-use crate::mutation::{Mutation, to_mutation};
+use crate::mutation::Mutation;
 use crate::Tree;
+use logaddexp::LogAddExp;
 // Default base frequencies
 const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
 
 // Calculates the likelihood at a base given the bases at each child and probability matrices
 pub fn base_likelihood(mut1: &Mutation, mut2: &Mutation, p1: &na::Matrix4<f64>, p2: &na::Matrix4<f64>) -> Mutation {
-    let v1: Vec<f64> = mut1.to_vector();
-    let v2: Vec<f64> = mut2.to_vector();
-    let mut x1: Vec<f64> = Vec::new();
-    let mut x2: Vec<f64> = Vec::new();
+
+    child_likelihood(mut1, p1).add(child_likelihood(mut2, p2))
+
+}
+
+// Calculates the likelihood for one child at a base
+pub fn child_likelihood(muta: &Mutation, p: &na::Matrix4<f64>) -> Mutation {
+
+    let mut outmut: Mutation = Mutation(0.0, 0.0, 0.0, 0.0);
 
     for i in 0..=3 {
-        x1.push(logse(p1.row(i).iter().zip(&v1).map(|(a, b)| a.ln() + b).collect()));
-        x2.push(logse(p2.row(i).iter().zip(&v2).map(|(a, b)| a.ln() + b).collect()));
-    };
+        if let Some(mut val) = outmut.get_mut(i) {
+            *val = p.row(i).iter().zip(muta.iter()).map(|(a, b)| a.ln() + b).reduce(|a, b| a.ln_add_exp(b)).unwrap();
+        }
+    }
 
-    to_mutation(x1).add(to_mutation(x2))
+    outmut
 }
 
 // Calculates the likelihood for a Node by calculating the likelihood at each base
