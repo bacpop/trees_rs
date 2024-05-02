@@ -13,8 +13,6 @@ use crate::tree::Tree;
 extern crate nalgebra as na;
 pub mod cli;
 use crate::cli::*;
-use crate::mutation::{to_mutation, Mutation};
-use logaddexp::{LogAddExp, LogSumExp};
 
 pub fn main() {
     let args = cli_args(); 
@@ -28,27 +26,6 @@ pub fn main() {
           1.0 / 3.0, 1.0 / 3.0, -1.0, 1.0 / 3.0,
            1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, -1.0,
     );
-
-    let mut m1: Mutation = Mutation(0.25, 0.1, 0.5, 0.15);
-    let p1 = na::Matrix::exp(&(q * 1.0));
-
-    let mut outmut: Mutation = Mutation(0.0, 0.0, 0.0, 0.0);
-    println!("{:?}", m1);
-
-    for i in 0..=3 {
-        if let Some(mut val) = outmut.get_mut(i) {
-            *val = p1.row(i).iter().zip(m1.iter()).map(|(a, b)| a.ln() + b).reduce(|a, b| a.ln_add_exp(b)).unwrap();
-        }
-    }
-
-    println!("{:?}", outmut);
-
-
-    // for 
-
-    // let y1: Mutation = to_mutation((0..=3).into_iter().map(|ind| {
-    //     hi: Option<f64> = p1.row(ind).iter().zip(m1.iter()).map(|(a, b)| a.ln() + b).reduce(|a, b| a.ln_add_exp(b));
-    //     }).collect());
 
     let mut tr = vector_to_tree(&random_vector(27));
 

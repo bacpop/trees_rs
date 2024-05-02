@@ -46,10 +46,10 @@ pub fn calculate_likelihood(
 }
 
 // LogSumExp function
-pub fn logse(x: Vec<f64>) -> f64 {
-    let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
-    xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
-}
+// pub fn logse(x: Vec<f64>) -> f64 {
+//     let xstar = x.iter().max_by(|x, y| x.total_cmp(y)).unwrap();
+//     xstar + x.iter().fold(0.0,|acc, el| acc + f64::exp(el - xstar)).ln()
+// }
 
 // LogSumExp function that includes base frequency values for final likelihood calculation
 pub fn base_freq_logse(muta: &Mutation, bf: [f64; 4]) -> f64 {
