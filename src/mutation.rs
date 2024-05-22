@@ -1,9 +1,8 @@
-
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
 
 const NEGINF: f64 = -f64::INFINITY;
-        // (A, C, G, T)
+// (A, C, G, T)
 const AMUT: Mutation = Mutation(0.0, NEGINF, NEGINF, NEGINF);
 const CMUT: Mutation = Mutation(NEGINF, 0.0, NEGINF, NEGINF);
 const GMUT: Mutation = Mutation(NEGINF, NEGINF, 0.0, NEGINF);
@@ -48,7 +47,8 @@ pub fn char_to_mutation(e: &char) -> Mutation {
         'V' => VMUT,
         '-' => {
             // This way of coding gives same answer as other tree programs
-            Mutation::default()},
+            Mutation::default()
+        }
         _ => panic!("Unrecognised character: {}", e),
     }
 }
@@ -63,7 +63,6 @@ pub fn char_to_mutation(e: &char) -> Mutation {
 // }
 
 impl Mutation {
-
     // Converts a Mutation to a vector
     // pub fn to_vector(self) -> Vec<f64> {
     //     vec![self.0, self.1, self.2, self.3]
@@ -71,41 +70,32 @@ impl Mutation {
 
     // Adds two Mutations together
     pub fn add(self, r: Mutation) -> Mutation {
-        Mutation(
-            self.0 + r.0,
-            self.1 + r.1,
-            self.2 + r.2,
-            self.3 + r.3,
-        )
+        Mutation(self.0 + r.0, self.1 + r.1, self.2 + r.2, self.3 + r.3)
     }
 
     pub fn get(self, i: usize) -> Option<f64> {
-            match i {
-                0 => {Some(self.0)},
-                1 => {Some(self.1)},
-                2 => {Some(self.2)},
-                3 => {Some(self.3)},
-                _ => {None},
-            }
+        match i {
+            0 => Some(self.0),
+            1 => Some(self.1),
+            2 => Some(self.2),
+            3 => Some(self.3),
+            _ => None,
+        }
     }
 
-    pub fn get_mut<'a>(&'a mut self, i: usize) -> Option<&mut f64> {
+    pub fn get_mut(&mut self, i: usize) -> Option<&mut f64> {
         match i {
-            0 => {Some(&mut self.0)},
-            1 => {Some(&mut self.1)},
-            2 => {Some(&mut self.2)},
-            3 => {Some(&mut self.3)},
-            _ => {None},
+            0 => Some(&mut self.0),
+            1 => Some(&mut self.1),
+            2 => Some(&mut self.2),
+            3 => Some(&mut self.3),
+            _ => None,
         }
     }
 
     pub fn iter(self) -> MutationIter {
-        MutationIter {
-            ind: 0, 
-            muta: self
-        }
+        MutationIter { ind: 0, muta: self }
     }
-
 }
 
 #[derive(Debug)]
@@ -114,7 +104,7 @@ pub struct MutationIter {
     muta: Mutation,
 }
 
-impl<'a> Iterator for MutationIter {
+impl Iterator for MutationIter {
     type Item = f64;
 
     fn next(&mut self) -> Option<Self::Item> {
