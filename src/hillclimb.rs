@@ -13,15 +13,23 @@ pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
     inds.sort();
 
     for ind in inds {
-        match rng.sample(distr) {
-            true => {vout[ind] += 1;},
-            false => {vout[ind] -= 1;},
-        };  
-        if ind.eq(&0) || vout[ind].lt(&0) {
-           vout[ind] = 0;
-        } else if vout[ind].gt(&(2 * (ind - 1))) {
-           vout[ind] = 2 * (ind - 1);
+        
+        if ind.eq(&0){
+            continue
         }
+        
+        match rng.sample(distr) {
+            true => {
+                if vout[ind].lt(&(2 * (ind - 1))) {
+                    vout[ind] += 1;
+                }
+            },
+            false => {
+                if vout[ind].gt(&0) {
+                    vout[ind] -= 1;
+                }
+            },
+        };  
     };
 
     vout
@@ -40,6 +48,7 @@ impl Tree {
             println!("Optimisation step {} out of {}", k, iterations);
 
             candidate_vec = peturb_vector(&best_vec, self.tree_vec.len());
+            println!("new vec: {:?}", candidate_vec);
             self.update(&candidate_vec);
             self.update_likelihood(q);
             new_likelihood = self.get_tree_likelihood();

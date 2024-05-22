@@ -48,26 +48,26 @@ pub fn char_to_mutation(e: &char) -> Mutation {
         'V' => VMUT,
         '-' => {
             // This way of coding gives same answer as other tree programs
-            Mutation(0.0, 0.0, 0.0, 0.0)},
+            Mutation::default()},
         _ => panic!("Unrecognised character: {}", e),
     }
 }
 
 // Converts a vector of correct length to Mutation
-pub fn to_mutation(x1: Vec<f64>) -> Mutation {
-    if x1.len().ne(&4) {
-        panic!("Length of vector too long to cast to Mutation");
-    } else {
-        Mutation(x1[0], x1[1], x1[2], x1[3])
-    }
-}
+// pub fn to_mutation(x1: Vec<f64>) -> Mutation {
+//     if x1.len().ne(&4) {
+//         panic!("Length of vector too long to cast to Mutation");
+//     } else {
+//         Mutation(x1[0], x1[1], x1[2], x1[3])
+//     }
+// }
 
 impl Mutation {
 
     // Converts a Mutation to a vector
-    pub fn to_vector(self) -> Vec<f64> {
-        vec![self.0, self.1, self.2, self.3]
-    }
+    // pub fn to_vector(self) -> Vec<f64> {
+    //     vec![self.0, self.1, self.2, self.3]
+    // }
 
     // Adds two Mutations together
     pub fn add(self, r: Mutation) -> Mutation {
@@ -124,3 +124,8 @@ impl<'a> Iterator for MutationIter {
     }
 }
 
+impl Default for Mutation {
+    fn default() -> Self {
+        Mutation(0.0, 0.0, 0.0, 0.0)
+    }
+}
