@@ -42,14 +42,13 @@ pub fn main() {
     tr.add_genetic_data(&args.alignment);
 
     tr.initialise_likelihood(&q);
-
     println!("{}", tr.get_tree_likelihood());
     println!("{:?}", tr.newick());
     println!("{:?}", tr.tree_vec);
 
     if !args.no_optimise {
         let start = Instant::now();
-        tr.hillclimb(&q, 50);
+        tr.hillclimb(&q, 25);
         let end = Instant::now();
 
         eprintln!("Done in {}s", end.duration_since(start).as_secs());

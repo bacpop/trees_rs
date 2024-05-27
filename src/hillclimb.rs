@@ -1,5 +1,5 @@
-use rand::Rng;
 use crate::Tree;
+use rand::Rng;
 
 // Makes random moves +/- 1 moves on the integer vector (v) for a given number of elements (n)
 pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
@@ -13,24 +13,23 @@ pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
     inds.sort();
 
     for ind in inds {
-        
-        if ind.eq(&0){
-            continue
+        if ind.eq(&0) {
+            continue;
         }
-        
+
         match rng.sample(distr) {
             true => {
                 if vout[ind].lt(&(2 * (ind - 1))) {
                     vout[ind] += 1;
                 }
-            },
+            }
             false => {
                 if vout[ind].gt(&0) {
                     vout[ind] -= 1;
                 }
-            },
-        };  
-    };
+            }
+        };
+    }
 
     vout
 }
@@ -38,7 +37,6 @@ pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
 impl Tree {
     // Hill climbing optimisation algorithm
     pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
-
         let mut candidate_vec: Vec<usize> = Vec::with_capacity(self.tree_vec.len());
         let mut best_vec: Vec<usize> = self.tree_vec.clone();
         let mut best_likelihood: f64 = self.get_tree_likelihood();
@@ -46,24 +44,24 @@ impl Tree {
 
         for k in 0..=iterations {
             println!("Optimisation step {} out of {}", k, iterations);
-
             candidate_vec = peturb_vector(&best_vec, self.tree_vec.len());
             println!("new vec: {:?}", candidate_vec);
             self.update(&candidate_vec);
             self.update_likelihood(q);
             new_likelihood = self.get_tree_likelihood();
-            println!("Candidate likelihood: {} \n Current likelihood: {}", new_likelihood, best_likelihood);
+            println!(
+                "Candidate likelihood: {} \n Current likelihood: {}",
+                new_likelihood, best_likelihood
+            );
 
             if new_likelihood > best_likelihood {
                 println!("Climbing hill!");
                 best_vec = candidate_vec;
                 best_likelihood = new_likelihood;
             }
-        };
+        }
 
         self.update(&best_vec);
         self.update_likelihood(q);
-        
     }
-
 }
