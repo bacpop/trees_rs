@@ -1,3 +1,5 @@
+use std::hash;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
 
@@ -93,10 +95,6 @@ impl Mutation {
         }
     }
 
-    pub fn eq(self, other: Mutation) -> bool {
-        self.iter().zip(other.iter()).all(|(a, b)| a.eq(&b))
-    }
-
     pub fn iter(self) -> MutationIter {
         MutationIter { ind: 0, muta: self }
     }
@@ -123,3 +121,38 @@ impl Default for Mutation {
         Mutation(0.0, 0.0, 0.0, 0.0)
     }
 }
+
+impl PartialEq for Mutation {
+    fn eq(&self, other: &Mutation) -> bool {
+        self.iter().zip(other.iter()).all(|(a, b)| a.eq(&b))
+    }
+}
+
+impl Eq for Mutation {}
+
+#[derive(Debug, Copy, Clone)]
+pub struct MutationKey(pub Mutation);
+
+impl MutationKey {
+    fn key(&self) -> u64 {
+        let x: f64 = (self.0 .0 + 2.0 * self.0 .1 + 3.0 * self.0 .2 + 4.0 * self.0 .3);
+        x.to_bits()
+    }
+}
+
+impl hash::Hash for MutationKey {
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: hash::Hasher,
+    {
+        self.key().hash(state)
+    }
+}
+
+impl PartialEq for MutationKey {
+    fn eq(&self, other: &MutationKey) -> bool {
+        self.key() == other.key()
+    }
+}
+
+impl Eq for MutationKey {}

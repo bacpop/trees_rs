@@ -1,6 +1,8 @@
-use crate::mutation::Mutation;
+use crate::mutation::{Mutation, MutationKey};
 use crate::Tree;
 use logaddexp::LogAddExp;
+use na::DMatrixSliceMut;
+use std::collections::HashMap;
 // Default base frequencies
 const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
 
@@ -41,11 +43,28 @@ pub fn calculate_likelihood(
     p1: &na::Matrix4<f64>,
     p2: &na::Matrix4<f64>,
 ) -> Vec<Mutation> {
+    let mut precomp: HashMap<MutationKey, Mutation> = HashMap::new();
     // Iterate over bases and calculate likelihood
     let out: Vec<Mutation> = seq1
         .iter()
         .zip(seq2.iter())
-        .map(|(b1, b2)| base_likelihood(b1, b2, p1, p2))
+        .map(|(b1, b2)| {
+            let mut ret: Mutation;
+            if b1.eq(b2) {
+                let b1key = MutationKey(*b1);
+                if let Some(b) = precomp.get(&b1key) {
+                    ret = *b;
+                } else {
+                    ret = base_likelihood(b1, b2, p1, p2);
+                    precomp.insert(b1key, ret);
+                }
+            } else {
+                ret = base_likelihood(b1, b2, p1, p2);
+            }
+            return ret;
+        })
+        // use b1.eq(b2) and then check for pre-computed values in
+        // a HashMap? If not in the HashMap then add it to the HashMap
         .collect();
 
     out
