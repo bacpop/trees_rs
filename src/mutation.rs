@@ -93,6 +93,10 @@ impl Mutation {
         }
     }
 
+    pub fn eq(self, other: Mutation) -> bool {
+        self.iter().zip(other.iter()).all(|(a, b)| a.eq(&b))
+    }
+
     pub fn iter(self) -> MutationIter {
         MutationIter { ind: 0, muta: self }
     }
