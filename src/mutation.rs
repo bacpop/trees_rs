@@ -1,4 +1,4 @@
-use std::hash;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mutation(pub f64, pub f64, pub f64, pub f64);
@@ -130,29 +130,12 @@ impl PartialEq for Mutation {
 
 impl Eq for Mutation {}
 
-#[derive(Debug, Copy, Clone)]
-pub struct MutationKey(pub Mutation);
-
-impl MutationKey {
-    fn key(&self) -> u64 {
-        let x: f64 = (self.0 .0 + 2.0 * self.0 .1 + 3.0 * self.0 .2 + 4.0 * self.0 .3);
-        x.to_bits()
+impl Hash for Mutation {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let fields = [self.0, self.1, self.2, self.3];
+        for field in fields {
+            let bits = field.to_bits();
+            bits.hash(state);
+        }
     }
 }
-
-impl hash::Hash for MutationKey {
-    fn hash<H>(&self, state: &mut H)
-    where
-        H: hash::Hasher,
-    {
-        self.key().hash(state)
-    }
-}
-
-impl PartialEq for MutationKey {
-    fn eq(&self, other: &MutationKey) -> bool {
-        self.key() == other.key()
-    }
-}
-
-impl Eq for MutationKey {}

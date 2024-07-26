@@ -1,3 +1,6 @@
+use clap::builder::NonEmptyStringValueParser;
+use ndarray::AssignElem;
+
 use crate::node::Node;
 use crate::tree::Tree;
 
@@ -102,4 +105,61 @@ impl<'a> Tree {
     }
 }
 
+// Changes iterator
+// #[derive(Debug)]
+// pub struct ChangeOrder {
+//     nodevec: Option<Vec<usize>>,
+// }
 
+// impl Iterator for ChangeOrder {
+//     type Item = &'a Node;
+// Will changes be faster and easier using
+// Vec<Option<Vec<usize>>> ?
+// fn next(&mut self) -> Option<Self::Item> {
+//     if self.tree.changes.is_empty() {
+//         return None;
+//     }
+
+//     while !self.tree.changes.contains_key(&self.depth) {
+//         self.depth -= 1;
+//     }
+
+//     let x = self.tree.changes.remove(&self.depth).unwrap();
+//     let ni = x.pop();
+//     self.tree.changes.insert(self.depth, x);
+
+//     next_node
+// }
+// }
+
+// impl<'a> Tree {
+//     pub fn changeiter(&'a self) -> ChangeOrder {
+//         let max_depth = *self.changes.keys().max().unwrap();
+//         let mut flvec: Vec<Vec<usize>> = vec![Vec::new(); max_depth];
+
+//         for i in (0..=max_depth).rev() {
+//             let nodes: Option<Vec<usize>> = self.changes.remove(&i);
+//             if nodes.is_none() {
+//                 continue;
+//             }
+//             for node in nodes.unwrap().iter() {
+//                 let p = self.get_parent(*node);
+//                 let pd = match i {
+//                     0 => 0,
+//                     _ => i - 1,
+//                 };
+//                 flvec[i].push(*node);
+//                 if p.is_some() {
+//                     flvec[pd].push(p.unwrap().index);
+//                 }
+//             }
+//         }
+
+//         for v in flvec {
+//             v.dedup();
+//         }
+
+//         let out: Vec<usize> = flvec.into_iter().flatten().collect();
+//         ChangeOrder { nodevec: Some(out) }
+//     }
+// }

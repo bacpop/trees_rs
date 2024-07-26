@@ -1,8 +1,8 @@
-use crate::mutation::{Mutation, create_list};
+use crate::mutation::{create_list, Mutation};
 use crate::node::Node;
-use std::collections::HashMap;
 use crate::vector_to_tree;
 use needletail::*;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Tree {
@@ -19,7 +19,7 @@ impl Tree {
     // Constructor function for a new tree
     pub fn new(tree_vec: &[usize]) -> Tree {
         let k = tree_vec.len();
-        let n_nodes: usize  = 2 * k + 1;
+        let n_nodes: usize = 2 * k + 1;
         Tree {
             tree_vec: tree_vec.to_vec(),
             nodes: vec![Node::default(); n_nodes],
@@ -44,7 +44,6 @@ impl Tree {
 
     // Update a Tree to a new integer vector
     pub fn update(&mut self, new_vec: &[usize]) {
-
         let new_tree: Tree = vector_to_tree(new_vec);
         let k: usize = new_tree.nodes.len();
         let mut old_parent: Option<usize>;
@@ -58,21 +57,24 @@ impl Tree {
                 let d = new_tree.get_node(i).unwrap().depth;
 
                 match self.changes.get(&d) {
-                    None => {self.changes.insert(d, vec![i]);},
-                    Some(_) => {self.changes.get_mut(&d).unwrap().push(i);}
+                    None => {
+                        self.changes.insert(d, vec![i]);
+                    }
+                    Some(_) => {
+                        self.changes.get_mut(&d).unwrap().push(i);
+                    }
                 }
             }
         }
 
         self.tree_vec = new_tree.tree_vec;
         self.nodes = new_tree.nodes;
-
     }
 
     pub fn add_genetic_data(&mut self, filename: &str) {
         let mut reader = parse_fastx_file(filename).expect("Error parsing file");
 
-        // Add genetic data 
+        // Add genetic data
         while let Some(rec) = reader.next() {
             let newrec: Vec<char> = rec.unwrap().seq().iter().map(|l| *l as char).collect();
             self.mutation_lists.push(create_list(&newrec));
@@ -122,5 +124,4 @@ impl Tree {
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
-
 }

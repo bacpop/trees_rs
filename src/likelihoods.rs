@@ -1,5 +1,6 @@
-use crate::mutation::{Mutation, MutationKey};
+use crate::mutation::Mutation;
 use crate::Tree;
+use cached::proc_macro::cached;
 use logaddexp::LogAddExp;
 use na::DMatrixSliceMut;
 use std::collections::HashMap;
@@ -13,11 +14,12 @@ pub fn base_likelihood(
     p1: &na::Matrix4<f64>,
     p2: &na::Matrix4<f64>,
 ) -> Mutation {
-    child_likelihood(mut1, p1).add(child_likelihood(mut2, p2))
+    child_likelihood(*mut1, p1).add(child_likelihood(*mut2, p2))
 }
 
 // Calculates the likelihood for one child at a base
-pub fn child_likelihood(muta: &Mutation, p: &na::Matrix4<f64>) -> Mutation {
+// #[cached]
+pub fn child_likelihood(muta: Mutation, p: &na::Matrix4<f64>) -> Mutation {
     let mut outmut: Mutation = Mutation::default();
 
     // This does the correct row multiplications between the existing likelihood values and the probability matrix
@@ -40,31 +42,14 @@ pub fn child_likelihood(muta: &Mutation, p: &na::Matrix4<f64>) -> Mutation {
 pub fn calculate_likelihood(
     seq1: &[Mutation],
     seq2: &[Mutation],
-    p1: &na::Matrix4<f64>,
-    p2: &na::Matrix4<f64>,
+    p1: na::Matrix4<f64>,
+    p2: na::Matrix4<f64>,
 ) -> Vec<Mutation> {
-    let mut precomp: HashMap<MutationKey, Mutation> = HashMap::new();
     // Iterate over bases and calculate likelihood
     let out: Vec<Mutation> = seq1
         .iter()
         .zip(seq2.iter())
-        .map(|(b1, b2)| {
-            let mut ret: Mutation;
-            if b1.eq(b2) {
-                let b1key = MutationKey(*b1);
-                if let Some(b) = precomp.get(&b1key) {
-                    ret = *b;
-                } else {
-                    ret = base_likelihood(b1, b2, p1, p2);
-                    precomp.insert(b1key, ret);
-                }
-            } else {
-                ret = base_likelihood(b1, b2, p1, p2);
-            }
-            return ret;
-        })
-        // use b1.eq(b2) and then check for pre-computed values in
-        // a HashMap? If not in the HashMap then add it to the HashMap
+        .map(|(b1, b2)| base_likelihood(b1, b2, &p1, &p2))
         .collect();
 
     out
@@ -88,7 +73,7 @@ impl Tree {
             let seq1 = self.mutation_lists.get(ch1).unwrap();
             let seq2 = self.mutation_lists.get(ch2).unwrap();
 
-            self.mutation_lists[index] = calculate_likelihood(seq1, seq2, &p1, &p2);
+            self.mutation_lists[index] = calculate_likelihood(seq1, seq2, p1, p2);
         }
     }
 
@@ -141,6 +126,7 @@ impl Tree {
             .collect();
 
         for node in nodes {
+            // println!("Node: {}", node);
             self.update_node_likelihood(node, rate_matrix);
         }
     }

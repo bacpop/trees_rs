@@ -1,5 +1,5 @@
-use crate::Tree;
 use crate::node::Node;
+use crate::Tree;
 use cxx::let_cxx_string;
 use ndarray::*;
 use rand::Rng;
@@ -72,9 +72,11 @@ pub fn vector_to_tree(v: &[usize]) -> Tree {
 // Build a Tree struct from an newick string //
 ///////////////////////////////////////////////
 pub fn newick_to_tree(rjstr: String) -> Tree {
-
     let mut new_str: String = rjstr.clone();
-    let full_split: Vec<&str> = rjstr.split(['(', ',',')',';']).filter(|c| !c.is_empty()).collect();
+    let full_split: Vec<&str> = rjstr
+        .split(['(', ',', ')', ';'])
+        .filter(|c| !c.is_empty())
+        .collect();
     let mut label_dictionary: HashMap<usize, String> = HashMap::with_capacity(full_split.len());
     let mut branch_length: HashMap<usize, f64> = HashMap::with_capacity(full_split.len());
     let mut bl: f64;
@@ -104,7 +106,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
 
         // Put new label into new string and replace branch length
         new_str = new_str.replace(x, &idx.to_string());
-    };
+    }
 
     // This section tries to solve the polytomy at the root of rapidNJ trees
     // By splicing in some brackets and naming more internal nodes
@@ -112,7 +114,12 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
     let firstcom = new_str.rfind(',').unwrap();
     new_str.insert(firstcom, ')');
     // Give an internal node label after this new bracket
-    let mut nstr: String = [&new_str[0..=firstcom], &internal_idx.to_string(), &new_str[firstcom+1..new_str.len()]].join("");
+    let mut nstr: String = [
+        &new_str[0..=firstcom],
+        &internal_idx.to_string(),
+        &new_str[firstcom + 1..new_str.len()],
+    ]
+    .join("");
     internal_idx += 1;
     // Find last closing bracket in string
     let firstbrack = nstr.rfind(')').unwrap();
@@ -128,11 +135,9 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
     let mut idx: Option<usize> = Some(internal_idx);
 
     for i in (1..nstr.len()).rev() {
-
         let ch: char = nstr.chars().nth(i).unwrap();
 
         if ch.eq(&')') || ch.eq(&',') {
-
             if ch.eq(&')') {
                 current_parent = idx;
             }
@@ -149,11 +154,10 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
                 idx = Some(leaf.parse().unwrap());
                 parent_vector[idx.unwrap()] = current_parent;
             }
-
         } else if ch.eq(&'(') {
             current_parent = parent_vector[current_parent.unwrap()];
         }
-    };
+    }
 
     // Build the tree by going over the vector
     let mut proto_tree: Tree = Tree {
@@ -174,7 +178,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
         } else {
             proto_tree.nodes[i].branch_length = 0.00001;
         }
-    };
+    }
 
     proto_tree.tree_vec = newick_to_vector(&proto_tree.newick(), proto_tree.count_leaves());
     proto_tree.max_depth = proto_tree.max_treedepth();
@@ -182,11 +186,10 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
     proto_tree
 }
 
-
 //////////////////////////////////////////////////
 // Build an integer vector from a newick string //
 //////////////////////////////////////////////////
-pub fn newick_to_vector(nw: &String, n_leaves: usize) -> Vec<usize>{
+pub fn newick_to_vector(nw: &String, n_leaves: usize) -> Vec<usize> {
     let_cxx_string!(nw_cpp = nw);
     let x = ffi::doToVector(nw_cpp, n_leaves as i32, false);
     let y: Vec<usize> = x.iter().map(|el| *el as usize).collect();
@@ -197,7 +200,11 @@ pub fn newick_to_vector(nw: &String, n_leaves: usize) -> Vec<usize>{
 pub mod ffi {
     unsafe extern "C++" {
         include!("bactrees/include/phylo2vec.hpp");
-        fn doToVector(newick: Pin<&mut CxxString>, num_leaves: i32, with_mapping: bool) -> UniquePtr<CxxVector<i32>>;
+        fn doToVector(
+            newick: Pin<&mut CxxString>,
+            num_leaves: i32,
+            with_mapping: bool,
+        ) -> UniquePtr<CxxVector<i32>>;
     }
 }
 
@@ -210,6 +217,12 @@ pub fn random_vector(k: usize) -> Vec<usize> {
     vec![0; k + 1]
         .iter()
         .enumerate()
-        .map(|(i, _el)| if i > 0 { rng.gen_range(0..((2 * i) - 1)) } else { 0 })
+        .map(|(i, _el)| {
+            if i > 0 {
+                rng.gen_range(0..((2 * i) - 1))
+            } else {
+                0
+            }
+        })
         .collect()
 }
