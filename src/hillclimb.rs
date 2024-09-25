@@ -36,7 +36,7 @@ pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
 
 impl Tree {
     // Hill climbing optimisation algorithm
-    pub fn hillclimb(&mut self, q: &na::Matrix4<f64>, iterations: usize) {
+    pub fn hillclimb(&mut self, iterations: usize) {
         let mut candidate_vec: Vec<usize> = Vec::with_capacity(self.tree_vec.len());
         let mut best_vec: Vec<usize> = self.tree_vec.clone();
         let mut best_likelihood: f64 = self.get_tree_likelihood();
@@ -47,7 +47,7 @@ impl Tree {
             candidate_vec = peturb_vector(&best_vec, self.tree_vec.len());
             println!("new vec: {:?}", candidate_vec);
             self.update(&candidate_vec);
-            self.update_likelihood(q);
+            self.update_likelihood();
             new_likelihood = self.get_tree_likelihood();
             println!(
                 "Candidate likelihood: {} \n Current likelihood: {}",
@@ -62,6 +62,6 @@ impl Tree {
         }
 
         self.update(&best_vec);
-        self.update_likelihood(q);
+        self.update_likelihood();
     }
 }

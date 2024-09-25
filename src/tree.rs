@@ -1,5 +1,6 @@
 use crate::mutation::{create_list, Mutation};
 use crate::node::Node;
+use crate::rate_matrix::RateParam;
 use crate::vector_to_tree;
 use needletail::*;
 use std::collections::HashMap;
@@ -12,6 +13,8 @@ pub struct Tree {
     pub label_dictionary: HashMap<usize, String>,
     pub changes: HashMap<usize, Vec<usize>>,
     pub mutation_lists: Vec<Vec<Mutation>>,
+    pub rate_param: RateParam,
+    pub rate_matrix: na::Matrix4<f64>,
 }
 
 // Tree methods
@@ -27,6 +30,8 @@ impl Tree {
             label_dictionary: HashMap::new(),
             changes: HashMap::new(),
             mutation_lists: Vec::with_capacity(n_nodes),
+            rate_param: RateParam::default(),
+            rate_matrix: na::Matrix4::identity(),
         }
     }
 
@@ -124,4 +129,5 @@ impl Tree {
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)
     }
+
 }

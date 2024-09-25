@@ -1,4 +1,5 @@
 use crate::node::Node;
+use crate::rate_matrix::RateParam;
 use crate::Tree;
 use cxx::let_cxx_string;
 use ndarray::*;
@@ -64,6 +65,7 @@ pub fn vector_to_tree(v: &[usize]) -> Tree {
     }
 
     tree.max_depth = tree.max_treedepth();
+    tree.update_rate_matrix_GTR();
 
     tree
 }
@@ -167,6 +169,8 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
         label_dictionary,
         changes: HashMap::new(),
         mutation_lists: Vec::new(),
+        rate_param: RateParam::default(),
+        rate_matrix: na::Matrix4::identity(),
     };
 
     // Add nodes to Tree from parent vector, give correct branch length
@@ -182,6 +186,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
 
     proto_tree.tree_vec = newick_to_vector(&proto_tree.newick(), proto_tree.count_leaves());
     proto_tree.max_depth = proto_tree.max_treedepth();
+    proto_tree.update_rate_matrix_GTR();
 
     proto_tree
 }

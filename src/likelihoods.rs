@@ -65,10 +65,10 @@ pub fn base_freq_logse(muta: &Mutation, bf: [f64; 4]) -> f64 {
 
 impl Tree {
     // Updates the genetic likelihood at a given node
-    pub fn update_node_likelihood(&mut self, index: usize, rate_matrix: &na::Matrix4<f64>) {
+    pub fn update_node_likelihood(&mut self, index: usize) {
         if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
-            let p1 = na::Matrix::exp(&(rate_matrix * self.get_branchlength(ch1)));
-            let p2 = na::Matrix::exp(&(rate_matrix * self.get_branchlength(ch2)));
+            let p1 = na::Matrix::exp(&(self.rate_matrix * self.get_branchlength(ch1)));
+            let p2 = na::Matrix::exp(&(self.rate_matrix * self.get_branchlength(ch2)));
 
             let seq1 = self.mutation_lists.get(ch1).unwrap();
             let seq2 = self.mutation_lists.get(ch2).unwrap();
@@ -79,7 +79,7 @@ impl Tree {
 
     // Goes through all nodes that have changed and updates genetic likelihood
     // Used after tree.update()
-    pub fn update_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
+    pub fn update_likelihood(&mut self) {
         if self.changes.is_empty() {
             return;
         }
@@ -98,7 +98,7 @@ impl Tree {
 
             // Traverse all nodes at current_depth
             for node in nodes {
-                self.update_node_likelihood(node, rate_matrix);
+                self.update_node_likelihood(node);
 
                 if current_depth > 0 {
                     // Put parent into HashMap so that they are updated
@@ -119,7 +119,7 @@ impl Tree {
 
     // Traverses tree in post-order below given node (except leaves), updating likelihood
     // Used after initial tree constructions to fill in likelihood at all internal nodes
-    pub fn initialise_likelihood(&mut self, rate_matrix: &na::Matrix4<f64>) {
+    pub fn initialise_likelihood(&mut self) {
         let nodes: Vec<usize> = self
             .postorder_notips(self.get_root())
             .map(|n| n.index)
@@ -127,7 +127,7 @@ impl Tree {
 
         for node in nodes {
             // println!("Node: {}", node);
-            self.update_node_likelihood(node, rate_matrix);
+            self.update_node_likelihood(node);
         }
     }
 

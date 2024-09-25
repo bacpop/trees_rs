@@ -104,9 +104,9 @@ mod tests {
     
     #[test]
     fn likelihood_internal_consistency_check() {
-        let q: na::Matrix4<f64> = na::Matrix4::new(
-            -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
-        );
+        // let q: na::Matrix4<f64> = na::Matrix4::new(
+        //     -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
+        // );
 
         let mut tr = vector_to_tree(&vec![0, 0, 0, 0]);
 
@@ -143,15 +143,15 @@ mod tests {
 
     tr.mutation_lists = genetic_data;
 
-    tr.initialise_likelihood(&q);
+    tr.initialise_likelihood();
     
     let old_likelihood = tr.get_tree_likelihood();
 
     tr.update(&vec![0, 0, 0, 1]);
-    tr.update_likelihood(&q);
+    tr.update_likelihood();
 
     tr.update(&vec![0, 0, 0, 0]);
-    tr.update_likelihood(&q);
+    tr.update_likelihood();
 
     let new_likelihood = tr.get_tree_likelihood();
 
