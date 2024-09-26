@@ -1,7 +1,8 @@
+use crate::rate_matrix::RateMatrix;
 use crate::Tree;
 use crate::node::Node;
 // Builds a newick string from a Tree struct
-impl Tree {
+impl<T: RateMatrix> Tree<T> {
     pub fn newick(&self) -> String {
         let mut current_node: Option<&Node> = self.get_root();
         let mut next_node: Option<&Node>;

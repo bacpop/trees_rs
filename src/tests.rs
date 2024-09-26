@@ -4,11 +4,12 @@ mod tests {
     use crate::build_tree::vector_to_tree;
     use crate::build_tree::newick_to_vector;
     use crate::random_vector;
+    use crate::rate_matrix::GTR;
 
     #[test]
     fn check_tree_build_manual() {
         // I check that built trees have the correct parent by comparing to known parent values
-        let mut tree = vector_to_tree(&vec![0, 0, 0, 0]);
+        let mut tree = vector_to_tree(&vec![0, 0, 0, 0], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(6));
@@ -18,7 +19,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 0, 1]);
+        tree = vector_to_tree(&vec![0, 0, 0, 1], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(5));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
@@ -28,7 +29,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 1, 0]);
+        tree = vector_to_tree(&vec![0, 0, 1, 0], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(5));
@@ -38,7 +39,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 1, 1]);
+        tree = vector_to_tree(&vec![0, 0, 1, 1], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
@@ -48,7 +49,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 1, 2]);
+        tree = vector_to_tree(&vec![0, 0, 1, 2], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(5));
@@ -58,7 +59,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 1, 3]);
+        tree = vector_to_tree(&vec![0, 0, 1, 3], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(4));
@@ -68,7 +69,7 @@ mod tests {
         assert_eq!(tree.get_node(5).unwrap().parent, Some(6));
         assert_eq!(tree.get_node(6).unwrap().parent, None);
 
-        tree = vector_to_tree(&vec![0, 0, 0, 3]);
+        tree = vector_to_tree(&vec![0, 0, 0, 3], &GTR::default());
 
         assert_eq!(tree.get_node(0).unwrap().parent, Some(4));
         assert_eq!(tree.get_node(1).unwrap().parent, Some(6));
@@ -81,12 +82,12 @@ mod tests {
 
     #[test]
     fn update_tree() {
-        let mut tree_1 = vector_to_tree(&vec![0, 0, 1, 0]);
+        let mut tree_1 = vector_to_tree(&vec![0, 0, 1, 0], &GTR::default());
 
         let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
 
         for vec in vecs {
-            let tree_2 = vector_to_tree(&vec);
+            let tree_2 = vector_to_tree(&vec, &GTR::default());
             tree_1.update(&vec);
 
             for i in 0..=tree_1.tree_vec.len() {
@@ -108,7 +109,7 @@ mod tests {
         //     -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
         // );
 
-        let mut tr = vector_to_tree(&vec![0, 0, 0, 0]);
+        let mut tr = vector_to_tree(&vec![0, 0, 0, 0], &GTR::default());
 
         let genetic_data = vec![
         vec![
@@ -160,7 +161,7 @@ mod tests {
 
     #[test]
     fn manual_parent_check () {
-        let tr = vector_to_tree(&vec![0, 0, 0, 0]);
+        let tr = vector_to_tree(&vec![0, 0, 0, 0], &GTR::default());
         
         // Newick string for this tree is (1,(2,(3,0)4)5)6;
         // This should be the tree topology according to the ape package in R
@@ -168,7 +169,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(1)));
 
-        let tr = vector_to_tree(&vec![0, 0, 0, 1]);
+        let tr = vector_to_tree(&vec![0, 0, 0, 1], &GTR::default());
         
         // Newick string for this tree is ((3,1)4,(2,0)5)6;
         // This should be the tree topology according to the ape package in R
@@ -176,7 +177,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(0), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(5), Some(4)));
 
-        let tr = vector_to_tree(&vec![0, 0, 1, 1]);
+        let tr = vector_to_tree(&vec![0, 0, 1, 1], &GTR::default());
         
         // Newick string for this tree is ((2,(3,1)4)5,0)6;
         // This should be the tree topology according to the ape package in R
@@ -184,7 +185,7 @@ mod tests {
         assert_eq!(tr.get_node(5).unwrap().children, (Some(4), Some(2)));
         assert_eq!(tr.get_node(6).unwrap().children, (Some(0), Some(5)));
 
-        let tr = vector_to_tree(&vec![0, 0, 1, 1, 3]);
+        let tr = vector_to_tree(&vec![0, 0, 1, 1, 3], &GTR::default());
         
         // Newick string for this tree is ((2,((4,3)5,1)6)7,0)8;
         // This should be the tree topology according to the ape package in R
@@ -201,12 +202,12 @@ mod tests {
     #[test]
     fn newick_vector_conversion_check () {
         let v = random_vector(27);
-        let tr = vector_to_tree(&v);
+        let tr = vector_to_tree(&v, &GTR::default());
         let nw = tr.newick();
         let n_leaves = tr.count_leaves();
         let y = newick_to_vector(&nw, n_leaves);
         assert_eq!(v, y);
-        let trstr = vector_to_tree(&y).newick();
+        let trstr = vector_to_tree(&y, &GTR::default()).newick();
         assert_eq!(trstr, nw);
     }
 }

@@ -1,26 +1,26 @@
 use crate::mutation::{create_list, Mutation};
 use crate::node::Node;
-use crate::rate_matrix::RateParam;
+use crate::rate_matrix::{self, RateMatrix};
+use crate::rate_matrix::GTR;
 use crate::vector_to_tree;
 use needletail::*;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct Tree {
+pub struct Tree <T: RateMatrix> {
     pub tree_vec: Vec<usize>,
     pub nodes: Vec<Node>,
     pub max_depth: usize,
     pub label_dictionary: HashMap<usize, String>,
     pub changes: HashMap<usize, Vec<usize>>,
     pub mutation_lists: Vec<Vec<Mutation>>,
-    pub rate_param: RateParam,
-    pub rate_matrix: na::Matrix4<f64>,
+    pub rate_matrix: T,
 }
 
 // Tree methods
-impl Tree {
+impl<T: RateMatrix> Tree<T> {
     // Constructor function for a new tree
-    pub fn new(tree_vec: &[usize]) -> Tree {
+    pub fn new(tree_vec: &[usize], rate_matrix: T) -> Self {
         let k = tree_vec.len();
         let n_nodes: usize = 2 * k + 1;
         Tree {
@@ -30,8 +30,7 @@ impl Tree {
             label_dictionary: HashMap::new(),
             changes: HashMap::new(),
             mutation_lists: Vec::with_capacity(n_nodes),
-            rate_param: RateParam::default(),
-            rate_matrix: na::Matrix4::identity(),
+            rate_matrix,
         }
     }
 
@@ -49,7 +48,7 @@ impl Tree {
 
     // Update a Tree to a new integer vector
     pub fn update(&mut self, new_vec: &[usize]) {
-        let new_tree: Tree = vector_to_tree(new_vec);
+        let new_tree: Tree<T> = vector_to_tree(new_vec, &self.rate_matrix);
         let k: usize = new_tree.nodes.len();
         let mut old_parent: Option<usize>;
         let mut new_parent: Option<usize>;

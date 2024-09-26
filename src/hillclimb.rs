@@ -1,5 +1,6 @@
 use crate::Tree;
 use rand::Rng;
+use crate::rate_matrix::RateMatrix;
 
 // Makes random moves +/- 1 moves on the integer vector (v) for a given number of elements (n)
 pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
@@ -34,7 +35,7 @@ pub fn peturb_vector(v: &[usize], n: usize) -> Vec<usize> {
     vout
 }
 
-impl Tree {
+impl<T: RateMatrix> Tree<T> {
     // Hill climbing optimisation algorithm
     pub fn hillclimb(&mut self, iterations: usize) {
         let mut candidate_vec: Vec<usize> = Vec::with_capacity(self.tree_vec.len());

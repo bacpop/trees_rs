@@ -2,6 +2,7 @@ use clap::builder::NonEmptyStringValueParser;
 use ndarray::AssignElem;
 
 use crate::node::Node;
+use crate::rate_matrix::RateMatrix;
 use crate::tree::Tree;
 
 //////////////////////////////
@@ -12,8 +13,8 @@ use crate::tree::Tree;
 // If in Left node, swap and go left
 // If in Right node, go up to parent
 #[derive(Debug)]
-pub struct PostOrder<'a> {
-    tree: &'a Tree,
+pub struct PostOrder<'a, T: RateMatrix> {
+    tree: &'a Tree<T>,
     start_flag: bool,
     current_node: Option<&'a Node>,
     end_index: usize,
@@ -27,7 +28,7 @@ pub enum Handedness {
 }
 
 // next() function for PostOrder iterator
-impl<'a> Iterator for PostOrder<'a> {
+impl<'a, T: RateMatrix> Iterator for PostOrder<'a, T> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -58,9 +59,9 @@ impl<'a> Iterator for PostOrder<'a> {
 }
 
 // Tree methods used in post-order traversal
-impl<'a> Tree {
+impl<'a, T: RateMatrix> Tree<T> {
     // Traverses tree in postorder starting at a given node
-    pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder {
+    pub fn postorder(&'a self, node: Option<&'a Node>) -> PostOrder<T> {
         PostOrder {
             current_node: node,
             end_index: node.unwrap().index,

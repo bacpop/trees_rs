@@ -11,6 +11,7 @@ mod rate_matrix;
 
 use crate::build_tree::*;
 use crate::tree::Tree;
+use crate::rate_matrix::GTR;
 use crate::tree_iterators::*;
 extern crate nalgebra as na;
 pub mod cli;
@@ -43,7 +44,7 @@ pub fn main() {
 
     // let mut tr = vector_to_tree(&random_vector(4));
     // tr.add_genetic_data(&String::from("/Users/joel/Downloads/listeria0.aln"));
-    let mut tr = vector_to_tree(&random_vector(27));
+    let mut tr = vector_to_tree(&random_vector(27), &GTR::default());
     tr.add_genetic_data(&args.alignment);
 
     tr.initialise_likelihood();

@@ -1,5 +1,5 @@
 use crate::node::Node;
-use crate::rate_matrix::RateParam;
+use crate::rate_matrix::{self, RateMatrix, GTR};
 use crate::Tree;
 use cxx::let_cxx_string;
 use ndarray::*;
@@ -10,8 +10,8 @@ use std::collections::HashMap;
 // Build a Tree struct from an integer vector //
 ////////////////////////////////////////////////
 
-pub fn vector_to_tree(v: &[usize]) -> Tree {
-    let mut tree = Tree::new(v);
+pub fn vector_to_tree<T: RateMatrix>(v: &[usize], rate_matrix: &T) -> Tree<T> {
+    let mut tree = Tree::new(v, *rate_matrix);
     let mut sub_vec = v.to_vec();
     sub_vec.remove(0);
     let k = sub_vec.len();
@@ -65,7 +65,6 @@ pub fn vector_to_tree(v: &[usize]) -> Tree {
     }
 
     tree.max_depth = tree.max_treedepth();
-    tree.update_rate_matrix_GTR();
 
     tree
 }
@@ -73,7 +72,7 @@ pub fn vector_to_tree(v: &[usize]) -> Tree {
 ///////////////////////////////////////////////
 // Build a Tree struct from an newick string //
 ///////////////////////////////////////////////
-pub fn newick_to_tree(rjstr: String) -> Tree {
+pub fn newick_to_tree<T: RateMatrix>(rjstr: String, rate_matrix: T) -> Tree<T> {
     let mut new_str: String = rjstr.clone();
     let full_split: Vec<&str> = rjstr
         .split(['(', ',', ')', ';'])
@@ -162,15 +161,14 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
     }
 
     // Build the tree by going over the vector
-    let mut proto_tree: Tree = Tree {
+    let mut proto_tree: Tree<T> = Tree {
         tree_vec: vec![0],
         nodes: vec![Node::default(); internal_idx + 1],
         max_depth: 0,
         label_dictionary,
         changes: HashMap::new(),
         mutation_lists: Vec::new(),
-        rate_param: RateParam::default(),
-        rate_matrix: na::Matrix4::identity(),
+        rate_matrix,
     };
 
     // Add nodes to Tree from parent vector, give correct branch length
@@ -186,7 +184,7 @@ pub fn newick_to_tree(rjstr: String) -> Tree {
 
     proto_tree.tree_vec = newick_to_vector(&proto_tree.newick(), proto_tree.count_leaves());
     proto_tree.max_depth = proto_tree.max_treedepth();
-    proto_tree.update_rate_matrix_GTR();
+    // proto_tree.update_rate_matrix_GTR();
 
     proto_tree
 }

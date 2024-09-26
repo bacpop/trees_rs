@@ -1,4 +1,5 @@
 use crate::mutation::Mutation;
+use crate::rate_matrix::RateMatrix;
 use crate::Tree;
 use cached::proc_macro::cached;
 use logaddexp::LogAddExp;
@@ -63,12 +64,12 @@ pub fn base_freq_logse(muta: &Mutation, bf: [f64; 4]) -> f64 {
         .ln()
 }
 
-impl Tree {
+impl<T: RateMatrix> Tree<T> {
     // Updates the genetic likelihood at a given node
     pub fn update_node_likelihood(&mut self, index: usize) {
         if let (Some(ch1), Some(ch2)) = self.get_node(index).unwrap().children {
-            let p1 = na::Matrix::exp(&(self.rate_matrix * self.get_branchlength(ch1)));
-            let p2 = na::Matrix::exp(&(self.rate_matrix * self.get_branchlength(ch2)));
+            let p1 = na::Matrix::exp(&(self.rate_matrix.get_matrix() * self.get_branchlength(ch1)));
+            let p2 = na::Matrix::exp(&(self.rate_matrix.get_matrix() * self.get_branchlength(ch2)));
 
             let seq1 = self.mutation_lists.get(ch1).unwrap();
             let seq2 = self.mutation_lists.get(ch2).unwrap();
