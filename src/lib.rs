@@ -12,6 +12,7 @@ mod rate_matrix;
 use crate::build_tree::*;
 use crate::tree::Tree;
 use crate::rate_matrix::GTR;
+use crate::rate_matrix::JC69;
 use crate::tree_iterators::*;
 extern crate nalgebra as na;
 pub mod cli;

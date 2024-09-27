@@ -8,6 +8,7 @@ pub trait RateMatrix: Copy {
     fn get_matrix(&self) -> na::Matrix4<f64>;
 
     fn get_params(&self) -> Vec<f64>;
+
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -90,43 +91,54 @@ impl Default for GTR {
     }
 }
 
-// #[derive(Debug)]
-// pub struct RateParam(pub f64, pub f64, pub f64, pub f64, pub f64, pub f64, pub Vec<f64>);
+#[derive(Debug, Clone, Copy)]
+pub struct JC69 {
+    matrix: na::Matrix4<f64>,
+    mu: f64,
+}
 
-// impl Default for RateParam {
-//     fn default() -> Self {
-//         RateParam(4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0, vec![0.25, 0.25, 0.25, 0.25])
-//     }
-// }
+impl RateMatrix for JC69 {
+    fn get_matrix(&self) -> na::Matrix4<f64> {
+        self.matrix
+    }
 
-// impl Tree {
+    fn get_params(&self) -> Vec<f64> {
+        vec![self.mu]
+    }
 
-//     pub fn update_rate_param(&mut self, a: f64, b: f64, c: f64, d: f64, e: f64, f: f64, pv: Vec<f64>) {
-//         self.rate_param = RateParam(a, b, c, d, e, f, pv);
-//         // self.update_rate_matrix_GTR();
-//     }
+    fn update_params(&mut self, params: Vec<f64>) {
+        self.mu = params[0];
+    }
 
-//     pub fn update_rate_matrix_GTR(&mut self) {
-//         let RateParam(a, b, c, d, e, f, pv) = &self.rate_param;
-//         // pv = pivec defined as (piA, piC, piG, piT)
-//         let mut q = na::Matrix4::new(
-//             -(a * pv[1] + b * pv[2] + c * pv[3]),
-//             a * pv[1],
-//             b * pv[2],
-//             c * pv[3],
-//             a * pv[0],
-//             -(a * pv[0] + d * pv[2] + e * pv[3]),
-//             d * pv[2],
-//             e * pv[3],
-//             b * pv[0],
-//             d * pv[1],
-//             -(b * pv[0] + d * pv[1] + f * pv[3]),
-//             f * pv[3],
-//             c * pv[0],
-//             e * pv[1],
-//             f * pv[2],
-//             -(c * pv[0] + e * pv[1] + f * pv[2]));
+    fn update_matrix(&mut self) {
+        self.matrix = na::Matrix4::new(
+            - (3.0 * self.mu) / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            - (3.0 * self.mu) / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            - (3.0 * self.mu) / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            self.mu / 4.0,
+            - (3.0 * self.mu) / 4.0,
+        );
+    }
+}
 
-//         self.rate_matrix = q;
-//     }
-// }
+impl Default for JC69 {
+    fn default() -> Self {
+        let mut out = JC69{
+            matrix: na::Matrix4::identity(),
+            mu: 4.0 / 3.0,
+        };
+        out.update_matrix();
+        out
+    }
+}
