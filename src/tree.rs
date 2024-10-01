@@ -124,6 +124,11 @@ impl<T: RateMatrix> Tree<T> {
         self.get_node(index).unwrap().branch_length
     }
 
+    pub fn get_branchlengths(&self) -> nalgebra::Vector1<f64> {
+        let out: Vec<f64> = self.nodes.iter().map(|node| node.branch_length).collect();
+        nalgebra::Vector1::from_vec(out)
+    }
+
     // Find maximum node depth
     pub fn max_treedepth(&self) -> usize {
         self.nodes.iter().map(|node| node.depth).max().unwrap_or(0)

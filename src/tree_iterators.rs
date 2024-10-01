@@ -1,3 +1,5 @@
+use std::thread::current;
+
 use clap::builder::NonEmptyStringValueParser;
 use ndarray::AssignElem;
 
@@ -108,29 +110,28 @@ impl<'a, T: RateMatrix> Tree<T> {
 
 // Changes iterator
 // #[derive(Debug)]
-// pub struct ChangeOrder {
-//     nodevec: Option<Vec<usize>>,
+// pub struct ChangeOrder<'a, T: RateMatrix> {
+//     tree: &'a mut Tree<T>,
+//     current_vec: Vec<usize>,
 // }
 
-// impl Iterator for ChangeOrder {
+// impl<'a, T: RateMatrix> Iterator for ChangeOrder<'a, T> {
 //     type Item = &'a Node;
-// Will changes be faster and easier using
-// Vec<Option<Vec<usize>>> ?
-// fn next(&mut self) -> Option<Self::Item> {
-//     if self.tree.changes.is_empty() {
-//         return None;
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.tree.changes.is_empty() {
+//             return None
+//         } else if self.current_vec.is_empty() {
+//             let k = *self.tree.changes.keys().max().unwrap();
+//             self.current_vec = self.tree.changes.remove(&k).unwrap();
+//             let x = self.current_vec.pop().unwrap();
+//             let n: &'a Node = self.tree.get_node(x)?;
+//             return Some(n)
+//         } else {
+//             let x = self.current_vec.pop().unwrap();
+//             let n: Self::Item = self.tree.get_node(x)?;
+//             return Some(n)
+//         };
 //     }
-
-//     while !self.tree.changes.contains_key(&self.depth) {
-//         self.depth -= 1;
-//     }
-
-//     let x = self.tree.changes.remove(&self.depth).unwrap();
-//     let ni = x.pop();
-//     self.tree.changes.insert(self.depth, x);
-
-//     next_node
-// }
 // }
 
 // impl<'a> Tree {

@@ -23,26 +23,6 @@ pub fn main() {
     let args = cli_args();
     let start = Instant::now();
 
-    // Trees initialise with a default rate matrix equal to this
-    // let q: na::Matrix4<f64> = na::Matrix4::new(
-    //     -1.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     -1.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     -1.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     1.0 / 3.0,
-    //     -1.0,
-    // );
-
     // let mut tr = vector_to_tree(&random_vector(4));
     // tr.add_genetic_data(&String::from("/Users/joel/Downloads/listeria0.aln"));
     let mut tr = vector_to_tree(&random_vector(27), &GTR::default());
@@ -55,7 +35,7 @@ pub fn main() {
 
     if !args.no_optimise {
         let start = Instant::now();
-        tr.hillclimb(5);
+        tr.hillclimb(1);
         let end = Instant::now();
 
         eprintln!("Done in {}s", end.duration_since(start).as_secs());
