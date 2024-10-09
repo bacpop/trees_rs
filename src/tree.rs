@@ -1,7 +1,6 @@
 use crate::mutation::{create_list, Mutation};
 use crate::node::Node;
-use crate::rate_matrix::{self, RateMatrix};
-use crate::rate_matrix::GTR;
+use crate::rate_matrix::{RateMatrix};
 use crate::vector_to_tree;
 use needletail::*;
 use std::collections::HashMap;

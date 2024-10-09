@@ -8,6 +8,10 @@ mod tree;
 mod tree_iterators;
 mod tree_to_newick;
 mod rate_matrix;
+mod branch_optimise;
+mod tree_moves;
+
+use rand::Rng;
 
 use crate::build_tree::*;
 use crate::tree::Tree;
@@ -41,4 +45,5 @@ pub fn main() {
         eprintln!("Done in {}s", end.duration_since(start).as_secs());
         eprintln!("Done in {}ms", end.duration_since(start).as_millis());
     }
+
 }
