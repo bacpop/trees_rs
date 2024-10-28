@@ -1,5 +1,3 @@
-use crate::Tree;
-
 pub trait RateMatrix: Copy {
     fn update_matrix(&mut self);
 
