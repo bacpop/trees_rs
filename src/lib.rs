@@ -4,6 +4,7 @@ mod iterators;
 mod rate_matrix;
 mod topology;
 mod genetic_data;
+mod moves;
 
 use rate_matrix::RateMatrix;
 use topology::Topology;
@@ -15,6 +16,7 @@ use crate::cli::*;
 use std::env::args;
 use std::time::Instant;
 use crate::genetic_data::*;
+use crate::moves::*;
 
 pub fn main() {
     let args = cli_args();
