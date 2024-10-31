@@ -167,4 +167,8 @@ impl<'a> Topology {
             current_vec: Vec::new(),
         }
     }
+
+    pub fn changes_iter_notips(&'a self, indices: Vec<usize>) -> impl Iterator<Item = &'a NodeTuple> {
+        self.changes_iter(indices).filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
+    }
 }

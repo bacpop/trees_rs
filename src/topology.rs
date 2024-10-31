@@ -75,10 +75,9 @@ pub struct Topology {
     pub nodes: Vec<NodeTuple>,
     pub tree_vec: Vec<usize>,
     pub likelihood: Option<f64>,
-    pub likelihood_vec: Option<Vec<f64>>,
 }
 
-impl<'a> Topology {
+impl Topology {
     // Builds a new Topology from an integer tree vector
     pub fn from_vec(tree_vec: &[usize]) -> Self {
         
@@ -145,7 +144,6 @@ impl<'a> Topology {
             nodes,
             tree_vec: tree_vec.to_vec(),
             likelihood: None,
-            likelihood_vec: None,
         }
 
     }
@@ -260,7 +258,6 @@ impl<'a> Topology {
             nodes: nodevec,
             tree_vec: vec![0],
             likelihood: None,
-            likelihood_vec: None,
         };
 
         // Update tree vec
@@ -365,12 +362,6 @@ impl<'a> Topology {
         } else {
             return None;
         }
-    }
-
-    // Updates a Topology to a new vector
-    // Changes HashMap will be used in here but not saved in the Topology I think
-    pub fn update(&mut self, tree_vec: &[usize]) -> Self {
-        todo!()
     }
 
     pub fn get_root(&self) -> &NodeTuple {
