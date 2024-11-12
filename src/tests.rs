@@ -1,8 +1,13 @@
 #[cfg(test)]
 mod tests {
-    use crate::newick_to_vec::*;
-    use crate::rate_matrix::GTR;
+    use predicates::constant::always;
+
+    use crate::{likelihood, newick_to_vec::*};
+    use crate::rate_matrix::{RateMatrix, GTR};
     use crate::topology::Topology;
+    use crate::moves::ExactMove;
+    use crate::create_dummy_gendata;
+    use crate::always_accept;
 
     #[test]
     fn check_topology_build_manual() {
@@ -79,84 +84,46 @@ mod tests {
         assert_eq!(top.nodes[6].get_parent(), None);
     }
 
-    // #[test]
-    // fn update_tree() {
-    //     let mut tree_1 = vector_to_tree(&vec![0, 0, 1, 0], &GTR::default());
+    #[test]
+    fn update_tree() {
+        let p = GTR::default();
+        let mut t_1 = Topology::from_vec(&vec![0, 0, 1, 0]);
 
-    //     let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
+        let mut gen_data = create_dummy_gendata(2, &t_1, &p.get_matrix());
 
-    //     for vec in vecs {
-    //         let tree_2 = vector_to_tree(&vec, &GTR::default());
-    //         tree_1.update(&vec);
+        let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
 
-    //         for i in 0..=tree_1.tree_vec.len() {
-    //             assert_eq!(
-    //                 tree_1.get_node(i].get_parent(),
-    //                 tree_2.get_node(i].get_parent());
-    //             assert_eq!(
-    //                 tree_1.get_node(i).unwrap().index,
-    //                 tree_2.get_node(i).unwrap().index
-    //             );
-    //         }
-    //     }
+        for vec in vecs {
+            let t_2 = Topology::from_vec(&vec);
+            let mv = ExactMove{target_vector: vec};
+            t_1.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
+
+            for i in 0..t_1.nodes.len() {
+                assert_eq!(t_1.nodes[i].get_parent(), t_2.nodes[i].get_parent());
+                assert_eq!(t_1.nodes[i].get_id(), t_2.nodes[i].get_id());
+            };
+        }
         
-    // }
+    }
     
-    // #[test]
-    // fn likelihood_internal_consistency_check() {
-    //     // let q: na::Matrix4<f64> = na::Matrix4::new(
-    //     //     -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0, 1.0, 1.0, 1.0, 1.0, -3.0,
-    //     // );
+    #[test]
+    fn likelihood_internal_consistency_check() {
+        let p = GTR::default();
+        let mut t = Topology::from_vec(&vec![0, 0, 0, 0]);
+        let mut gen_data = create_dummy_gendata(5, &t, &p.get_matrix());
 
-    //     let mut tr = vector_to_tree(&vec![0, 0, 0, 0], &GTR::default());
+        let old_likelihood = likelihood(&t, &gen_data);
 
-    //     let genetic_data = vec![
-    //     vec![
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //     ],
-    //     vec![
-    //         Mutation(0.0, 1.0, 0.0, 0.0),
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //     ],
-    //     vec![
-    //         Mutation(0.0, 0.0, 1.0, 0.0),
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //     ],
-    //     vec![
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //         Mutation(0.0, 0.0, 0.0, 1.0),
-    //     ],
-    //     vec![
-    //         Mutation(0.0, 1.0, 0.0, 0.0),
-    //         Mutation(0.0, 0.0, 0.0, 1.0),
-    //     ],
-    //     vec![
-    //         Mutation(0.0, 0.0, 1.0, 0.0),
-    //         Mutation(0.0, 0.0, 0.0, 1.0),
-    //     ],
-    //     vec![
-    //         Mutation(0.0, 1.0, 0.0, 0.0),
-    //         Mutation(1.0, 0.0, 0.0, 0.0),
-    //     ],
-    // ];
+        let mv = ExactMove{target_vector: vec![0, 0, 0, 1]};
+        t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
 
-    // tr.mutation_lists = genetic_data;
+        let mv = ExactMove{target_vector: vec![0, 0, 0, 0]};
+        t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
 
-    // tr.initialise_likelihood();
-    
-    // let old_likelihood = tr.get_tree_likelihood();
+        let new_likelihood = likelihood(&t, &gen_data);
 
-    // tr.update(&vec![0, 0, 0, 1]);
-    // tr.update_likelihood();
-
-    // tr.update(&vec![0, 0, 0, 0]);
-    // tr.update_likelihood();
-
-    // let new_likelihood = tr.get_tree_likelihood();
-
-    // assert_eq!(old_likelihood, new_likelihood);
-    // }
+        assert_eq!(old_likelihood, new_likelihood);
+    }
 
     #[test]
     fn manual_parent_check () {

@@ -34,27 +34,13 @@ pub fn main() {
     let p = &rate_matrix::GTR::default();
     let mut gen_data = create_genetic_data(&args.alignment, &t, &p.get_matrix());
 
-
-    // println!("{:?}", slice_gen_data(1, &gen_data));
-
-    // tr.initialise_likelihood();
-    // println!("tree likelihood {}", tr.get_tree_likelihood());
     println!("{:?}", likelihood(&t, &gen_data));
     println!("{:?}", t.get_newick());
     println!("{:?}", t.tree_vec);
 
-    // let new_v = random_vector(27);
-    // let mut t2: Topology = Topology::from_vec(&new_v);
-
-    // let mv = ExactMove{target_vector: new_v};
-    // t.apply_move(mv, hillclimb_accept, &mut gen_data, &p.get_matrix());
-    // println!("updated ll: {:?}, initialised ll: {:?}", likelihood(&t, &gen_data), likelihood(&t2, &gen_data));
-
-    
-
     if !args.no_optimise {
         let start = Instant::now();
-        for i in 0..10 {
+        for i in 0..1 {
             println!{"Step {}", i};
             // let new_v = random_vector(27);
             // let mv = ExactMove{target_vector: new_v};

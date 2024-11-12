@@ -143,3 +143,7 @@ impl MoveFn for NearestNeighbour {
 pub fn hillclimb_accept(old_ll: &f64, new_ll: &f64) -> bool {
     new_ll.gt(old_ll)
 }
+
+pub fn always_accept(old_ll: &f64, new_ll: &f64) -> bool {
+    true
+}

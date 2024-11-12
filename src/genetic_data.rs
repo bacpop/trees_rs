@@ -1,3 +1,4 @@
+use std::os::unix::thread;
 use std::thread::current;
 use std::collections::HashMap;
 use needletail::parse_fastx_file;
@@ -5,6 +6,7 @@ use crate::topology::Topology;
 use ndarray::s;
 use logaddexp::LogAddExp;
 use crate::moves::MoveFn;
+use rand::{thread_rng, Rng};
 
 const NEGINF: f64 = -f64::INFINITY;
 // (A, C, G, T)
@@ -102,6 +104,25 @@ pub fn create_internal_data(mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<
     }
 
     gen_data
+}
+
+pub fn create_dummy_gendata(n_bases: usize, topology: &Topology, rate_matrix: &na::Matrix4<f64>) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
+    
+    let n_seqs = topology.count_leaves();
+
+    let mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> = 
+        ndarray::Array3::from_elem(((2 * n_seqs) + 1, n_bases, 4), 0.0);
+    
+    let mut rng = thread_rng();
+
+    for i in 0..n_seqs {
+        for j in 0..n_bases {
+            let k = rng.gen_range(0..4);
+            gen_data[[i, j, k]] = NEGINF;
+        }
+    }
+    
+    create_internal_data(gen_data, topology, rate_matrix)
 }
                                     
 pub fn child_likelihood_i(i: usize, ll: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>, p: &na::Matrix4<f64>) -> f64 {
