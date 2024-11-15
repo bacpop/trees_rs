@@ -140,3 +140,30 @@ impl Default for JC69 {
         out
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct MGE {
+    matrix: na::Matrix2<f64>,
+    gain_rate: f64,
+}
+
+impl MGE {
+    fn get_matrix(&self) -> na::Matrix2<f64> {
+        self.matrix
+    }
+
+    fn get_params(&self) -> Vec<f64> {
+        vec![self.gain_rate]
+    }
+
+    fn update_matrix(&mut self) {
+        self.matrix = na::Matrix2::new(-self.gain_rate, 
+            self.gain_rate,
+            self.gain_rate, 
+            -self.gain_rate);
+    }
+
+    fn update_params(&mut self, params: Vec<f64>) {
+        self.gain_rate = params[0];
+    }
+}

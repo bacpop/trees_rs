@@ -47,6 +47,15 @@ pub fn char_to_likelihood(e: &char) -> [f64; 4] {
     }
 }
 
+pub fn count_sequences(filename: &str) -> usize {
+    let mut reader = parse_fastx_file(filename).expect("Error parsing file");
+    let mut n_seqs: usize = 0;
+    while let Some(_record) = reader.next() {
+        n_seqs += 1;
+    };
+    n_seqs
+}
+
 
 pub fn create_genetic_data(filename: &str, topology: &Topology, rate_matrix: &na::Matrix4<f64>) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
     // Count number of sequences and their length
@@ -60,7 +69,7 @@ pub fn create_genetic_data(filename: &str, topology: &Topology, rate_matrix: &na
     }
     // Create pre-filled array
     let mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> = 
-        ndarray::Array3::from_elem(((2 * n_seqs) + 1, n_bases, 4), -99.0);
+        ndarray::Array3::from_elem(((2 * n_seqs) - 1, n_bases, 4), -99.0);
         // println!("Assigning data for {} leaves and {} total nodes", n_seqs, (2 * n_seqs) + 1);
 
     let mut reader2 = parse_fastx_file(filename).expect("Error parsing file");
@@ -82,7 +91,7 @@ pub fn create_genetic_data(filename: &str, topology: &Topology, rate_matrix: &na
 }
 
 
-pub fn create_internal_data(mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
+pub fn create_internal_data(mut data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
                                            topology: &Topology, rate_matrix: &na::Matrix4<f64>) -> 
                                            ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
     // Iterate over internal nodes postorder
@@ -93,17 +102,17 @@ pub fn create_internal_data(mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<
         // Calculate node likelihood
         let lchild = node.get_lchild().unwrap();
         let rchild = node.get_rchild().unwrap();
-        let node_ll = node_likelihood(slice_gen_data(lchild, &gen_data),
-        slice_gen_data(rchild, &gen_data), 
+        let node_ll = node_likelihood(slice_data(lchild, &data),
+        slice_data(rchild, &data), 
         &matrix_exp(rate_matrix, topology.nodes[lchild].get_branchlen()),
          &matrix_exp(rate_matrix, topology.nodes[lchild].get_branchlen()));
         // let node_ll = node_likelihood(node.get_lchild().unwrap(), node.get_rchild().unwrap(), &gen_data, topology, rate_matrix);
         // let node_ll = node_likelihood(i, &gen_data, topology, rate_matrix);
         // Add to genetic data array
-        gen_data.slice_mut(s![i, .., ..]).assign(&node_ll);
+        data.slice_mut(s![i, .., ..]).assign(&node_ll);
     }
 
-    gen_data
+    data
 }
 
 pub fn create_dummy_gendata(n_bases: usize, topology: &Topology, rate_matrix: &na::Matrix4<f64>) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
@@ -121,7 +130,7 @@ pub fn create_dummy_gendata(n_bases: usize, topology: &Topology, rate_matrix: &n
             gen_data[[i, j, k]] = NEGINF;
         }
     }
-    
+
     create_internal_data(gen_data, topology, rate_matrix)
 }
                                     
@@ -139,10 +148,10 @@ pub fn matrix_exp(rate_matrix: &na::Matrix4<f64>, branch_len: f64) -> na::Matrix
     na::Matrix::exp(&(rate_matrix * branch_len))
 }
 
-pub fn slice_gen_data(index: usize, gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>) -> 
+pub fn slice_data(index: usize, data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>) -> 
 ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>> {
-        gen_data.slice(s![index, .., ..])
-    }
+        data.slice(s![index, .., ..])
+}
 
 pub fn node_likelihood(seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>,
     seqr: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>,
@@ -232,15 +241,15 @@ impl Topology {
                 },
                 (true, false) => {
                     seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = slice_gen_data(rchild, &gen_data);
+                    seqr = slice_data(rchild, &gen_data);
                 },
                 (false, true) => {
-                    seql = slice_gen_data(lchild, &gen_data);
+                    seql = slice_data(lchild, &gen_data);
                     seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
                 },
                 (false, false) => {
-                    seql = slice_gen_data(lchild, &gen_data);
-                    seqr = slice_gen_data(rchild, &gen_data);
+                    seql = slice_data(lchild, &gen_data);
+                    seqr = slice_data(rchild, &gen_data);
                 },
             };
 

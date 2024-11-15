@@ -1,7 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use predicates::constant::always;
-
     use crate::{likelihood, newick_to_vec::*};
     use crate::rate_matrix::{RateMatrix, GTR};
     use crate::topology::Topology;

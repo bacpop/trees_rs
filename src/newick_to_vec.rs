@@ -26,10 +26,10 @@ pub mod ffi {
 ////////////////////////////////////////////////
 // Create a random vector with a given length //
 ////////////////////////////////////////////////
-pub fn random_vector(k: usize) -> Vec<usize> {
+pub fn random_vector(n_seqs: usize) -> Vec<usize> {
     let mut rng = rand::thread_rng();
 
-    vec![0; k + 1]
+    vec![0; n_seqs]
         .iter()
         .enumerate()
         .map(|(i, _el)| {

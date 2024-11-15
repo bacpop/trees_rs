@@ -5,8 +5,10 @@ mod rate_matrix;
 mod topology;
 mod genetic_data;
 mod moves;
+mod state_data;
 
 use rate_matrix::RateMatrix;
+use state_data::create_dummy_statedata;
 use topology::Topology;
 
 use crate::newick_to_vec::*;
@@ -24,12 +26,13 @@ pub fn main() {
 
     // let mut tr = vector_to_tree(&random_vector(4));
     // tr.add_genetic_data(&String::from("/Users/joel/Downloads/listeria0.aln"));
-    let v = random_vector(27);
+    // let n_seqs = count_sequences(&args.alignment);
 
-    // let mut tr = vector_to_tree(&v, &GTR::default());
-    // tr.add_genetic_data(&args.alignment);
+    let v = random_vector(28);
 
     let mut t: Topology = Topology::from_vec(&v);
+
+    // println!("{:?}", t.count_leaves());
 
     let p = &rate_matrix::GTR::default();
     let mut gen_data = create_genetic_data(&args.alignment, &t, &p.get_matrix());
@@ -37,6 +40,9 @@ pub fn main() {
     println!("{:?}", likelihood(&t, &gen_data));
     println!("{:?}", t.get_newick());
     println!("{:?}", t.tree_vec);
+    
+    // let mge_mat = na::Matrix2::new(0.4, 0.6, 0.6, 0.4);
+    // let mut st = create_dummy_statedata(1, &t, &mge_mat);
 
     if !args.no_optimise {
         let start = Instant::now();
