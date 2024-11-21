@@ -37,21 +37,15 @@ pub fn main() {
     let p = &rate_matrix::GTR::default();
     let mut gen_data = create_genetic_data(&args.alignment, &t, &p.get_matrix());
 
-    // println!("{:?}", likelihood(&t, &gen_data));
+    println!("{:?}", likelihood(&t, &gen_data));
     println!("{:?}", t.get_newick());
-    // println!("{:?}", t.tree_vec);
+    println!("{:?}", t.tree_vec);
+
+    let mge_mat = na::Matrix2::new(0.4, 0.6, 0.6, 0.4);
+    let mut st = create_dummy_statedata(1, &t, &mge_mat);
 
     let mv2 = ChildSwap{};
-    println!("hmm");
-    let nt = mv2.generate_move(&t);
-    
-    // for (new, old) in nt.new_topology.nodes.iter().zip(t.nodes.iter()) {
-    //     println!("old: {:?}, new: {:?}", old, new);
-    // }
-
-    // t.apply_move(mv2, hillclimb_accept, &mut gen_data, &p.get_matrix());
-    // let mge_mat = na::Matrix2::new(0.4, 0.6, 0.6, 0.4);
-    // let mut st = create_dummy_statedata(1, &t, &mge_mat);
+    t.apply_move(mv2, hillclimb_accept, &mut gen_data, &p.get_matrix());
 
     if !args.no_optimise {
         let start = Instant::now();
@@ -59,6 +53,7 @@ pub fn main() {
             println!{"Step {}", i};
             // let new_v = random_vector(27);
             // let mv = ExactMove{target_vector: new_v};
+            // let mv = ChildSwap{};
             let mv = PeturbVec{n: 10};
             t.apply_move(mv, hillclimb_accept, &mut gen_data, &p.get_matrix());
             

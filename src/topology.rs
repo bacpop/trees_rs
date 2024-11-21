@@ -276,7 +276,6 @@ impl Topology {
         String::from(":"), current_node.unwrap().get_id().to_string()];
 
         while current_node.is_some() {
-
             match (current_node.unwrap().get_lchild(), current_node.unwrap().get_rchild()) {
                 (Some(a), None) => {
                     next_node = self.nodes.get(a);
@@ -305,7 +304,6 @@ impl Topology {
                     };
                     if next_node.is_some() {
                         let n: usize = current_node.unwrap().get_depth() - next_node.unwrap().get_depth();
-
                         match n {
                             0 => {newick.push(String::from(","));},
                             _ => {

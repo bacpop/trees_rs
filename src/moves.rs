@@ -147,40 +147,73 @@ pub struct ChildSwap{
 
 impl MoveFn for ChildSwap {
     fn generate_move(&self, current_topology: &Topology) -> CandidateTopology {
+        // Create new topology
         let mut new_topology: Topology = Topology{
             nodes: current_topology.nodes.clone(),
             tree_vec: current_topology.tree_vec.clone(),
             likelihood: None,
         };
+        // Select indices of internal nodes
         let mut int_nodes: Vec<usize> = current_topology.postorder_notips(current_topology.get_root()).map(|n| n.get_id()).collect();
+        // Pop off root
+        int_nodes.pop();
+        // Randomly choose an internal node
         let ind = int_nodes.remove(rand::thread_rng().gen_range(0..int_nodes.len()));
-        let mut node = current_topology.nodes[ind].get_id();
-        let mut parent = current_topology.get_parent(&current_topology.nodes[node]).unwrap().get_id();
-        println!("Node: {:?}, Parent: {:?}", current_topology.nodes[node], current_topology.nodes[parent]);
+        // Get index of node and its parent
+        let node = current_topology.nodes[ind].get_id();
+        let parent = current_topology.get_parent(&current_topology.nodes[node]).unwrap().get_id();
+        // Get children of node and its parent
         let (par_lc, par_rc) = (current_topology.nodes[parent].get_lchild(), current_topology.nodes[parent].get_rchild());
         let (node_lc, node_rc) = (current_topology.nodes[node].get_lchild(), current_topology.nodes[node].get_rchild());
-        println!("Parent children: {:?}", (par_lc, par_rc));
-        println!("Node children: {:?}", (node_lc, node_rc));
-        // println!("3");
+        // This vector will store all the nodes whose depth needs updating (required for correct Newick String generation later)
+        let mut all_subnodes: Vec<usize>;
+
+        // println!("node: {:?}", current_topology.nodes[node]);
+        // println!("parent: {:?}", current_topology.nodes[parent]);
+        // println!("node lchild {:?}", current_topology.nodes[node_lc.unwrap()]);
+        // println!("node rchild {:?}", current_topology.nodes[node_rc.unwrap()]);
+        // println!("parent lchild {:?}", current_topology.nodes[par_lc.unwrap()]);
+        // println!("parent rchild {:?}", current_topology.nodes[par_rc.unwrap()]);
+
         if node.eq(&par_lc.unwrap()) {
-            println!("left child of parent, swap right children");
+            // left child of parent, swap right children
             new_topology.nodes[node].set_rchild(par_rc);
             new_topology.nodes[par_rc.unwrap()].set_parent(Some(node));
             new_topology.nodes[parent].set_rchild(node_rc);
             new_topology.nodes[node_rc.unwrap()].set_parent(Some(parent));
+            all_subnodes = new_topology.postorder(&new_topology.nodes[par_rc.unwrap()])
+            .chain(new_topology.postorder(&new_topology.nodes[node_rc.unwrap()]))
+            .map(|n| n.get_id()).collect();
         } else {
-            println!("right child of parent, swap left children");
             // right child of parent, swap left children
             new_topology.nodes[node].set_lchild(par_lc);
             new_topology.nodes[par_lc.unwrap()].set_parent(Some(node));
             new_topology.nodes[parent].set_lchild(node_lc);
             new_topology.nodes[node_lc.unwrap()].set_parent(Some(parent));
+            all_subnodes = new_topology.postorder(&new_topology.nodes[par_lc.unwrap()])
+            .chain(new_topology.postorder(&new_topology.nodes[node_lc.unwrap()]))
+            .map(|n| n.get_id()).collect();
         };
-        println!("New Node: {:?}, New Parent: {:?}", new_topology.nodes[node], new_topology.nodes[parent]);
-        // println!("{:?}", new_topology.get_newick());
-        // println!("{:?}", new_topology.count_leaves());
-        // new_topology.tree_vec = newick_to_vector(&new_topology.get_newick(), new_topology.count_leaves());
-        // println!("5");
+
+        // println!("new node: {:?}", new_topology.nodes[node]);
+        // println!("new parent: {:?}", new_topology.nodes[parent]);
+        // println!("new node lchild {:?}", new_topology.nodes[node_lc.unwrap()]);
+        // println!("new node rchild {:?}", new_topology.nodes[node_rc.unwrap()]);
+        // println!("new parent lchild {:?}", new_topology.nodes[par_lc.unwrap()]);
+        // println!("new parent rchild {:?}", new_topology.nodes[par_rc.unwrap()]);
+
+        // This guarantees correct ordering of depth updating
+        all_subnodes.sort();
+        all_subnodes.reverse();
+        // println!("all_subnodes: {:?}", all_subnodes);
+        // Update depths in substrees that have been moved
+        for n in all_subnodes {
+            let d = new_topology.get_parent(&new_topology.nodes[n]).unwrap().get_depth() + 1;
+            new_topology.nodes[n].set_depth(d);
+        }
+
+        new_topology.tree_vec = newick_to_vector(&new_topology.get_newick(), new_topology.count_leaves());
+        
         CandidateTopology{
             new_topology,
             changes: Some(vec![node, parent]),
