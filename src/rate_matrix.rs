@@ -1,3 +1,7 @@
+use crate::topology::Topology;
+use statrs::distribution::{Dirichlet};
+use rand::distributions::{Distribution, Uniform};
+
 pub trait RateMatrix: Copy {
     fn update_matrix(&mut self);
 
@@ -7,6 +11,7 @@ pub trait RateMatrix: Copy {
 
     fn get_params(&self) -> Vec<f64>;
 
+    fn matrix_move(&mut self);
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -68,6 +73,18 @@ impl RateMatrix for GTR {
                 self.f * self.p2,
                 -(self.c * self.p0 + self.e * self.p1 + self.f * self.p2));
     }
+
+    fn matrix_move(&mut self) {
+        let mut d1 = Dirichlet::new_with_param(1.0, 6).unwrap();
+        let pars = d1.sample(&mut rand::thread_rng());
+        
+        let d2 = Dirichlet::new_with_param(1.0, 4).unwrap();
+        let pars2 = d2.sample(&mut rand::thread_rng());
+
+        let params: Vec<f64> = pars.iter().chain(pars2.iter()).map(|x| *x).collect();
+        self.update_params(params);
+        self.update_matrix();
+    }
 }
 
 impl Default for GTR {
@@ -128,6 +145,14 @@ impl RateMatrix for JC69 {
             - (3.0 * self.mu) / 4.0,
         );
     }
+
+    fn matrix_move(&mut self) {
+        let rng = rand::thread_rng();
+        let dist = Uniform::new(0.0, 1.0);
+        let params = vec![dist.sample(&mut rand::thread_rng())];
+        self.update_params(params);
+        self.update_matrix();
+    }
 }
 
 impl Default for JC69 {
@@ -166,4 +191,13 @@ impl MGE {
     fn update_params(&mut self, params: Vec<f64>) {
         self.gain_rate = params[0];
     }
+}
+
+impl Topology {
+    pub fn update_matrix<T: RateMatrix>(&self, 
+        accept_fn: fn(&f64, &f64) -> bool, 
+        gen_data: &mut ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>, 
+        rate_matrix: T) -> () {
+
+        }
 }

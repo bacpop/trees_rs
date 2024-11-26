@@ -44,18 +44,18 @@ pub fn main() {
     let mge_mat = na::Matrix2::new(0.4, 0.6, 0.6, 0.4);
     let mut st = create_dummy_statedata(1, &t, &mge_mat);
 
-    let mv2 = ChildSwap{};
-    t.apply_move(mv2, hillclimb_accept, &mut gen_data, &p.get_matrix());
+    // let mv2 = ChildSwap{};
+    // t.apply_move(mv2, hillclimb_accept, &mut gen_data, &mut p.get_matrix());
 
     if !args.no_optimise {
         let start = Instant::now();
-        for i in 0..1 {
+        for i in 0..5 {
             println!{"Step {}", i};
             // let new_v = random_vector(27);
             // let mv = ExactMove{target_vector: new_v};
             // let mv = ChildSwap{};
-            let mv = PeturbVec{n: 10};
-            t.apply_move(mv, hillclimb_accept, &mut gen_data, &p.get_matrix());
+            let mv = PeturbVec{n: 1};
+            t.apply_move(mv, hillclimb_accept, &mut gen_data, &mut p.get_matrix());
             
         }
         let end = Instant::now();

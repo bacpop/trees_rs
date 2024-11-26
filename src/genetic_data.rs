@@ -219,6 +219,8 @@ impl Topology {
         // Generate new candidate Topology using move function
         let new_top = move_fn.generate_move(&self);
 
+        println!("Changes: {:?}", new_top.changes);
+
         // Move did nothing, no changes needed
         if new_top.changes.is_none() {
             return ()

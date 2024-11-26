@@ -213,7 +213,7 @@ impl MoveFn for ChildSwap {
         }
 
         new_topology.tree_vec = newick_to_vector(&new_topology.get_newick(), new_topology.count_leaves());
-        
+
         CandidateTopology{
             new_topology,
             changes: Some(vec![node, parent]),
@@ -223,7 +223,6 @@ impl MoveFn for ChildSwap {
 }
 
 
-
 pub fn hillclimb_accept(old_ll: &f64, new_ll: &f64) -> bool {
     new_ll.gt(old_ll)
 }
@@ -231,3 +230,4 @@ pub fn hillclimb_accept(old_ll: &f64, new_ll: &f64) -> bool {
 pub fn always_accept(_old_ll: &f64, _new_ll: &f64) -> bool {
     true
 }
+
