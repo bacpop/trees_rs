@@ -166,7 +166,7 @@ pub fn node_likelihood(seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray
         out
 }
 
-const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
+pub const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
 
 pub fn likelihood(top: &Topology, gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>) -> f64 {
     let root_likelihood = gen_data.slice(s![top.get_root().get_id(), .., .. ]);
