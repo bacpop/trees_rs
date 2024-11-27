@@ -45,10 +45,10 @@ pub fn main() {
     let mge_mat = na::Matrix2::new(0.4, 0.6, 0.6, 0.4);
     let mut st = create_dummy_statedata(1, &t, &mge_mat);
 
-    let mut pp = rate_matrix::GTR::default();
-    println!("{:?}", pp.get_matrix());
-    update_matrix(&mut t, always_accept, &mut gen_data, &mut pp);
-    println!("{:?}", pp.get_matrix());
+    // let mut pp = rate_matrix::GTR::default();
+    // println!("{:?}", pp.get_matrix());
+    // update_matrix(&mut t, always_accept, &mut gen_data, &mut pp);
+    // println!("{:?}", pp.get_matrix());
     // let mv = ChildSwap{};
     // t.apply_move(mv2, hillclimb_accept, &mut gen_data, &mut p.get_matrix());
 
