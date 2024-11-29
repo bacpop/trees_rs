@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use crate::{likelihood, newick_to_vec::*};
+    use crate::newick_to_vec::{newick_to_vector, random_vector};
     use crate::rate_matrix::{RateMatrix, GTR};
     use crate::topology::Topology;
     use crate::moves::ExactMove;
     use crate::create_dummy_gendata;
     use crate::always_accept;
+    use crate::treestate::TreeState;
 
     #[test]
     fn check_topology_build_manual() {
@@ -85,20 +86,29 @@ mod tests {
     #[test]
     fn update_tree() {
         let p = GTR::default();
-        let mut t_1 = Topology::from_vec(&vec![0, 0, 1, 0]);
+        let t_1 = Topology::from_vec(&vec![0, 0, 1, 0]);
 
         let mut gen_data = create_dummy_gendata(2, &t_1, &p.get_matrix());
 
+        let mut ts = TreeState{
+            top: t_1,
+            mat: p,
+            ll: None,
+            changed_nodes: None,
+        };
+
         let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
+        let n = ts.top.nodes.len();
 
         for vec in vecs {
             let t_2 = Topology::from_vec(&vec);
             let mv = ExactMove{target_vector: vec};
-            t_1.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
-
-            for i in 0..t_1.nodes.len() {
-                assert_eq!(t_1.nodes[i].get_parent(), t_2.nodes[i].get_parent());
-                assert_eq!(t_1.nodes[i].get_id(), t_2.nodes[i].get_id());
+            ts.apply_move(mv, always_accept, &mut gen_data);
+            // t_1.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
+            
+            for i in 0..n {
+                assert_eq!(ts.top.nodes[i].get_parent(), t_2.nodes[i].get_parent());
+                assert_eq!(ts.top.nodes[i].get_id(), t_2.nodes[i].get_id());
             };
         }
         
@@ -109,16 +119,18 @@ mod tests {
         let p = GTR::default();
         let mut t = Topology::from_vec(&vec![0, 0, 0, 0]);
         let mut gen_data = create_dummy_gendata(5, &t, &p.get_matrix());
+        let mut ts = TreeState{top: t, mat: p, ll: None, changed_nodes: None};
 
-        let old_likelihood = likelihood(&t, &gen_data);
+        let old_likelihood = ts.likelihood(&gen_data);
 
         let mv = ExactMove{target_vector: vec![0, 0, 0, 1]};
-        t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
+        ts.apply_move(mv, always_accept, &mut gen_data);
+        // t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
 
         let mv = ExactMove{target_vector: vec![0, 0, 0, 0]};
-        t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
+        ts.apply_move(mv, always_accept, &mut gen_data);
 
-        let new_likelihood = likelihood(&t, &gen_data);
+        let new_likelihood = ts.likelihood(&gen_data);
 
         assert_eq!(old_likelihood, new_likelihood);
     }
