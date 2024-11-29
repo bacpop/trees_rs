@@ -1,5 +1,5 @@
 use crate::topology::Topology;
-use crate::{likelihood, slice_data, node_likelihood, matrix_exp, BF_DEFAULT, base_freq_logse};
+use crate::{base_freq_logse, likelihood, matrix_exp, node_likelihood, slice_data, CandidateTopology, MoveFn, BF_DEFAULT};
 use statrs::distribution::{Dirichlet};
 use rand::distributions::{Distribution, Uniform};
 use std::collections::HashMap;
@@ -14,7 +14,7 @@ pub trait RateMatrix: Copy {
 
     fn get_params(&self) -> Vec<f64>;
 
-    fn matrix_move(&mut self) -> Self;
+    fn matrix_move(&self) -> Self;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -77,7 +77,7 @@ impl RateMatrix for GTR {
                 -(self.c * self.p0 + self.e * self.p1 + self.f * self.p2));
     }
 
-    fn matrix_move(&mut self) -> Self {
+    fn matrix_move(&self) -> Self {
         let mut d1 = Dirichlet::new_with_param(1.0, 6).unwrap();
         let pars = d1.sample(&mut rand::thread_rng());
         
@@ -151,7 +151,7 @@ impl RateMatrix for JC69 {
         );
     }
 
-    fn matrix_move(&mut self) -> Self {
+    fn matrix_move(&self) -> Self {
         let rng = rand::thread_rng();
         let dist = Uniform::new(0.0, 1.0);
         let params = vec![dist.sample(&mut rand::thread_rng())];
@@ -200,80 +200,80 @@ impl MGE {
     }
 }
 
-pub fn update_matrix<T: RateMatrix>(topology: &mut Topology,
-        accept_fn: fn(&f64, &f64) -> bool, 
-        gen_data: &mut ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>, 
-        rate_matrix: &mut T) -> () {
+// pub fn update_matrix<T: RateMatrix>(topology: &mut Topology,
+//         accept_fn: fn(&f64, &f64) -> bool, 
+//         gen_data: &mut ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>, 
+//         rate_matrix: &mut T) -> () {
 
-        // Get current likelihood, calculating if needed
-        if topology.likelihood.is_none() {
-            topology.likelihood = Some(likelihood(&topology, gen_data));
-        }
-        let old_ll = topology.likelihood.unwrap();
-        println!("old ll: {:?}", old_ll);
-        // Generate new matrix
-        let new_mat = rate_matrix.matrix_move();
+//         // Get current likelihood, calculating if needed
+//         if topology.likelihood.is_none() {
+//             topology.likelihood = Some(likelihood(&topology, gen_data));
+//         }
+//         let old_ll = topology.likelihood.unwrap();
+//         println!("old ll: {:?}", old_ll);
+//         // Generate new matrix
+//         let new_mat = rate_matrix.matrix_move();
 
-        // Iterator over internal nodes
-        let nodes = topology.postorder_notips(topology.get_root());
-        // HashMap for potentially temporary likelihood calculations
-        let mut temp_likelihoods: HashMap<usize, ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>> = HashMap::new();
+//         // Iterator over internal nodes
+//         let nodes = topology.postorder_notips(topology.get_root());
+//         // HashMap for potentially temporary likelihood calculations
+//         let mut temp_likelihoods: HashMap<usize, ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>> = HashMap::new();
 
-        // Update likelihood at internal nodes
-        for node in nodes {
-            // check if in HM
-            let lchild = node.get_lchild().unwrap();
-            let rchild = node.get_rchild().unwrap();
-            let seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
-            let seqr: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
+//         // Update likelihood at internal nodes
+//         for node in nodes {
+//             // check if in HM
+//             let lchild = node.get_lchild().unwrap();
+//             let rchild = node.get_rchild().unwrap();
+//             let seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
+//             let seqr: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
 
-            match (temp_likelihoods.contains_key(&lchild), temp_likelihoods.contains_key(&rchild)) {
-                (true, true) => {
-                    seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
-                },
-                (true, false) => {
-                    seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = slice_data(rchild, &gen_data);
-                },
-                (false, true) => {
-                    seql = slice_data(lchild, &gen_data);
-                    seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
-                },
-                (false, false) => {
-                    seql = slice_data(lchild, &gen_data);
-                    seqr = slice_data(rchild, &gen_data);
-                },
-            };
+//             match (temp_likelihoods.contains_key(&lchild), temp_likelihoods.contains_key(&rchild)) {
+//                 (true, true) => {
+//                     seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
+//                     seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
+//                 },
+//                 (true, false) => {
+//                     seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
+//                     seqr = slice_data(rchild, &gen_data);
+//                 },
+//                 (false, true) => {
+//                     seql = slice_data(lchild, &gen_data);
+//                     seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
+//                 },
+//                 (false, false) => {
+//                     seql = slice_data(lchild, &gen_data);
+//                     seqr = slice_data(rchild, &gen_data);
+//                 },
+//             };
 
-            let node_ll = node_likelihood(seql, seqr, 
-                &matrix_exp(&new_mat.get_matrix(), topology.nodes[lchild].get_branchlen()),
-                &matrix_exp(&new_mat.get_matrix(), topology.nodes[rchild].get_branchlen()));
+//             let node_ll = node_likelihood(seql, seqr, 
+//                 &matrix_exp(&new_mat.get_matrix(), topology.nodes[lchild].get_branchlen()),
+//                 &matrix_exp(&new_mat.get_matrix(), topology.nodes[rchild].get_branchlen()));
 
-            temp_likelihoods.insert(node.get_id(), node_ll);
-        }
+//             temp_likelihoods.insert(node.get_id(), node_ll);
+//         }
 
-        // Calculate whole new topology likelihood at root
-        let new_ll = temp_likelihoods
-        .get(&topology.get_root().get_id())
-        .unwrap()
-        .rows()
-        .into_iter()
-        .fold(0.0, |acc, base | acc + base_freq_logse(base, BF_DEFAULT));
+//         // Calculate whole new topology likelihood at root
+//         let new_ll = temp_likelihoods
+//         .get(&topology.get_root().get_id())
+//         .unwrap()
+//         .rows()
+//         .into_iter()
+//         .fold(0.0, |acc, base | acc + base_freq_logse(base, BF_DEFAULT));
 
-        println!("{:?}", new_mat.get_matrix());
-        println!("new ll: {:?}", new_ll);
+//         println!("{:?}", new_mat.get_matrix());
+//         println!("new ll: {:?}", new_ll);
 
-        // Likelihood decision rule
-        if accept_fn(&old_ll, &new_ll) {
-            // Drain hashmap into gen_data
-            for (i, ll_data) in temp_likelihoods.drain() {
-                gen_data.slice_mut(s![i, .., ..]).assign(&ll_data);
-            }
-            // Update likelihood
-            topology.likelihood = Some(new_ll);
-            rate_matrix.update_params(new_mat.get_params());
-            rate_matrix.update_matrix();
-        }
+//         // Likelihood decision rule
+//         if accept_fn(&old_ll, &new_ll) {
+//             // Drain hashmap into gen_data
+//             for (i, ll_data) in temp_likelihoods.drain() {
+//                 gen_data.slice_mut(s![i, .., ..]).assign(&ll_data);
+//             }
+//             // Update likelihood
+//             topology.likelihood = Some(new_ll);
+//             rate_matrix.update_params(new_mat.get_params());
+//             rate_matrix.update_matrix();
+//         }
 
-}
+// }
