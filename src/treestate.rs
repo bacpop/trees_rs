@@ -39,7 +39,7 @@ impl<R: RateMatrix> TreeState<R> {
         let old_ll = self.ll.unwrap();
 
         let rate_mat = self.mat.get_matrix();
-        let new_ts = move_fn.generate(&self);
+        let new_ts = move_fn.generate(self);
 
         // If move did nothing, keep old TreeState
         if new_ts.changed_nodes.is_none() {
@@ -52,7 +52,7 @@ impl<R: RateMatrix> TreeState<R> {
 
         for node in nodes {
             // check if in HM
-            println!("{:?}", node);
+            // println!("{:?}", node);
             let lchild = node.get_lchild().unwrap();
             let rchild = node.get_rchild().unwrap();
             let seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
@@ -65,15 +65,15 @@ impl<R: RateMatrix> TreeState<R> {
                 },
                 (true, false) => {
                     seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = slice_data(rchild, &gen_data);
+                    seqr = slice_data(rchild, gen_data);
                 },
                 (false, true) => {
-                    seql = slice_data(lchild, &gen_data);
+                    seql = slice_data(lchild, gen_data);
                     seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
                 },
                 (false, false) => {
-                    seql = slice_data(lchild, &gen_data);
-                    seqr = slice_data(rchild, &gen_data);
+                    seql = slice_data(lchild, gen_data);
+                    seqr = slice_data(rchild, gen_data);
                 },
             };
 
@@ -107,3 +107,13 @@ impl<R: RateMatrix> TreeState<R> {
 
 }
 }
+
+
+pub fn hillclimb_accept(old_ll: &f64, new_ll: &f64) -> bool {
+    new_ll.gt(old_ll)
+}
+
+pub fn always_accept(_old_ll: &f64, _new_ll: &f64) -> bool {
+    true
+}
+

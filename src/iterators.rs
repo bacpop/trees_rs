@@ -82,18 +82,17 @@ impl<'a> Topology {
         };
 
         if node.get_id().eq(&parent_left_child.unwrap()) {
-            return Handedness::Left;
+            Handedness::Left
         } else {
-            return Handedness::Right;
+            Handedness::Right
         }
     }
 
     pub fn swap_to_right_child(&self, node: &NodeTuple) -> Option<&NodeTuple> {
-        let parent = self.get_parent(node);
-        if parent.is_some() {
-            return self.get_rchild(parent.unwrap());
+        if let Some(par) = self.get_parent(node) {
+            self.get_rchild(par)
         } else {
-            return self.get_rchild(self.get_root());
+            self.get_rchild(self.get_root())
         }
     }
 }
@@ -139,8 +138,7 @@ impl<'a> Iterator for ChangeIter<'a> {
             };
         }
 
-
-        return Some(current_node);
+        Some(current_node)
     }
 }
 

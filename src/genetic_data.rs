@@ -5,7 +5,6 @@ use needletail::parse_fastx_file;
 use crate::topology::Topology;
 use ndarray::s;
 use logaddexp::LogAddExp;
-use crate::moves::MoveFn;
 use rand::{thread_rng, Rng};
 
 const NEGINF: f64 = -f64::INFINITY;
@@ -76,13 +75,11 @@ pub fn create_genetic_data(filename: &str, topology: &Topology, rate_matrix: &na
     let mut seq_i = 0;
     while let Some(record) = reader2.next() {
         let seqrec = record.expect("Invalid record");
-        let mut loc_i = 0;
-        for e in seqrec.seq().iter() {
+        for (loc_i, e) in seqrec.seq().iter().enumerate() {
             let cur = char_to_likelihood(&(*e as char));
             for j in 0..4 {
                 gen_data[[seq_i, loc_i, j]] = *cur.get(j).unwrap();
             }
-            loc_i += 1;
         }                
         seq_i += 1;
     }
@@ -95,9 +92,9 @@ pub fn create_internal_data(mut data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>
                                            topology: &Topology, rate_matrix: &na::Matrix4<f64>) -> 
                                            ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
     // Iterate over internal nodes postorder
-    let mut nodes = topology.postorder_notips(topology.get_root());
+    let nodes = topology.postorder_notips(topology.get_root());
 
-    while let Some(node) = nodes.next() {
+    for node in nodes {
         let i = node.get_id();
         // Calculate node likelihood
         let lchild = node.get_lchild().unwrap();
@@ -160,32 +157,19 @@ pub fn node_likelihood(seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray
     ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> {
 
         let out = ndarray::Array2::from_shape_fn((seql.dim().0, 4), |(i, j)| 
-        child_likelihood_i(j, seql.slice(s![i, ..]), &matrixl) + 
-        child_likelihood_i(j, seqr.slice(s![i, ..]), &matrixr));
+        child_likelihood_i(j, seql.slice(s![i, ..]), matrixl) + 
+        child_likelihood_i(j, seqr.slice(s![i, ..]), matrixr));
 
         out
 }
 
 pub const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
 
-pub fn likelihood(top: &Topology, gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>) -> f64 {
-    let root_likelihood = gen_data.slice(s![top.get_root().get_id(), .., .. ]);
-
-    root_likelihood
-    .rows()
-    .into_iter()
-    .fold(0.0, |acc, base | acc + base_freq_logse(base, BF_DEFAULT))
-}
-
 pub fn base_freq_logse(muta: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>, bf: [f64; 4]) -> f64 {
     muta.iter()
         .zip(bf.iter())
         .fold(0.0, |tot, (muta, bf)| tot + muta.exp() * bf)
         .ln()
-}
-pub struct CandidateTopology{
-    pub new_topology: Topology,
-    pub changes: Option<Vec<usize>>,
 }
 
 impl Topology {
@@ -196,91 +180,12 @@ impl Topology {
         .filter(|(a, b)| a.get_parent().ne(&b.get_parent()))
         .map(|(a, b)| a.get_id())
         .collect();
-        if out.len() > 0 {
-            return Some(out);
+        if out.is_empty() {
+            None
         } else {
-            return None;
+            Some(out)
         }
     }
 
-    pub fn apply_move<T: MoveFn>(&mut self, 
-        move_fn: T,
-        accept_fn: fn(&f64, &f64) -> bool, 
-        gen_data: &mut ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>, 
-        rate_matrix: &na::Matrix4<f64>) -> () {
-
-        // Get current likelihood, calculating if needed
-        if self.likelihood.is_none() {
-            self.likelihood = Some(likelihood(&self, gen_data));
-        }
-        let old_ll = self.likelihood.unwrap();
-
-
-        // Generate new candidate Topology using move function
-        let new_top = move_fn.generate_move(&self);
-
-        println!("Changes: {:?}", new_top.changes);
-
-        // Move did nothing, no changes needed
-        if new_top.changes.is_none() {
-            return ()
-        }
-
-        // Do minimal likelihood updates (and push new values into HashMap temporarily)
-        let nodes = new_top.new_topology.changes_iter_notips(new_top.changes.unwrap());
-        let mut temp_likelihoods: HashMap<usize, ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>> = HashMap::new();
-        for node in nodes {
-            // check if in HM
-            let lchild = node.get_lchild().unwrap();
-            let rchild = node.get_rchild().unwrap();
-            let seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
-            let seqr: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>;
-
-            match (temp_likelihoods.contains_key(&lchild), temp_likelihoods.contains_key(&rchild)) {
-                (true, true) => {
-                    seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
-                },
-                (true, false) => {
-                    seql = temp_likelihoods.get(&lchild).unwrap().slice(s![.., ..]);
-                    seqr = slice_data(rchild, &gen_data);
-                },
-                (false, true) => {
-                    seql = slice_data(lchild, &gen_data);
-                    seqr = temp_likelihoods.get(&rchild).unwrap().slice(s![.., ..]);
-                },
-                (false, false) => {
-                    seql = slice_data(lchild, &gen_data);
-                    seqr = slice_data(rchild, &gen_data);
-                },
-            };
-
-            let node_ll = node_likelihood(seql, seqr, 
-                &matrix_exp(rate_matrix, new_top.new_topology.nodes[lchild].get_branchlen()),
-                &matrix_exp(rate_matrix, new_top.new_topology.nodes[rchild].get_branchlen()));
-
-            temp_likelihoods.insert(node.get_id(), node_ll);
-        }
-
-        // Calculate whole new topology likelihood at root
-        let new_ll = temp_likelihoods
-        .get(&new_top.new_topology.get_root().get_id())
-        .unwrap()
-        .rows()
-        .into_iter()
-        .fold(0.0, |acc, base | acc + base_freq_logse(base, BF_DEFAULT));
-
-        // Likelihood decision rule
-        if accept_fn(&old_ll, &new_ll) {
-            // Drain hashmap into gen_data
-            for (i, ll_data) in temp_likelihoods.drain() {
-                gen_data.slice_mut(s![i, .., ..]).assign(&ll_data);
-            }
-            // Update Topology
-            self.nodes = new_top.new_topology.nodes;
-            self.tree_vec = new_top.new_topology.tree_vec;
-            self.likelihood = Some(new_ll);
-        }
-    }
 }
 

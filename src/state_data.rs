@@ -22,27 +22,27 @@ pub fn create_dummy_statedata(n_mges: usize, topology: &Topology, rate_matrix: &
     }
     
     // create internal state_data
-    create_internal_statedata(state_data, &topology, rate_matrix)
+    create_internal_statedata(state_data, topology, rate_matrix)
 }
 
 pub fn create_internal_statedata(mut data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
     topology: &Topology, rate_matrix: &na::Matrix2<f64>) -> 
     ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
     // Iterate over internal nodes postorder
-    let mut nodes = topology.postorder_notips(topology.get_root());
+    let nodes = topology.postorder_notips(topology.get_root());
 
-    while let Some(node) = nodes.next() {
-    let i = node.get_id();
-    // Calculate node likelihood
-    let lchild = node.get_lchild().unwrap();
-    let rchild = node.get_rchild().unwrap();
-    let node_ll = state_likelihood(slice_data(lchild, &data),
-    slice_data(rchild, &data), 
-    &matrix_exp2(rate_matrix, topology.nodes[lchild].get_branchlen()),
-    &matrix_exp2(rate_matrix, topology.nodes[lchild].get_branchlen()));
+    for node in nodes {
+        let i = node.get_id();
+        // Calculate node likelihood
+        let lchild = node.get_lchild().unwrap();
+        let rchild = node.get_rchild().unwrap();
+        let node_ll = state_likelihood(slice_data(lchild, &data),
+        slice_data(rchild, &data), 
+        &matrix_exp2(rate_matrix, topology.nodes[lchild].get_branchlen()),
+        &matrix_exp2(rate_matrix, topology.nodes[lchild].get_branchlen()));
 
-    // Add to genetic data array
-    data.slice_mut(s![i, .., ..]).assign(&node_ll);
+        // Add to genetic data array
+        data.slice_mut(s![i, .., ..]).assign(&node_ll);
     }
 
     data
@@ -60,8 +60,8 @@ pub fn state_likelihood(seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarra
     ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> {
 
         let out = ndarray::Array2::from_shape_fn((seql.dim().0, 2), |(i, j)| 
-        state_likelihood_i(j, seql.slice(s![i, ..]), &matrixl) + 
-        state_likelihood_i(j, seqr.slice(s![i, ..]), &matrixr));
+        state_likelihood_i(j, seql.slice(s![i, ..]), matrixl) + 
+        state_likelihood_i(j, seqr.slice(s![i, ..]), matrixr));
 
         out
 }

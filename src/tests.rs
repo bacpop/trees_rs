@@ -1,12 +1,11 @@
 #[cfg(test)]
 mod tests {
     use crate::newick_to_vec::{newick_to_vector, random_vector};
-    use crate::rate_matrix::{RateMatrix, GTR};
+    use crate::rate_matrix::{RateMatrix, Gtr};
     use crate::topology::Topology;
     use crate::moves::ExactMove;
     use crate::create_dummy_gendata;
-    use crate::always_accept;
-    use crate::treestate::TreeState;
+    use crate::treestate::{TreeState, always_accept};
 
     #[test]
     fn check_topology_build_manual() {
@@ -85,7 +84,7 @@ mod tests {
 
     #[test]
     fn update_tree() {
-        let p = GTR::default();
+        let p = Gtr::default();
         let t_1 = Topology::from_vec(&vec![0, 0, 1, 0]);
 
         let mut gen_data = create_dummy_gendata(2, &t_1, &p.get_matrix());
@@ -116,7 +115,7 @@ mod tests {
     
     #[test]
     fn likelihood_internal_consistency_check() {
-        let p = GTR::default();
+        let p = Gtr::default();
         let mut t = Topology::from_vec(&vec![0, 0, 0, 0]);
         let mut gen_data = create_dummy_gendata(5, &t, &p.get_matrix());
         let mut ts = TreeState{top: t, mat: p, ll: None, changed_nodes: None};

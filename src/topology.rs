@@ -340,25 +340,25 @@ impl Topology {
 
     pub fn get_lchild(&self, node: &NodeTuple) -> Option<&NodeTuple> {
         if let Some(index) = node.get_lchild() {
-            return Some(&self.nodes[index]);
+            Some(&self.nodes[index])
         } else {
-            return None;
+            None
         }
     }
 
     pub fn get_rchild(&self, node: &NodeTuple) -> Option<&NodeTuple> {
         if let Some(index) = node.get_rchild() {
-            return Some(&self.nodes[index]);
+            Some(&self.nodes[index])
         } else {
-            return None;
+            None
         }
     }
 
     pub fn get_parent(&self, node: &NodeTuple) -> Option<&NodeTuple> {
         if let Some(index) = node.get_parent() {
-            return Some(&self.nodes[index]);
+            Some(&self.nodes[index])
         } else {
-            return None;
+            None
         }
     }
 
