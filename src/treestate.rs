@@ -16,42 +16,6 @@ pub trait TreeMove<R: RateMatrix> {
     fn generate(&self, ts: &TreeState<R>) -> TreeState<R>;
 }
 
-pub struct MatrixMove {}
-
-impl<R: RateMatrix> TreeMove<R> for MatrixMove {
-    fn generate(&self, ts: &TreeState<R>) -> TreeState<R> {
-        let rm = ts.mat.matrix_move();
-        let changes: Vec<usize> = ts.top.postorder_notips(ts.top.get_root()).map(|n| n.get_id()).collect();
-        // This is not ideal
-        let new_top = Topology{
-            nodes: ts.top.nodes.clone(),
-            tree_vec: ts.top.tree_vec.clone(),
-            likelihood: ts.top.likelihood,
-        };
-
-        TreeState{
-            top: new_top,
-            mat: rm,
-            ll: ts.ll,
-            changed_nodes: Some(changes),
-        }
-    }
-}
-
-impl<R:RateMatrix> TreeMove<R> for ExactMove {
-    fn generate(&self, ts: &TreeState<R>) -> TreeState<R> {
-        let new_topology = Topology::from_vec(&self.target_vector);
-        let changes: Option<Vec<usize>> = ts.top.find_changes(&new_topology);
-        let mat = ts.mat;
-        TreeState{
-            top: new_topology,
-            mat: mat,
-            ll: ts.ll,
-            changed_nodes: changes,
-        }
-    }
-}
-
 impl<R: RateMatrix> TreeState<R> {
 
     pub fn likelihood(&self, gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>) -> f64 {

@@ -1,8 +1,9 @@
-use crate::Topology;
+use crate::{rate_matrix::RateMatrix, treestate::TreeMove};
 
-impl Topology {
-    pub fn update_branchlength(mut self, index: usize) {
-        
-        
+pub struct BranchMove{}
+
+impl<R: RateMatrix> TreeMove<R> for BranchMove {
+    fn generate(&self, ts: &crate::treestate::TreeState<R>) -> crate::treestate::TreeState<R> {
+        todo!()
     }
 }
