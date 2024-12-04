@@ -5,7 +5,7 @@ mod tests {
     use crate::topology::Topology;
     use crate::moves::ExactMove;
     use crate::create_dummy_gendata;
-    use crate::treestate::{TreeState, always_accept};
+    use crate::treestate::{always_accept, TreeMove, TreeState, TreeStateIter};
 
     #[test]
     fn check_topology_build_manual() {
@@ -99,10 +99,16 @@ mod tests {
         let vecs: Vec<Vec<usize>> = vec![vec![0, 0, 0, 0], vec![0, 0, 1, 0], vec![0, 0, 1, 2], vec![0, 0, 1, 1]];
         let n = ts.top.nodes.len();
 
+        let nomv = ExactMove{target_vector: vec![0, 0, 1, 0]};
+        let mut ti = TreeStateIter{ts, move_fn: nomv, accept_fn: always_accept, gen_data: &mut gen_data};
+
         for vec in vecs {
             let t_2 = Topology::from_vec(&vec);
             let mv = ExactMove{target_vector: vec};
-            ts.apply_move(mv, always_accept, &mut gen_data);
+            ti.move_fn = mv;
+            let ts = ti.nth(0).unwrap();
+            
+            // ts.apply_move(mv, always_accept, &mut gen_data);
             // t_1.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
             
             for i in 0..n {
@@ -123,11 +129,14 @@ mod tests {
         let old_likelihood = ts.likelihood(&gen_data);
 
         let mv = ExactMove{target_vector: vec![0, 0, 0, 1]};
-        ts.apply_move(mv, always_accept, &mut gen_data);
+        let mut tsi = TreeStateIter{ts, move_fn: mv, accept_fn: always_accept, gen_data: &mut gen_data};
+        // ts.apply_move(mv, always_accept, &mut gen_data);
+        ts = tsi.nth(0).unwrap();
         // t.apply_move(mv, always_accept, &mut gen_data, &p.get_matrix());
 
         let mv = ExactMove{target_vector: vec![0, 0, 0, 0]};
-        ts.apply_move(mv, always_accept, &mut gen_data);
+        tsi = TreeStateIter{ts, move_fn: mv, accept_fn: always_accept, gen_data: &mut gen_data};
+        ts = tsi.nth(0).unwrap();
 
         let new_likelihood = ts.likelihood(&gen_data);
 

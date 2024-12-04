@@ -12,6 +12,7 @@ mod treestate;
 use rate_matrix::RateMatrix;
 use state_data::create_dummy_statedata;
 use topology::Topology;
+use treestate::TreeStateIter;
 use treestate::{TreeState, hillclimb_accept};
 
 use crate::newick_to_vec::*;
@@ -53,17 +54,24 @@ pub fn main() {
 
     if !args.no_optimise {
         let start = Instant::now();
-        for i in 0..5 {
-            println!{"Step {}", i};
-            // let new_v = random_vector(27);
-            // let mv = ExactMove{target_vector: new_v};
-            let mv = ChildSwap{};
-            // let mv = PeturbVec{n: 1};
-            ts.apply_move(mv, hillclimb_accept, &mut gen_data);
+        let mv = ChildSwap{};
+        let mut tsi = TreeStateIter{ts, move_fn: mv, accept_fn: hillclimb_accept, gen_data: &mut gen_data};
+
+        let res = tsi.nth(100).unwrap();
+
+
+
+        // for i in 0..100 {
+        //     // println!{"Step {}", i};
+        //     // let new_v = random_vector(27);
+        //     // let mv = ExactMove{target_vector: new_v};
+        //     let mv = ChildSwap{};
+        //     // let mv = PeturbVec{n: 1};
+        //     ts.apply_move(mv, hillclimb_accept, &mut gen_data);
             
-        }
+        // }
         let end = Instant::now();
-        println!("New likelihood: {:?}", ts.likelihood(&gen_data));
+        println!("New likelihood: {:?}", res.likelihood(&gen_data));
         eprintln!("Done in {}s", end.duration_since(start).as_secs());
         eprintln!("Done in {}ms", end.duration_since(start).as_millis());
     }
