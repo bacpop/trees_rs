@@ -135,8 +135,8 @@ impl<'a, R: RateMatrix + 'a, M: TreeMove<R>> Iterator for TreeStateIter<'a, R, M
         }
         let old_ll = self.ts.ll.unwrap();
 
-        let rate_mat = self.ts.mat.get_matrix();
         let mut new_ts = self.move_fn.generate(&self.ts);
+        let rate_mat = new_ts.mat.get_matrix();
 
         if new_ts.changed_nodes.is_none() {
             return Some(new_ts)
