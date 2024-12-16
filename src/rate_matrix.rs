@@ -1,8 +1,8 @@
 use crate::topology::Topology;
-use statrs::distribution::Dirichlet;
 use rand::distributions::{Distribution, Uniform};
-use crate::TreeState;
-use crate::treestate::TreeMove;
+use statrs::distribution::Dirichlet;
+// use crate::TreeState;
+// use crate::treestate::TreeMove;
 
 pub trait RateMatrix: Copy {
     fn update_matrix(&mut self);
@@ -11,32 +11,33 @@ pub trait RateMatrix: Copy {
 
     fn get_matrix(&self) -> na::Matrix4<f64>;
 
+    fn set_matrix(&mut self, mat: na::Matrix4<f64>);
+
     fn get_params(&self) -> Vec<f64>;
 
     fn matrix_move(&self) -> Self;
 }
 
-pub struct MatrixMove {}
+// pub struct MatrixMove {}
 
-impl<R: RateMatrix> TreeMove<R> for MatrixMove {
-    fn generate(&self, ts: &TreeState<R>) -> TreeState<R> {
-        let rm = ts.mat.matrix_move();
-        let changes: Vec<usize> = ts.top.postorder_notips(ts.top.get_root()).map(|n| n.get_id()).collect();
-        // This is not ideal
-        let new_top = Topology{
-            nodes: ts.top.nodes.clone(),
-            tree_vec: ts.top.tree_vec.clone(),
-            likelihood: ts.top.likelihood,
-        };
+// impl<R: RateMatrix> TreeMove<R> for MatrixMove {
+//     fn generate(&self, ts: &TreeState<R>) -> TreeState<R> {
+//         let rm = ts.mat.matrix_move();
+//         let changes: Vec<usize> = ts.top.postorder_notips(ts.top.get_root()).map(|n| n.get_id()).collect();
+//         // This is not ideal
+//         let new_top = Topology{
+//             nodes: ts.top.nodes.clone(),
+//             tree_vec: ts.top.tree_vec.clone(),
+//         };
 
-        TreeState{
-            top: new_top,
-            mat: rm,
-            ll: ts.ll,
-            changed_nodes: Some(changes),
-        }
-    }
-}
+//         TreeState{
+//             top: new_top,
+//             mat: rm,
+//             ll: ts.ll,
+//             changed_nodes: Some(changes),
+//         }
+//     }
+// }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Gtr {
@@ -54,9 +55,10 @@ pub struct Gtr {
 }
 
 impl RateMatrix for Gtr {
-
     fn get_params(&self) -> Vec<f64> {
-        vec![self.a, self.b, self.c, self.d, self.e, self.f, self.p0, self.p1, self.p2, self.p3]
+        vec![
+            self.a, self.b, self.c, self.d, self.e, self.f, self.p0, self.p1, self.p2, self.p3,
+        ]
     }
 
     fn update_params(&mut self, params: Vec<f64>) {
@@ -77,37 +79,41 @@ impl RateMatrix for Gtr {
         self.matrix
     }
 
+    fn set_matrix(&mut self, mat: na::Matrix4<f64>) {
+        self.matrix = mat;
+    }
+
     fn update_matrix(&mut self) {
-        
         self.matrix = na::Matrix4::new(
-                -(self.a * self.p1 + self.b * self.p2 + self.c * self.p3),
-                self.a * self.p1,
-                self.b * self.p2,
-                self.c * self.p3,
-                self.a * self.p0,
-                -(self.a * self.p0 + self.d * self.p2 + self.e * self.p3),
-                self.d * self.p2,
-                self.e * self.p3,
-                self.b * self.p0,
-                self.d * self.p1,
-                -(self.b * self.p0 + self.d * self.p1 + self.f * self.p3),
-                self.f * self.p3,
-                self.c * self.p0,
-                self.e * self.p1,
-                self.f * self.p2,
-                -(self.c * self.p0 + self.e * self.p1 + self.f * self.p2));
+            -(self.a * self.p1 + self.b * self.p2 + self.c * self.p3),
+            self.a * self.p1,
+            self.b * self.p2,
+            self.c * self.p3,
+            self.a * self.p0,
+            -(self.a * self.p0 + self.d * self.p2 + self.e * self.p3),
+            self.d * self.p2,
+            self.e * self.p3,
+            self.b * self.p0,
+            self.d * self.p1,
+            -(self.b * self.p0 + self.d * self.p1 + self.f * self.p3),
+            self.f * self.p3,
+            self.c * self.p0,
+            self.e * self.p1,
+            self.f * self.p2,
+            -(self.c * self.p0 + self.e * self.p1 + self.f * self.p2),
+        );
     }
 
     fn matrix_move(&self) -> Self {
         let d1 = Dirichlet::new_with_param(1.0, 6).unwrap();
         let pars = d1.sample(&mut rand::thread_rng());
-        
+
         let d2 = Dirichlet::new_with_param(1.0, 4).unwrap();
         let pars2 = d2.sample(&mut rand::thread_rng());
 
         // let params: Vec<f64> = pars.iter().chain(pars2.iter()).map(|x| *x).collect();
         let params: Vec<f64> = pars.iter().chain(pars2.iter()).copied().collect();
-        let mut new: Self = Self::default();    
+        let mut new: Self = Self::default();
         new.update_params(params);
         new.update_matrix();
         new
@@ -115,8 +121,9 @@ impl RateMatrix for Gtr {
 }
 
 impl Default for Gtr {
-    fn default() -> Self{
-        let mut out: Gtr = Gtr { matrix: na::Matrix4::identity(),
+    fn default() -> Self {
+        let mut out: Gtr = Gtr {
+            matrix: na::Matrix4::identity(),
             a: 4.0 / 3.0,
             b: 4.0 / 3.0,
             c: 4.0 / 3.0,
@@ -144,6 +151,10 @@ impl RateMatrix for Jc69 {
         self.matrix
     }
 
+    fn set_matrix(&mut self, mat: na::Matrix4<f64>) {
+        self.matrix = mat;
+    }
+
     fn get_params(&self) -> Vec<f64> {
         vec![self.mu]
     }
@@ -154,22 +165,22 @@ impl RateMatrix for Jc69 {
 
     fn update_matrix(&mut self) {
         self.matrix = na::Matrix4::new(
-            - (3.0 * self.mu) / 4.0,
+            -(3.0 * self.mu) / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
-            - (3.0 * self.mu) / 4.0,
+            -(3.0 * self.mu) / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
-            - (3.0 * self.mu) / 4.0,
+            -(3.0 * self.mu) / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
             self.mu / 4.0,
-            - (3.0 * self.mu) / 4.0,
+            -(3.0 * self.mu) / 4.0,
         );
     }
 
@@ -185,7 +196,7 @@ impl RateMatrix for Jc69 {
 
 impl Default for Jc69 {
     fn default() -> Self {
-        let mut out = Jc69{
+        let mut out = Jc69 {
             matrix: na::Matrix4::identity(),
             mu: 4.0 / 3.0,
         };

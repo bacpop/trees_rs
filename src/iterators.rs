@@ -26,18 +26,22 @@ impl<'a> Iterator for PostOrderIter<'a> {
             self.current_node = self.topology.most_left_child(self.current_node);
             self.start_flag = false;
         } else {
-            if self.current_node.eq(self.end_node)  {
-                return None
+            if self.current_node.eq(self.end_node) {
+                return None;
             }
 
             match self.topology.get_handedness(self.current_node) {
                 Handedness::Left => {
-                    let r_child = self.topology.swap_to_right_child(self.current_node).unwrap();
+                    let r_child = self
+                        .topology
+                        .swap_to_right_child(self.current_node)
+                        .unwrap();
                     self.current_node = self.topology.most_left_child(r_child);
-                },
+                }
                 Handedness::Right => {
-                    self.current_node = &self.topology.nodes[self.current_node.get_parent().unwrap()];
-                },
+                    self.current_node =
+                        &self.topology.nodes[self.current_node.get_parent().unwrap()];
+                }
             }
         }
 
@@ -45,9 +49,9 @@ impl<'a> Iterator for PostOrderIter<'a> {
     }
 }
 
-impl<'a> Topology {
-    pub fn postorder(&'a self, node: &'a NodeTuple) -> PostOrderIter {
-        PostOrderIter{
+impl Topology {
+    pub fn postorder<'a>(&'a self, node: &'a NodeTuple) -> PostOrderIter {
+        PostOrderIter {
             current_node: node,
             start_flag: true,
             topology: self,
@@ -55,11 +59,12 @@ impl<'a> Topology {
         }
     }
 
-    pub fn postorder_notips(&'a self, node: &'a NodeTuple) -> impl Iterator<Item = &'a NodeTuple> {
-        self.postorder(node).filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
+    pub fn postorder_notips<'a>(&'a self, node: &'a NodeTuple) -> impl Iterator<Item = &NodeTuple> {
+        self.postorder(node)
+            .filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
     }
 
-    pub fn most_left_child(&'a self, node: &'a NodeTuple) -> &NodeTuple {
+    pub fn most_left_child<'a>(&'a self, node: &'a NodeTuple) -> &NodeTuple {
         let mut current_node = node;
         let mut current_left_child = self.get_lchild(current_node);
 
@@ -71,7 +76,6 @@ impl<'a> Topology {
     }
 
     pub fn get_handedness(&self, node: &NodeTuple) -> Handedness {
-        
         let parent = self.get_parent(node);
         let parent_left_child: Option<usize>;
 
@@ -131,10 +135,10 @@ impl<'a> Iterator for ChangeIter<'a> {
             match self.hmap.get(&parent_depth) {
                 None => {
                     self.hmap.insert(parent_depth, vec![parent_index]);
-                },
+                }
                 Some(_) => {
                     self.hmap.get_mut(&parent_depth).unwrap().push(parent_index);
-                },
+                }
             };
         }
 
@@ -143,8 +147,7 @@ impl<'a> Iterator for ChangeIter<'a> {
 }
 
 impl<'a> Topology {
-    pub fn changes_iter(&'a self, indices: Vec<usize>) -> ChangeIter {
-
+    pub fn changes_iter(&'a self, indices: Vec<usize>) -> impl Iterator<Item = &'a NodeTuple> {
         let mut hmap: HashMap<usize, Vec<usize>> = HashMap::new();
 
         for i in indices {
@@ -152,21 +155,25 @@ impl<'a> Topology {
             match hmap.get(&d) {
                 None => {
                     hmap.insert(d, vec![i]);
-                },
+                }
                 Some(_) => {
                     hmap.get_mut(&d).unwrap().push(i);
-                },
+                }
             }
         }
 
-        ChangeIter{
+        ChangeIter {
             topology: self,
             hmap,
             current_vec: Vec::new(),
         }
     }
 
-    pub fn changes_iter_notips(&'a self, indices: Vec<usize>) -> impl Iterator<Item = &'a NodeTuple> {
-        self.changes_iter(indices).filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
+    pub fn changes_iter_notips(
+        &'a self,
+        indices: Vec<usize>,
+    ) -> impl Iterator<Item = &'a NodeTuple> {
+        self.changes_iter(indices)
+            .filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
     }
 }
