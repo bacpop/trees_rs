@@ -1,15 +1,8 @@
-use crate::iterators::ChangeIter;
-use crate::rate_matrix;
-use crate::topology;
-use crate::topology::from_vec;
-use crate::topology::NodeTuple;
 use crate::RateMatrix;
 use crate::Topology;
 use crate::TreeMove;
 use crate::{base_freq_logse, matrix_exp, node_likelihood, BF_DEFAULT};
 use std::collections::HashMap;
-use std::hash::Hash;
-// use crate::ExactMove;
 use ndarray::s;
 
 pub struct TreeState<R: RateMatrix> {

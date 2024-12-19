@@ -3,9 +3,6 @@ use logaddexp::LogAddExp;
 use ndarray::s;
 use needletail::parse_fastx_file;
 use rand::{thread_rng, Rng};
-use std::collections::HashMap;
-use std::os::unix::thread;
-use std::thread::current;
 
 const NEGINF: f64 = -f64::INFINITY;
 // (A, C, G, T)
@@ -48,7 +45,7 @@ pub fn char_to_likelihood(e: &char) -> [f64; 4] {
 
 pub fn count_sequences(filename: &str) -> usize {
     let mut reader = parse_fastx_file(filename).expect("Error parsing file");
-    let mut n_seqs: usize = 0;
+    let mut n_seqs = 0;
     while let Some(_record) = reader.next() {
         n_seqs += 1;
     }
