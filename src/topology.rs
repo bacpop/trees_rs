@@ -376,7 +376,7 @@ impl Topology {
 
     pub fn likelihood(
         &self,
-        gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
+        gen_data: &ndarray::Array3<f64>,
     ) -> f64 {
         let root_likelihood = gen_data.slice(s![self.get_root().get_id(), .., ..]);
 
