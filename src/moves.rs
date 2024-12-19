@@ -1,12 +1,9 @@
-use std::collections::HashMap;
-
 use crate::newick_to_vector;
 // use crate::treestate::TreeMove;
 use crate::topology::from_vec;
 use crate::RateMatrix;
 use crate::Topology;
 use crate::TreeState;
-use rand::prelude::Distribution;
 use rand::Rng;
 
 pub struct ExactMove {
@@ -26,7 +23,7 @@ impl<R: RateMatrix> TreeMove<R> for ExactMove {
         current_treestate: &TreeState<R>,
     ) -> (Option<Topology>, Option<R>, Option<Vec<usize>>) {
         let new_topology = from_vec(&self.target_vector);
-        let changes: Option<Vec<usize>> = current_treestate.top.find_changes(&new_topology);
+        let changes = current_treestate.top.find_changes(&new_topology);
         (Some(new_topology), None, changes)
     }
 }
@@ -44,7 +41,7 @@ impl<R: RateMatrix> TreeMove<R> for PeturbVec {
         let distr = rand::distributions::Bernoulli::new(0.5).unwrap();
         let ind_distr = rand::distributions::Uniform::new(0, vout.len());
 
-        let samp_n: usize = match self.n.gt(&vout.len()) {
+        let samp_n = match self.n.gt(&vout.len()) {
             true => vout.len(),
             false => self.n,
         };
@@ -71,8 +68,8 @@ impl<R: RateMatrix> TreeMove<R> for PeturbVec {
             };
         }
 
-        let new_topology: Topology = from_vec(&vout);
-        let changes: Option<Vec<usize>> = ts.top.find_changes(&new_topology);
+        let new_topology = from_vec(&vout);
+        let changes = ts.top.find_changes(&new_topology);
         (Some(new_topology), None, changes)
     }
 }
@@ -82,7 +79,7 @@ pub struct ChildSwap {}
 impl<R: RateMatrix> TreeMove<R> for ChildSwap {
     fn generate(&self, ts: &TreeState<R>) -> (Option<Topology>, Option<R>, Option<Vec<usize>>) {
         // Create new topology
-        let mut new_topology: Topology = Topology {
+        let mut new_topology = Topology {
             nodes: ts.top.nodes.clone(),
             tree_vec: ts.top.tree_vec.clone(),
         };

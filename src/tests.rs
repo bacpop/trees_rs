@@ -14,7 +14,7 @@ use crate::TreeState;
 #[test]
 fn check_topology_build_manual() {
     // I check that new topologies have the correct parent by comparing to known parent values
-    let mut top: Topology = from_vec(&[0, 0, 0, 0]);
+    let mut top = from_vec(&[0, 0, 0, 0]);
 
     assert_eq!(top.nodes[0].get_parent(), Some(4));
     assert_eq!(top.nodes[0].get_parent(), Some(4));
@@ -100,7 +100,7 @@ fn update_tree() {
         likelihood: ll,
     };
 
-    let vecs: Vec<Vec<usize>> = vec![
+    let vecs = vec![
         vec![0, 0, 0, 0],
         vec![0, 0, 1, 0],
         vec![0, 0, 1, 2],
@@ -154,7 +154,7 @@ fn likelihood_internal_consistency_check() {
 
 #[test]
 fn manual_parent_check() {
-    let top: Topology = from_vec(&[0, 0, 0, 0]);
+    let top = from_vec(&[0, 0, 0, 0]);
     // Newick string for this tree is (1,(2,(3,0)4)5)6;
     // This should be the tree topology according to the ape package in R
     assert_eq!(
@@ -170,7 +170,7 @@ fn manual_parent_check() {
         (Some(5), Some(1))
     );
 
-    let top: Topology = from_vec(&[0, 0, 0, 1]);
+    let top = from_vec(&[0, 0, 0, 1]);
     // Newick string for this tree is ((3,1)4,(2,0)5)6;
     // This should be the tree topology according to the ape package in R
     assert_eq!(
@@ -186,7 +186,7 @@ fn manual_parent_check() {
         (Some(5), Some(4))
     );
 
-    let top: Topology = from_vec(&[0, 0, 1, 1]);
+    let top = from_vec(&[0, 0, 1, 1]);
     // Newick string for this tree is ((2,(3,1)4)5,0)6;
     // This should be the tree topology according to the ape package in R
     assert_eq!(
@@ -202,7 +202,7 @@ fn manual_parent_check() {
         (Some(0), Some(5))
     );
 
-    let top: Topology = from_vec(&[0, 0, 1, 1, 3]);
+    let top = from_vec(&[0, 0, 1, 1, 3]);
     // Newick string for this tree is ((2,((4,3)5,1)6)7,0)8;
     // This should be the tree topology according to the ape package in R
     assert_eq!(
@@ -230,7 +230,7 @@ fn manual_parent_check() {
 #[test]
 fn newick_vector_conversion_check() {
     let v = random_vector(27);
-    let top: Topology = from_vec(&v);
+    let top = from_vec(&v);
     let nw = top.get_newick();
     let n_leaves = top.count_leaves();
     let y = newick_to_vector(&nw, n_leaves);

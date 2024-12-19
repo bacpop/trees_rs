@@ -3,9 +3,6 @@ use logaddexp::LogAddExp;
 use ndarray::s;
 use needletail::parse_fastx_file;
 use rand::{thread_rng, Rng};
-use std::collections::HashMap;
-use std::os::unix::thread;
-use std::thread::current;
 
 const NEGINF: f64 = -f64::INFINITY;
 // (A, C, G, T)
@@ -48,7 +45,7 @@ pub fn char_to_likelihood(e: &char) -> [f64; 4] {
 
 pub fn count_sequences(filename: &str) -> usize {
     let mut reader = parse_fastx_file(filename).expect("Error parsing file");
-    let mut n_seqs: usize = 0;
+    let mut n_seqs = 0;
     while let Some(_record) = reader.next() {
         n_seqs += 1;
     }
@@ -59,7 +56,7 @@ pub fn create_genetic_data(
     filename: &str,
     topology: &Topology,
     rate_matrix: &na::Matrix4<f64>,
-) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
+) -> ndarray::Array3<f64> {
     // Count number of sequences and their length
     let mut n_seqs = 0;
     let mut n_bases = 0;
@@ -70,8 +67,7 @@ pub fn create_genetic_data(
         n_bases = seqrec.num_bases();
     }
     // Create pre-filled array
-    let mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> =
-        ndarray::Array3::from_elem((2 * n_seqs - 1, n_bases, 4), -99.0);
+    let mut gen_data = ndarray::Array3::from_elem((2 * n_seqs - 1, n_bases, 4), -99.0);
     // println!("Assigning data for {} leaves and {} total nodes", n_seqs, (2 * n_seqs) + 1);
 
     let mut reader2 = parse_fastx_file(filename).expect("Error parsing file");
@@ -91,10 +87,10 @@ pub fn create_genetic_data(
 }
 
 pub fn create_internal_data(
-    mut data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
+    mut data: ndarray::Array3<f64>,
     topology: &Topology,
     rate_matrix: &na::Matrix4<f64>,
-) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
+) -> ndarray::Array3<f64> {
     // Iterate over internal nodes postorder
     let nodes = topology.postorder_notips(topology.get_root());
 
@@ -122,11 +118,10 @@ pub fn create_dummy_gendata(
     n_bases: usize,
     topology: &Topology,
     rate_matrix: &na::Matrix4<f64>,
-) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> {
+) -> ndarray::Array3<f64> {
     let n_seqs = topology.count_leaves();
 
-    let mut gen_data: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>> =
-        ndarray::Array3::from_elem(((2 * n_seqs) + 1, n_bases, 4), 0.0);
+    let mut gen_data = ndarray::Array3::from_elem(((2 * n_seqs) + 1, n_bases, 4), 0.0);
 
     let mut rng = thread_rng();
 
@@ -142,7 +137,7 @@ pub fn create_dummy_gendata(
 
 pub fn child_likelihood_i(
     i: usize,
-    ll: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>,
+    ll: ndarray::ArrayView1<f64>,
     p: &na::Matrix4<f64>,
 ) -> f64 {
     p.row(i)
@@ -158,11 +153,11 @@ pub fn matrix_exp(rate_matrix: &na::Matrix4<f64>, branch_len: f64) -> na::Matrix
 }
 
 pub fn node_likelihood(
-    seql: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>,
-    seqr: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 2]>>,
+    seql: ndarray::ArrayView2<f64>,
+    seqr: ndarray::ArrayView2<f64>,
     matrixl: &na::Matrix4<f64>,
     matrixr: &na::Matrix4<f64>,
-) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> {
+) -> ndarray::Array2<f64> {
     let out = ndarray::Array2::from_shape_fn((seql.dim().0, 4), |(i, j)| {
         child_likelihood_i(j, seql.slice(s![i, ..]), matrixl)
             + child_likelihood_i(j, seqr.slice(s![i, ..]), matrixr)
@@ -174,7 +169,7 @@ pub fn node_likelihood(
 pub const BF_DEFAULT: [f64; 4] = [0.25, 0.25, 0.25, 0.25];
 
 pub fn base_freq_logse(
-    muta: ndarray::ArrayBase<ndarray::ViewRepr<&f64>, ndarray::Dim<[usize; 1]>>,
+    muta: ndarray::ArrayView1<f64>,
     bf: [f64; 4],
 ) -> f64 {
     muta.iter()

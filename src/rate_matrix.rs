@@ -1,4 +1,4 @@
-use crate::topology::Topology;
+//use crate::topology::Topology;
 use rand::distributions::{Distribution, Uniform};
 use statrs::distribution::Dirichlet;
 // use crate::TreeState;
@@ -187,7 +187,7 @@ impl RateMatrix for Jc69 {
     fn matrix_move(&self) -> Self {
         let dist = Uniform::new(0.0, 1.0);
         let params = vec![dist.sample(&mut rand::thread_rng())];
-        let mut new: Self = Self::default();
+        let mut new = Self::default();
         new.update_params(params);
         new.update_matrix();
         new

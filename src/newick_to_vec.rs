@@ -27,17 +27,12 @@ pub mod ffi {
 // Create a random vector with a given length //
 ////////////////////////////////////////////////
 pub fn random_vector(n_seqs: usize) -> Vec<usize> {
-    let mut rng = rand::thread_rng();
-
-    vec![0; n_seqs]
-        .iter()
-        .enumerate()
-        .map(|(i, _el)| {
-            if i > 0 {
-                rng.gen_range(0..((2 * i) - 1))
-            } else {
-                0
-            }
-        })
-        .collect()
+    (0..n_seqs).map(|i| {
+        if i > 0 {
+            rand::thread_rng().gen_range(0..((2 * i) - 1))
+        } else {
+            0
+        }
+    })
+    .collect()
 }

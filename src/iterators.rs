@@ -50,7 +50,7 @@ impl<'a> Iterator for PostOrderIter<'a> {
 }
 
 impl Topology {
-    pub fn postorder<'a>(&'a self, node: &'a NodeTuple) -> PostOrderIter {
+    pub fn postorder<'a>(&'a self, node: &'a NodeTuple) -> PostOrderIter<'a> {
         PostOrderIter {
             current_node: node,
             start_flag: true,
@@ -59,12 +59,12 @@ impl Topology {
         }
     }
 
-    pub fn postorder_notips<'a>(&'a self, node: &'a NodeTuple) -> impl Iterator<Item = &NodeTuple> {
+    pub fn postorder_notips<'a>(&'a self, node: &'a NodeTuple) -> impl Iterator<Item = &'a NodeTuple> {
         self.postorder(node)
             .filter(|node| node.get_lchild().is_some() && node.get_rchild().is_some())
     }
 
-    pub fn most_left_child<'a>(&'a self, node: &'a NodeTuple) -> &NodeTuple {
+    pub fn most_left_child<'a>(&'a self, node: &'a NodeTuple) -> &'a NodeTuple {
         let mut current_node = node;
         let mut current_left_child = self.get_lchild(current_node);
 

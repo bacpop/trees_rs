@@ -91,9 +91,9 @@ pub fn from_vec(tree_vec: &[usize]) -> Topology {
     let mut sub_vec = tree_vec.to_vec();
     sub_vec.remove(0);
     let k = sub_vec.len();
-    let mut not_processed = [true].repeat(k);
-    let mut M = Array2::<usize>::zeros((k, 3));
-    let mut labels = Array2::<usize>::zeros((k + 1, k + 1));
+    let mut not_processed = vec![true; k];
+    let mut M = Array2::zeros((k, 3));
+    let mut labels = Array2::zeros((k + 1, k + 1));
 
     for i in 0..=k {
         for j in 0..=k {
@@ -155,17 +155,17 @@ pub fn from_vec(tree_vec: &[usize]) -> Topology {
 
 // Builds a new Topology from a Newick String
 pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
-    let mut new_str: String = rjstr.clone();
+    let mut new_str = rjstr.clone();
     let full_split: Vec<&str> = rjstr
         .split(['(', ',', ')', ';'])
         .filter(|c| !c.is_empty())
         .collect();
-    let mut label_dictionary: HashMap<usize, String> = HashMap::with_capacity(full_split.len());
-    let mut branch_length: HashMap<usize, f64> = HashMap::with_capacity(full_split.len());
+    let mut label_dictionary = HashMap::with_capacity(full_split.len());
+    let mut branch_length = HashMap::with_capacity(full_split.len());
     let mut bl: f64;
-    let mut leaf_idx: usize = 0;
-    let mut internal_idx: usize = ((full_split.len() + 1) / 2) + 1;
-    let mut idx: usize;
+    let mut leaf_idx = 0;
+    let mut internal_idx = ((full_split.len() + 1) / 2) + 1;
+    let mut idx;
 
     for (i, x) in full_split.iter().enumerate() {
         // Split this node into (possibly non-existant) label and branch length
@@ -197,7 +197,7 @@ pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
     let firstcom = new_str.rfind(',').unwrap();
     new_str.insert(firstcom, ')');
     // Give an internal node label after this new bracket
-    let mut nstr: String = [
+    let mut nstr = [
         &new_str[0..=firstcom],
         &internal_idx.to_string(),
         &new_str[firstcom + 1..new_str.len()],
@@ -213,9 +213,9 @@ pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
 
     // This section goes through the Newick string and records the parent nodes of each node
     // so that we can build a Tree struct
-    let mut current_parent: Option<usize> = None;
-    let mut parent_vector: Vec<Option<usize>> = vec![None; internal_idx + 1];
-    let mut idx: Option<usize> = Some(internal_idx);
+    let mut current_parent = None;
+    let mut parent_vector = vec![None; internal_idx + 1];
+    let mut idx = Some(internal_idx);
 
     for i in (1..nstr.len()).rev() {
         let ch: char = nstr.chars().nth(i).unwrap();
@@ -226,14 +226,14 @@ pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
             }
 
             let mut j = i - 1;
-            let mut jch: char = nstr.chars().nth(j).unwrap();
+            let mut jch = nstr.chars().nth(j).unwrap();
             while j > 0 && jch.ne(&'(') && jch.ne(&',') && jch.ne(&')') {
                 j -= 1;
                 jch = nstr.chars().nth(j).unwrap();
             }
 
             if j != (i - 1) {
-                let leaf: &str = &nstr[(j + 1)..i];
+                let leaf = &nstr[(j + 1)..i];
                 idx = Some(leaf.parse().unwrap());
                 parent_vector[idx.unwrap()] = current_parent;
             }
@@ -243,7 +243,7 @@ pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
     }
 
     // Add nodes to Tree from parent vector, give correct branch length
-    let mut nodevec: Vec<NodeTuple> =
+    let mut nodevec =
         vec![NodeTuple(0, None, None, None, 0.0, 0); internal_idx + 1];
 
     for (i, parent) in parent_vector.iter().enumerate().rev() {
@@ -265,10 +265,10 @@ pub fn from_newick(rjstr: String) -> Vec<NodeTuple> {
 impl Topology {
     // Builds a Newick String for a Topology object
     pub fn get_newick(&self) -> String {
-        let mut current_node: Option<&NodeTuple> = Some(self.get_root());
-        let mut next_node: Option<&NodeTuple>;
-        let mut return_nodes: Vec<Option<&NodeTuple>> = Vec::new();
-        let mut newick: Vec<String> = vec![
+        let mut current_node = Some(self.get_root());
+        let mut next_node;
+        let mut return_nodes = Vec::new();
+        let mut newick = vec![
             String::from(";"),
             current_node.unwrap().get_branchlen().to_string(),
             String::from(":"),
@@ -304,7 +304,7 @@ impl Topology {
                         Some(a) => a,
                     };
                     if next_node.is_some() {
-                        let n: usize =
+                        let n =
                             current_node.unwrap().get_depth() - next_node.unwrap().get_depth();
                         match n {
                             0 => {
@@ -322,7 +322,7 @@ impl Topology {
                         newick.push(String::from(":"));
                         newick.push(next_node.unwrap().get_id().to_string());
                     } else {
-                        let n: usize = current_node.unwrap().get_depth();
+                        let n = current_node.unwrap().get_depth();
                         for _ in 1..=n {
                             newick.push(String::from("("));
                         }
@@ -376,7 +376,7 @@ impl Topology {
 
     pub fn likelihood(
         &self,
-        gen_data: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
+        gen_data: &ndarray::Array3<f64>,
     ) -> f64 {
         let root_likelihood = gen_data.slice(s![self.get_root().get_id(), .., ..]);
 
