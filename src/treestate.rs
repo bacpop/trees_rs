@@ -1,15 +1,8 @@
-use crate::iterators::ChangeIter;
-use crate::rate_matrix;
-use crate::topology;
-use crate::topology::from_vec;
-use crate::topology::NodeTuple;
 use crate::RateMatrix;
 use crate::Topology;
 use crate::TreeMove;
 use crate::{base_freq_logse, matrix_exp, node_likelihood, BF_DEFAULT};
 use std::collections::HashMap;
-use std::hash::Hash;
-// use crate::ExactMove;
 use ndarray::s;
 
 pub struct TreeState<R: RateMatrix> {
@@ -22,7 +15,7 @@ pub fn apply_move<M: TreeMove<R>, R: RateMatrix>(
     current_ts: TreeState<R>,
     move_fn: M,
     accept_fn: fn(&f64, &f64) -> bool,
-    gen_data: &mut ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 3]>>,
+    gen_data: &mut ndarray::Array3<f64>,
 ) -> TreeState<R> {
     let (new_topology, new_mat, changes) = move_fn.generate(&current_ts);
 
@@ -44,7 +37,7 @@ pub fn apply_move<M: TreeMove<R>, R: RateMatrix>(
 
     let mut temp_likelihoods: HashMap<
         usize,
-        ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>,
+        ndarray::Array2<f64>,
     > = HashMap::new();
 
     for node in nodes_to_update {

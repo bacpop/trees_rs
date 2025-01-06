@@ -13,7 +13,6 @@ use rate_matrix::RateMatrix;
 use topology::Topology;
 use treestate::*;
 // use treestate::{TreeState, hillclimb_accept, always_accept};
-use rand::distributions::Distribution;
 
 use crate::newick_to_vec::*;
 extern crate nalgebra as na;
@@ -22,13 +21,10 @@ use crate::cli::*;
 use crate::genetic_data::*;
 use crate::moves::*;
 use crate::topology::from_vec;
-use crate::topology::NodeTuple;
-use ndarray::s;
 use std::time::Instant;
 
 pub fn main() {
     let args = cli_args();
-    let start = Instant::now();
 
     // let mut tr = vector_to_tree(&random_vector(4));
     // tr.add_genetic_data(&String::from("/Users/joel/Downloads/listeria0.aln"));
